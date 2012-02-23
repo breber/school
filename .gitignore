@@ -1,0 +1,6 @@
+*.class
+*~
+*.o
+Thumbs.db
+.DS_STORE
+
