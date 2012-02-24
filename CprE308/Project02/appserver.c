@@ -14,9 +14,10 @@
 #define FALSE 0
 #define TRUE 1
 
-struct account {
-	pthread_mutex_t lock;
-	int value;
+struct trans_account {
+	int accountNum;
+	int transAmount;
+	int balance;
 };
 
 struct node {
@@ -29,12 +30,13 @@ pthread_mutex_t queue_mutex;
 int globReqNum;
 
 struct node * commands;
-struct account * accounts;
+pthread_mutex_t * accounts;
 pthread_t * cons_tid;
 FILE * outputFile;
 
 void initEverything(int, int);
 void * workerThread();
+void sort(struct trans_account *, int);
 void fixString(char * str);
 
 int main(int argc, char ** argv) {
@@ -53,7 +55,7 @@ int main(int argc, char ** argv) {
 		
 		outputFile = fopen(argv[3], "w");
 	}
-	
+
 	// Initialize accounts and mutexes
 	initEverything(numAccounts, numWorkerThreads);
 
@@ -107,18 +109,18 @@ void initEverything(int numAccounts, int numThreads) {
 	pthread_mutex_init(&queue_mutex, NULL);
 	globReqNum = 1;
 	commands = NULL;
-	accounts = malloc(numAccounts * sizeof(struct account));
+	accounts = malloc(numAccounts * sizeof(pthread_mutex_t));
 	cons_tid = malloc(numThreads * sizeof(pthread_t));
 	
 	// Initialize all the mutexes for each account
 	for (i = 0; i < numAccounts; i++) {
-		pthread_mutex_init(&accounts[i].lock, NULL);
+		pthread_mutex_init(&accounts[i], NULL);
 	}
 
 	// create worker threads
-  for (i = 0; i < numThreads; i++) {
-    pthread_create(&cons_tid[i], NULL, workerThread, NULL);
-  }
+	for (i = 0; i < numThreads; i++) {
+		pthread_create(&cons_tid[i], NULL, workerThread, NULL);
+	}
 }
 
 void * workerThread() {
@@ -137,8 +139,8 @@ void * workerThread() {
 				// Return out of this process if the command is END
 				// Leave that command in the queue so that all other threads
 				// can learn about the end command
-				if (strcmp("END\n", commands->cmd) == 0) {
-					fprintf(stderr, "Received END command\n");
+				if (strcmp("END\n", commands->cmd) == 0) {                    
+					pthread_mutex_unlock(&queue_mutex);
 					return NULL;
 				} else {
 					// Otherwise get the command and update the queue
@@ -165,7 +167,7 @@ void * workerThread() {
 				if (accountNum != NULL) {
 					account = atoi(accountNum);
 					int accountBalance = read_account(account);
-					pthread_mutex_lock(&accounts[account].lock);
+					pthread_mutex_lock(&accounts[account]);
 					
 					printf("ID %d\n", requestNum);
 					
@@ -174,13 +176,12 @@ void * workerThread() {
 					
 					struct timeval end;
 					gettimeofday(&end);
-					fprintf(outputFile, " TIME %d.%06d %d.%06d\n", currentCmd->startTime.tv_sec, currentCmd->startTime.tv_usec,
-																												 end.tv_sec, end.tv_usec);
-																												 
+					fprintf(outputFile, " TIME %d.%06d %d.%06d\n", currentCmd->startTime.tv_sec, currentCmd->startTime.tv_usec, end.tv_sec, end.tv_usec);
+
 					fflush(outputFile);
 					funlockfile(outputFile);
 
-					pthread_mutex_unlock(&accounts[account].lock);
+					pthread_mutex_unlock(&accounts[account]);
 				} else {
 					printf("ERROR: Unknown account number\n");
 				}
@@ -189,9 +190,7 @@ void * workerThread() {
 				int i;
 				int actualNumAccounts = 0;
 				int insufficientFunds = 0;
-				int account[10];
-				int amount[10];
-				int balances[10];
+				struct trans_account account[10];
 				char * accountNum[10];
 				char * amountStr[10];
 				
@@ -203,36 +202,38 @@ void * workerThread() {
 				i = 0;
 				
 				// Get all account numbers and amounts
-				while (((accountNum[i] = strsep(&currentCmd->cmd, " ")) != NULL) &&
-							 ((amountStr[i]	 = strsep(&currentCmd->cmd, " ")) != NULL)) {
+				while ((i < 10) && 
+						((accountNum[i] = strsep(&currentCmd->cmd, " ")) != NULL) &&
+						((amountStr[i] = strsep(&currentCmd->cmd, " ")) != NULL)) {
 					fixString(amountStr[i]);
 					
-					account[i] = atoi(accountNum[i]);
-					amount[i] = atoi(amountStr[i]);
+					account[i].accountNum = atoi(accountNum[i]);
+					account[i].transAmount = atoi(amountStr[i]);
 					
 					i++;
 					actualNumAccounts++;
 				}
-				
+
 				printf("ID %d\n", requestNum);
 				
-				// TODO: maybe sort by account number so that all threads
-				// acquire in the same order, hopefully preventing a deadlock
+				// Sort by account number so that all threads acquire
+				// mutex lock in the same order, hopefully preventing a deadlock
+				sort(account, actualNumAccounts);
 				
 				// Acquire all locks
 				for (i = 0; i < actualNumAccounts; i++) {
-					pthread_mutex_lock(&accounts[account[i]].lock);
+					pthread_mutex_lock(&accounts[account[i].accountNum]);
 				}
 				
 				// We have all locks - now perform Transactions
 				for (i = 0; i < actualNumAccounts; i++) {
-					balances[i] = (read_account(account[i]) + amount[i]);
+					account[i].balance = (read_account(account[i].accountNum) + account[i].transAmount);
 					
-					if (amount[i] < 0) {
+					if (account[i].balance < 0) {
 						// We have a negative (withdrawal) value
 						// Check to see if we have enough
-						if (balances[i] < 0) {
-							insufficientFunds = account[i];
+						if (account[i].balance < 0) {
+							insufficientFunds = account[i].accountNum;
 							break;
 						}
 					}
@@ -243,7 +244,7 @@ void * workerThread() {
 					// The whole transaction is good, so go through and 
 					// commit the transaction
 					for (i = 0; i < actualNumAccounts; i++) {
-						write_account(account[i], balances[i]);
+						write_account(account[i].accountNum, account[i].balance);
 					}
 					
 					fprintf(outputFile, "%d OK", requestNum);
@@ -253,15 +254,14 @@ void * workerThread() {
 
 				struct timeval end;
 				gettimeofday(&end);
-				fprintf(outputFile, " TIME %d.%06d %d.%06d\n", currentCmd->startTime.tv_sec, currentCmd->startTime.tv_usec,
-																											 end.tv_sec, end.tv_usec);
+				fprintf(outputFile, " TIME %d.%06d %d.%06d\n", currentCmd->startTime.tv_sec, currentCmd->startTime.tv_usec, end.tv_sec, end.tv_usec);
 
 				fflush(outputFile);
 				funlockfile(outputFile);
 				
 				// Release all locks
 				for (i = 0; i < actualNumAccounts; i++) {
-					pthread_mutex_unlock(&accounts[account[i]].lock);
+					pthread_mutex_unlock(&accounts[account[i].accountNum]);
 				}
 			} else {
 				printf("ERROR: Invalid command\n");
@@ -271,6 +271,25 @@ void * workerThread() {
 		// Free the command string, and the command struct
 		free(currentCmd->cmd);
 		free(currentCmd);
+	}
+}
+
+/**
+ * Perform an insertion sort on the accounts by their account number
+ */
+void sort(struct trans_account * accounts, int numAccounts) {
+	int i, j;
+	struct trans_account tmp;
+	
+	for (i = 1; i < numAccounts; i++) {
+		j = i;
+		
+		while ((j > 0) && (accounts[j - 1].accountNum > accounts[j].accountNum)) {
+			memcpy(&tmp, &accounts[j], sizeof(struct trans_account));
+			memcpy(&accounts[j], &accounts[j - 1], sizeof(struct trans_account));
+			memcpy(&accounts[j - 1], &tmp, sizeof(struct trans_account));
+			j--;
+		}
 	}
 }
 
