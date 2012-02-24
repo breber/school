@@ -187,28 +187,21 @@ void * workerThread() {
 				}
 			} else if (!strcmp("TRANS", cmd)) {
 				// Transaction
-				int i;
+				int i = 0;
 				int actualNumAccounts = 0;
 				int insufficientFunds = 0;
 				struct trans_account account[10];
-				char * accountNum[10];
-				char * amountStr[10];
-				
-				for (i = 0; i < 10; i++) {
-					accountNum[i] = NULL;
-					amountStr[i] = NULL;
-				}
-				
-				i = 0;
-				
+				char * accountNum = NULL;
+				char * amountStr = NULL;
+								
 				// Get all account numbers and amounts
 				while ((i < 10) && 
-						((accountNum[i] = strsep(&currentCmd->cmd, " ")) != NULL) &&
-						((amountStr[i] = strsep(&currentCmd->cmd, " ")) != NULL)) {
-					fixString(amountStr[i]);
+						((accountNum = strsep(&currentCmd->cmd, " ")) != NULL) &&
+						((amountStr = strsep(&currentCmd->cmd, " ")) != NULL)) {
+					fixString(amountStr);
 					
-					account[i].accountNum = atoi(accountNum[i]);
-					account[i].transAmount = atoi(amountStr[i]);
+					account[i].accountNum = atoi(accountNum);
+					account[i].transAmount = atoi(amountStr);
 					
 					i++;
 					actualNumAccounts++;
