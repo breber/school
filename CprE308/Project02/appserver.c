@@ -129,7 +129,6 @@ void * workerThread() {
 		char * cmd;
 		int requestNum = 0;
 
-		// TODO: this is busy waiting...(polling)
 		while (currentCmd == NULL) {
 			pthread_mutex_lock(&queue_mutex);
 
@@ -149,9 +148,9 @@ void * workerThread() {
 					requestNum = globReqNum;
 					globReqNum++;
 				}
+			} else {
+				pthread_mutex_unlock(&queue_mutex);
 			}
-
-			pthread_mutex_unlock(&queue_mutex);
 		}
 
 		// Get the command from the string
@@ -166,9 +165,15 @@ void * workerThread() {
 
 				if (accountNum != NULL) {
 					account = atoi(accountNum);
-					int accountBalance = read_account(account);
+
+					// Lock the account's mutex
 					pthread_mutex_lock(&accounts[account]);
+
+					// We have locked the account, so it is now safe to 
+					// unlock the queue mutex
+					pthread_mutex_unlock(&queue_mutex);
 					
+					int accountBalance = read_account(account);
 					printf("ID %d\n", requestNum);
 					
 					flockfile(outputFile);
@@ -212,11 +217,15 @@ void * workerThread() {
 				// Sort by account number so that all threads acquire
 				// mutex lock in the same order, hopefully preventing a deadlock
 				sort(account, actualNumAccounts);
-				
+								
 				// Acquire all locks
 				for (i = 0; i < actualNumAccounts; i++) {
 					pthread_mutex_lock(&accounts[account[i].accountNum]);
 				}
+				
+				// We now have all of the accounts locked, so we can unlock the
+				// queue mutex and allow other transactions to occur
+				pthread_mutex_unlock(&queue_mutex);
 				
 				// We have all locks - now perform Transactions
 				for (i = 0; i < actualNumAccounts; i++) {
