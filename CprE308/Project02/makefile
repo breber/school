@@ -1,3 +1,10 @@
+#
+# Brian Reber
+# CprE 308 Project 2
+# Lab Section D
+# makefile
+#
+
 all: appserver appserver-coarse
 
 bank.o: Bank.c Bank.h

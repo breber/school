@@ -102,6 +102,9 @@ int main(int argc, char ** argv) {
 	}
 }
 
+/**
+ * Initialize all of the accounts and mutexes
+ */
 void initEverything(int numAccounts, int numThreads) {
 	int i;
 	
@@ -123,6 +126,9 @@ void initEverything(int numAccounts, int numThreads) {
 	}
 }
 
+/**
+ * The worker threads that process the commands
+ */
 void * workerThread() {
 	while (1) {
 		struct node * currentCmd = NULL;
