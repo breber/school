@@ -53,8 +53,10 @@ main()
      */
     while (*shm != '*')
         sleep(1);
-
+    
     printf("Server detected client read\n");
-
+    
+    shmdt(shm);
+    shmctl(shmid, IPC_RMID, 0);
     exit(0);
 }
