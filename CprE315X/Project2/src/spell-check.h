@@ -6,5 +6,9 @@
 #ifndef SPELLCHECK_H
 #define SPELLCHECK_H
 
+#include <string>
+
+int sequenceAlignment(std::string &, std::string &);
+int getPenalty(char, char);
 
 #endif
