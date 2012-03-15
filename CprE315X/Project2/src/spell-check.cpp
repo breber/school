@@ -92,9 +92,9 @@ int getPenalty(char x, char y) {
 		// Check the cases where we have two English letters
 		if (abs(x - y) == 32) {
 			penalty = SAMECHAR_DIFFCASES;
-		} else if ((x > 'a' && y > 'a') || (x < 'a' && y < 'a')) {
+		} else if ((x >= 'a' && y >= 'a') || (x < 'a' && y < 'a')) {
 			penalty = DIFFCHAR_SAMECASES;
-		} else if ((x > 'a' && y < 'a') || (x < 'a' && y > 'a')) {
+		} else if ((x >= 'a' && y < 'a') || (x < 'a' && y >= 'a')) {
 			penalty = DIFFCHAR_DIFFCASES;
 		}
 	} else {
