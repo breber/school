@@ -71,6 +71,8 @@ int main(int argc, char ** argv) {
 		}
 	}
 	
+	// Perform the sequence alignment for the best-match word, this
+	// time giving it an array to put the subproblem values into
 	sequenceAlignment(dictionary->at(minIndex), word, data);
 	
 	// Print out Alignment
@@ -103,12 +105,21 @@ int main(int argc, char ** argv) {
 	cout << endl;
 }
 
+/**
+ * Perform a sequence alignment on the two strings
+ *
+ * If data is not NULL, copy the M matrix into it
+ *
+ * @param x - the first string
+ * @param y - the second string
+ * @param data - the 2D array to copy M into
+ * @return the cost of the best alignment of these two words
+ */
 int sequenceAlignment(string &x, string &y, int ** data) {
 	int m = x.length();
 	int n = y.length();
 	
 	int M[m + 1][n + 1];
-	int p[m + 1][n + 1];
 	
 	for (int i = 0; i <= m; i++) {
 		M[i][0] = i * GAP_PENALTY;
@@ -145,6 +156,13 @@ int sequenceAlignment(string &x, string &y, int ** data) {
 	return M[m][n];
 }
 
+/**
+ * Gets the penalty based on the rules of this assignment
+ *
+ * @param x - the first character
+ * @param y - the second character
+ * @return the penalty of aligning these two characters together
+ */
 int getPenalty(char x, char y) {
 	int penalty = 0;
 	
@@ -166,6 +184,16 @@ int getPenalty(char x, char y) {
 	return penalty;
 }
 
+/**
+ * Given the two strings, and their subproblem matrix, reconstruct the
+ * actual alignment between the characters.
+ *
+ * @param x - the first string
+ * @param y - the second string
+ * @param M - the subproblem matrix computed by the sequence alignment algorithm
+ * @param i - the current index into x
+ * @param j - the current index into y
+ */
 void reconstructAlignment(string &x, string &y, int ** M, int i, int j) {
 	if (i == 0) {
 		for (int jj = 0; jj < j; jj++) {

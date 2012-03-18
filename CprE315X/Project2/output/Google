@@ -1,0 +1,19 @@
+Best match: goggle
+Cost: 3
+Alignment:
+g_G (1)
+o_o (0)
+g_o (2)
+g_g (0)
+l_l (0)
+e_e (0)
+Dynamic Programming Sub-problem Cost:
+           1   2   3   4   5   6
+           G   o   o   g   l   e
+   1   g   1   4   7   9  12  15
+   2   o   4   1   4   7  10  13
+   3   g   7   4   3   4   7  10
+   4   g  10   7   6   3   6   9
+   5   l  13  10   9   6   3   6
+   6   e  16  13  12   9   6   3
+
