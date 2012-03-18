@@ -8,9 +8,8 @@
 
 #include <string>
 
-int sequenceAlignment(std::string &, std::string &, bool copyVals = false, 
-						int ** data = NULL, int ** penalties = NULL);
+int sequenceAlignment(std::string &, std::string &, int ** data = NULL);
 int getPenalty(char, char);
-void reconstructAlignment(std::string &, std::string &, int **, int **, int, int);
+void reconstructAlignment(std::string &, std::string &, int **, int, int);
 
 #endif
