@@ -65,15 +65,7 @@ int main(int argc, char ** argv) {
 	
 	cout << "Best Match: " << strings->at(minIndex) << endl;
 	cout << "Cost: " << minAlignment << endl;
-	
-	for (int i = 0; i < otherLength; i++) {
-		for (int j = 0; j < comparisonWord.length(); j++) {
-			printf("%4d", penalties[i][j]);
-		}
-		
-		cout << endl;
-	}
-	
+
 	// Print out Alignment
 	cout << "Alignment:" << endl;
 	reconstructAlignment(strings->at(minIndex), comparisonWord, data, penalties, 
@@ -113,7 +105,7 @@ int sequenceAlignment(string & x, string & y, bool copyVals, int ** data, int **
 
 		if (copyVals) {
 			data[i][0] = M[i][0];
-			penalties[i][0] = 0;//GAP_PENALTY;
+			penalties[i][0] = 0;
 		}
 	}
 	
@@ -122,7 +114,7 @@ int sequenceAlignment(string & x, string & y, bool copyVals, int ** data, int **
 		
 		if (copyVals) {
 			data[0][i] = M[0][i];
-			penalties[0][i] = 0;//GAP_PENALTY;
+			penalties[0][i] = 0;
 		}
 	}
 	
@@ -172,32 +164,28 @@ int getPenalty(char x, char y) {
 void reconstructAlignment(string & x, string & y, int ** M, int ** penalties, int i, int j) {
 	if (i == 0) {
 		for (int jj = 0; jj < j; jj++) {
-			cout << "-_" << y[jj] << " (" << GAP_PENALTY << ")-" << i << j << endl;
+			cout << "-_" << y[jj] << " (" << GAP_PENALTY << ")-" << endl;
 		}
 	}
 	if (j == 0) {
 		for (int ii = 0; ii < i; ii++) {
-			cout << x[ii] << "_-" << " (" << GAP_PENALTY << ")--" << i << j << endl;
+			cout << x[ii] << "_-" << " (" << GAP_PENALTY << ")--" << endl;
 		}
 	}
 	
 	if ((i == 0 || j == 0)) {		
-		cout << x[i] << "_" << y[j] << " (" << penalties[i][j] << ")#" << i << j << endl;
+		cout << x[i] << "_" << y[j] << " (" << penalties[i + 1][j + 1] << ")---" << endl;
 		return;
 	}
-	/*if ((i == 0 || j == 0) && (M[i][j] == penalties[i][j])) {		
-		cout << x[i] << "_" << y[j] << " (" << penalties[i][j] << ")#" << i << j << endl;
-		return;
-	}*/
 	
 	if (M[i][j] == (penalties[i][j] + M[i - 1][j - 1])) {
 		reconstructAlignment(x, y, M, penalties, i - 1, j - 1);
-		cout << x[i] << "_" << y[j] << " (" << penalties[i][j] << ")#" << i << j << endl;
+		cout << x[i] << "_" << y[j] << " (" << penalties[i][j] << ")#" << endl;
 	} else if (M[i][j] == (GAP_PENALTY + M[i - 1][j])) {
 		reconstructAlignment(x, y, M, penalties, i - 1, j);
-		cout << x[i] << "_-" << " (" << GAP_PENALTY << ")##" << i << j << endl;
+		cout << x[i] << "_-" << " (" << GAP_PENALTY << ")##" << endl;
 	} else if (M[i][j] == (GAP_PENALTY + M[i][j - 1])) {
 		reconstructAlignment(x, y, M, penalties, i, j - 1);
-		cout << "-_" << y[j] << " (" << GAP_PENALTY << ")###" << i << j << endl;
+		cout << "-_" << y[j] << " (" << GAP_PENALTY << ")###" << endl;
 	}
 }
