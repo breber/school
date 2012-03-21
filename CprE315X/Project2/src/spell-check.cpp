@@ -226,3 +226,4 @@ void reconstructAlignment(string &x, string &y, int ** M, int i, int j) {
 		cout << "-_" << c2 << " (" << GAP_PENALTY << ")" << endl;
 	}
 }
+

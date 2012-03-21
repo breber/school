@@ -9,4 +9,3 @@ spell-check: spell-check.cpp spell-check.h
 
 clean:
 	rm spell-check
-	rm *.o
