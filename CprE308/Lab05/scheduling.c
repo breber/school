@@ -37,8 +37,8 @@ int main()
                  proc_copy[NUM_PROCESSES]; /* Backup copy of processes */
 
   /* Seed random number generator */
-  /*srand(time(0));*/  /* Use this seed to test different scenarios */
-  srand(0xC0FFEE);     /* Used for test to be printed out */
+  srand(time(0)); /* Use this seed to test different scenarios */
+  //srand(0xC0FFEE);     /* Used for test to be printed out */
 
   /* Initialize process structures */
   for(i=0; i<NUM_PROCESSES; i++)
@@ -186,12 +186,15 @@ void round_robin(struct process *proc)
 	int sum = 0;
 	int completed = 0;
 	int i;
+	int prevCurrentTime = currentTime;
 
 	for (i = 0; i < NUM_PROCESSES; i++) {
 		proc[i].remainingtime = proc[i].runtime;
 	}
 
 	while (completed < NUM_PROCESSES) {
+		prevCurrentTime = currentTime;
+
 		for (i = 0; i < NUM_PROCESSES; i++) {
 			if (!proc[i].flag) {
 				// If the process hasn't finished, has arrived already
@@ -216,6 +219,11 @@ void round_robin(struct process *proc)
 				}
 			}
 		}
+
+		// No processes ran in the previous iteration, so just increment current time
+		if (prevCurrentTime == currentTime) {
+			currentTime++;
+		}
 	}
 
 	printf("Average time from arrival to finish is %d seconds\n", sum / NUM_PROCESSES);
@@ -228,6 +236,7 @@ void round_robin_priority(struct process *proc)
 	int sum = 0;
 	int completed = 0;
 	int i;
+	int prevCurrentTime = currentTime;
 
 	for (i = 0; i < NUM_PROCESSES; i++) {
 		proc[i].remainingtime = proc[i].runtime;
@@ -237,6 +246,8 @@ void round_robin_priority(struct process *proc)
 		int maxPriority = INT_MIN;
 		int tempDone = 0;
 		int secondMaxPriorityStart = INT_MAX;
+
+		prevCurrentTime = currentTime;
 
 		// Find the max priority of all the processes that have arrived so far
 		for (i = 0; i < NUM_PROCESSES; i++) {
@@ -293,6 +304,11 @@ void round_robin_priority(struct process *proc)
 			}
 
 			tempDone = (countWorkedOn > 0);
+		}
+
+		// No processes were ready, so just increment currentTime
+		if (prevCurrentTime == currentTime) {
+			currentTime++;
 		}
 	}
 
