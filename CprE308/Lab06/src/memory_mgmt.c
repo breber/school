@@ -260,10 +260,14 @@ int main ()
 /* Memory allocation on the basis of Time of Arrival */
 int PRAlgo_FIFO(const PageFrame * PageFrames, int num_frames, const int * PageAccesses, int num_accesses, int current_access)
 {
+	// Start by setting the minimum to the first page frame
 	int least_time_of_arrival = PageFrames[0].time_of_arrival;
 	int index_with_least_arrival_time = 0;
 	int i;
 
+	// Iterate through all remaining page frames checking to see if we can
+	// find a page frame with an arrival time less than what we have found
+	// so far. If we do, store the new value in our variables
 	for(i = 1; i < num_frames; i++) {
 		if (PageFrames[i].time_of_arrival < least_time_of_arrival) {
 			least_time_of_arrival = PageFrames[i].time_of_arrival;
@@ -281,9 +285,14 @@ int PRAlgo_OPT(const PageFrame * PageFrames, int num_frames, const int * PageAcc
 	int indexMax = 0;
 	int i, j;
 
+	// Iterate through each page frame, and check the future data for the next reference.
 	for (i = 0; i < num_frames; i++) {
 		int temp = -1;
+
+		// Find the next reference in the future data (if it is referenced at all)
 		for (j = current_access + 1; j < num_accesses; j++) {
+			// If we find a reference to this page frame, and the reference is later
+			// than any other page frames, we will store that one
 			if (PageFrames[i].page_id == PageAccesses[j]) {
 				if (maxDif < j) {
 					maxDif = j;
@@ -294,6 +303,8 @@ int PRAlgo_OPT(const PageFrame * PageFrames, int num_frames, const int * PageAcc
 			}
 		}
 		
+		// If we don't reference this page frame at all in the future
+		// we can just use this page since it isn't used again
 		if (temp == -1) {
 			indexMax = i;
 			break;
@@ -310,6 +321,7 @@ int PRAlgo_LRU(const PageFrame * PageFrames, int num_frames, const int * PageAcc
 	int index_with_least_access_time = 0;
 	int i;
 
+	// Iterate through all page frames and find the one that was accessed the earliest
 	for(i = 1; i < num_frames; i++) {
 		if (PageFrames[i].time_of_access < least_time_of_access) {
 			least_time_of_access = PageFrames[i].time_of_access;
@@ -317,6 +329,8 @@ int PRAlgo_LRU(const PageFrame * PageFrames, int num_frames, const int * PageAcc
 		}
 	}
 
+	// Return the index of the page frame that hasn't been accessed in
+	// the longest amount of time
 	return index_with_least_access_time; 
 }
 
@@ -348,8 +362,11 @@ int PRAlgo_CUST(const PageFrame * PageFrames, int num_frames, const int * PageAc
 		} 
 	}
 
+	// Run LRU algorithm, just don't consider the last 5 pages to be accessed
 	for(i = 1; i < num_frames; i++) {
 		int noConsider = 0;
+
+		// Is this frame one of the last 5 to be accessed?
 		for (j = 0; j < 5; j++) {
 			if (PageFrames[i].page_id == lastFive[j]) {
 				noConsider = 1;
@@ -357,7 +374,10 @@ int PRAlgo_CUST(const PageFrame * PageFrames, int num_frames, const int * PageAc
 			}
 		}
 
+		// If it was accessed, don't even consider it
 		if (!noConsider) {
+
+			// If it wasn't one of the last 5, is it at least the oldest?
 			if (PageFrames[i].time_of_access < least_time_of_access) {
 				least_time_of_access = PageFrames[i].time_of_access;
 				index_with_least_access_time = i;
