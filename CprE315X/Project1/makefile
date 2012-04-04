@@ -4,17 +4,17 @@
 
 all: prims kruskals
 
-prims: prims.cpp nodes.o
-	g++ -o prims prims.cpp nodes.o
+prims: src/prims.cpp nodes.o
+	g++ -o prims src/prims.cpp nodes.o
 	
-kruskals: kruskals.cpp nodes.o unionfind.o
-	g++ -o kruskals kruskals.cpp nodes.o unionfind.o
+kruskals: src/kruskals.cpp nodes.o unionfind.o
+	g++ -o kruskals src/kruskals.cpp nodes.o unionfind.o
 	
-unionfind.o: unionfind.h unionfind.cpp
-	g++ -c unionfind.cpp -o unionfind.o
+unionfind.o: src/unionfind.h src/unionfind.cpp
+	g++ -c src/unionfind.cpp -o unionfind.o
 	
-nodes.o: nodes.cpp nodes.h
-	g++ -c nodes.cpp -o nodes.o
+nodes.o: src/nodes.cpp src/nodes.h
+	g++ -c src/nodes.cpp -o nodes.o
 
 clean:
 	rm prims kruskals

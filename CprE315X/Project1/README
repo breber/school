@@ -1,0 +1,38 @@
+Brian Reber
+CprE 315X
+Project 1
+
+Building:
+
+To build the Prim's Algorithm and Kruskal's Algorithm executables, run the make command.
+
+	make
+
+This will create a file named 'prims' and a file named 'kruskals'.  These are the files
+that will perform the algorithms.
+
+
+Running:
+
+The two programs read in the file from stdin (cin for C++).  Therefore the input needs 
+to be fed into the program using file redirection on the command line.
+
+	./prims < sparse1.txt
+
+This will read in the file, execute the algorithm, and create an output.txt file in 
+the same directory as the program is being executed from.  This output file will
+be the minimum spanning tree in the same form as the input file (number of nodes, 
+number of edges, list of edges).
+
+The output in the terminal window will display the total weight of the minimum spanning
+tree, as well as the runtime for the algorithm part of the execution.  This runtime does
+not include the time spent reading the file, as that can be quite lengthy for the dense
+graphs.
+
+
+Testing Performance of Entire Process:
+
+I have created a Python script that will execute both Prim's and Kruskal's on all 6 test
+graphs we were given as a part of the assignment.  It will rename the output files to 
+be more descriptive, and it will also output in the terminal window the runtime of the
+entire execution process, including the time for reading the file.
