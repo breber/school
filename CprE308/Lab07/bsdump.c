@@ -1,3 +1,15 @@
+/*
+ *  bsdump.c
+ *
+ *  This program reads and parses the Boot Sector of
+ *  a floppy image and prints out the value of each field.
+ *
+ *  Brian Reber
+ *  CprE 308, Lab Section D
+ *
+ *  Compile:  gcc bsdump.c -o bsdump
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
