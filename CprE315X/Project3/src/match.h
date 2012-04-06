@@ -6,9 +6,9 @@
 #ifndef MATCH_H
 #define MATCH_H
 
-typedef struct person {
-	int id;
-	vector<struct person> * matches;
-} person;
+typedef struct {
+	int forward;
+	int reverse;
+} edge;
 
 #endif
