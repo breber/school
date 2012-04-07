@@ -7,7 +7,7 @@
 #include <sstream>
 #include "match.h"
 
-#define DEBUG
+//#define DEBUG
 
 using namespace std;
 
@@ -85,7 +85,7 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		vector<edge *> * temp = new vector<edge *>;
 		nodes->push_back(temp);
 	}
-		
+
 	// Add a vector of edges for the sink node
 	vector<edge *> * sink = new vector<edge *>;
 	nodes->push_back(sink);
@@ -134,11 +134,11 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		int gal;
 		inputfile >> guy;
 		inputfile >> gal;
-		
+
 		// So each node has a unique id, gals will be given the id
 		// numGuys + gal
 		gal += numGuys;
-		
+
 		// Add the edge from guy to gal
 		edge * forward = new edge;
 		forward->fromNode = guy;
@@ -159,8 +159,10 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 
 vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode, 
 								int toNode, vector<pathnode *> & path) {
+#ifdef DEBUG
 	cout << "findPath(" << fromNode << ", " << toNode << ", " << path.size() << ");" << endl;
-								
+#endif
+
 	// We are currently at our destination, so return the path
 	// we have built up to this point
 	if (fromNode == toNode) {
@@ -184,18 +186,18 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode,
 			pathnode * temp = new pathnode;
 			temp->value = residualValue;
 			temp->theEdge = cur;
-			
+
+#ifdef DEBUG
 			cout << cur->fromNode << " --> " << cur->toNode << ": " << residualValue << " / " << cur->capacity << endl;
-			
+#endif
+
 			for (int j = 0; j < path.size(); j++) {
 				if ((path[j]->value == residualValue) && compareEdges(path[j]->theEdge, cur)) {
 					contains = true;
 					break;
 				}
 			}
-			
-			cout << "Contains? " << contains << endl;
-			
+
 			vector<pathnode *> * currentPath;
 			// If we don't already have this edge in our path, add it and find a path from
 			// the current node to the toNode
