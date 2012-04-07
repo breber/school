@@ -27,4 +27,6 @@ std::vector<pathnode *> * findPath(std::vector< std::vector<edge *> * > *, int, 
 
 bool compareEdges(edge *, edge *);
 
+void fordFulkerson(std::vector< std::vector<edge *> * > *, int, int);
+
 #endif

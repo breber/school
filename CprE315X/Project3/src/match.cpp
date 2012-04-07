@@ -4,6 +4,7 @@
  * Match Programming Assignment
  */
 #include <iostream>
+#include <sstream>
 #include "match.h"
 
 #define DEBUG
@@ -37,11 +38,10 @@ int main(int argc, char ** argv) {
 	// Parse the bulk of the data
 	parseData(nodes, numGuys, numGals, inputfile);
 
+#ifdef DEBUG
 	cout << "Num Guys: " << numGuys << endl;
 	cout << "Num Gals: " << numGals << endl;
-
-
-#ifdef DEBUG
+	
 	// Print out the edges for each node
 	for (int i = 0; i < nodes->size(); i++) {
 		cout << "Node " << i << endl;
@@ -52,14 +52,25 @@ int main(int argc, char ** argv) {
 	}
 #endif	
 
-	vector<pathnode *> path;
-	findPath(nodes, 0, nodes->size() - 1, path);
+	// Perform the Ford Fulkerson Algorithm
+	fordFulkerson(nodes, 0, nodes->size() - 1);
 	
-	cout << "found path" << endl;
+	stringstream output;
+	int numMatches = 0;
 	
-	for (int i = 0; i < path.size(); i++) {
-		cout << i << ": " << path[i]->theEdge->fromNode << " --> " << path[i]->theEdge->toNode << " with " << path[i]->theEdge->flow << " / " << path[i]->theEdge->capacity << endl;
+	// Print out the edges for each node
+	for (int i = 1; i <= numGuys; i++) {
+		vector<edge *> * cur = nodes->at(i);
+		for (int j = 0; j < cur->size(); j++) {
+			if (cur->at(j)->flow == 1) {
+				numMatches++;
+				output << cur->at(j)->fromNode << " " << (cur->at(j)->toNode - numGuys) << endl;
+			}
+		}
 	}
+	
+	cout << numMatches << endl;
+	cout << output.str() << endl;
 
 	return 0;
 }
@@ -74,7 +85,7 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		vector<edge *> * temp = new vector<edge *>;
 		nodes->push_back(temp);
 	}
-	
+		
 	// Add a vector of edges for the sink node
 	vector<edge *> * sink = new vector<edge *>;
 	nodes->push_back(sink);
@@ -146,8 +157,6 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 	}
 }
 
-
-
 vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode, 
 								int toNode, vector<pathnode *> & path) {
 	cout << "findPath(" << fromNode << ", " << toNode << ", " << path.size() << ");" << endl;
@@ -203,6 +212,9 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode,
 				// We didn't find a path, so remove the previously added node
 				// so we can continue looking
 				path.pop_back();
+				
+				// Since we didn't end up using this pathnode, free the memory
+				delete temp;
 			}
 		}
 	}
@@ -216,4 +228,44 @@ bool compareEdges(edge * edge1, edge * edge2) {
 	bool cap = (edge1->capacity == edge2->capacity);
 	
 	return from && to && cap;
+}
+
+void fordFulkerson(vector< vector<edge *> * > * nodes, int fromNode, int toNode) {
+	vector<pathnode *> augmentingPath;
+	vector<pathnode *> * augmentingPathP;
+	
+	augmentingPathP = findPath(nodes, 0, nodes->size() - 1, augmentingPath);
+	
+	while (augmentingPathP != NULL && augmentingPathP->size() > 0) {
+		// Find the max flow we can push through the augmenting path
+		int minResidual = INT_MAX;
+		for (int i = 0; i < augmentingPathP->size(); i++) {
+			pathnode * cur = augmentingPathP->at(i);
+			if (cur->value < minResidual) {
+				minResidual = cur->value;
+			}
+		}
+	
+		// Go through and update the flow with the minResidual value
+		for (int i = 0; i < augmentingPathP->size(); i++) {
+			pathnode * cur = augmentingPathP->at(i);
+			
+			// Update the flow on this edge
+			cur->theEdge->flow += minResidual;
+			
+			// Get the edges leaving the toNode of this edge
+			// so that we can update the residual flow as well
+			vector<edge *> * temp = nodes->at(cur->theEdge->toNode);
+			for (int j = 0; j < temp->size(); j++) {
+				if (temp->at(j)->toNode == cur->theEdge->fromNode) {
+					temp->at(j)->flow -= minResidual;
+					break;
+				}
+			}
+		}
+		
+		// Clear the augmenting path, and find a new path
+		augmentingPath.clear();
+		augmentingPathP = findPath(nodes, 0, nodes->size() - 1, augmentingPath);
+	}
 }
