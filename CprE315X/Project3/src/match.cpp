@@ -29,7 +29,6 @@ int main(int argc, char ** argv) {
 	} else {
 		inputfile.open(argv[1], fstream::in);
 	}
-
 	
 	// Get the number of guys and gals from the first two lines
 	inputfile >> numGuys;
@@ -149,8 +148,8 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		
 		// Add the reverse edge
 		edge * reverse = new edge;
-		reverse->fromNode = guy;
-		reverse->toNode = gal;
+		reverse->fromNode = gal;
+		reverse->toNode = guy;
 		reverse->capacity = 0;
 		reverse->flow = 0;
 		nodes->at(gal)->push_back(reverse);
@@ -204,19 +203,19 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode,
 			if (!contains) {
 				path.push_back(temp);
 				currentPath = findPath(nodes, cur->toNode, toNode, path);
-			}
-			
-			if (currentPath != NULL) {
-				// We recursively found a path from this node to another
-				// so return that path
-				return currentPath;
-			} else {
-				// We didn't find a path, so remove the previously added node
-				// so we can continue looking
-				path.pop_back();
-				
-				// Since we didn't end up using this pathnode, free the memory
-				delete temp;
+
+				if (currentPath != NULL) {
+					// We recursively found a path from this node to another
+					// so return that path
+					return currentPath;
+				} else {
+					// We didn't find a path, so remove the previously added node
+					// so we can continue looking
+					path.pop_back();
+					
+					// Since we didn't end up using this pathnode, free the memory
+					delete temp;
+				}
 			}
 		}
 	}
@@ -265,6 +264,17 @@ void fordFulkerson(vector< vector<edge *> * > * nodes, int fromNode, int toNode)
 				}
 			}
 		}
+		
+#ifdef DEBUG
+	// Print out the edges for each node
+	for (int i = 0; i < nodes->size(); i++) {
+		cout << "FFNode " << i << endl;
+		vector<edge *> * cur = nodes->at(i);
+		for (int j = 0; j < cur->size(); j++) {
+			cout << "\t" << cur->at(j)->fromNode << " --> " << cur->at(j)->toNode << " with " << cur->at(j)->flow << " / " << cur->at(j)->capacity << endl;
+		}
+	}
+#endif
 		
 		// Clear the augmenting path, and find a new path
 		augmentingPath.clear();
