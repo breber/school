@@ -8,8 +8,6 @@
 #include <sstream>
 #include "match.h"
 
-//#define DEBUG
-
 using namespace std;
 
 int main(int argc, char ** argv) {
@@ -36,24 +34,10 @@ int main(int argc, char ** argv) {
 	inputfile >> numGals;
 
 	// Parse the bulk of the data
-	int numEdges = parseData(nodes, numGuys, numGals, inputfile);
-
-#ifdef DEBUG
-	cout << "Num Guys: " << numGuys << endl;
-	cout << "Num Gals: " << numGals << endl;
-	
-	// Print out the edges for each node
-	for (int i = 0; i < nodes->size(); i++) {
-		cout << "Node " << i << endl;
-		vector<edge *> * cur = nodes->at(i);
-		for (int j = 0; j < cur->size(); j++) {
-			cout << "\t" << cur->at(j)->fromNode << " --> " << cur->at(j)->toNode << " with " << cur->at(j)->flow << " / " << cur->at(j)->capacity << endl;
-		}
-	}
-#endif	
+	parseData(nodes, numGuys, numGals, inputfile);
 
 	// Perform the Ford Fulkerson Algorithm
-	fordFulkerson(nodes, numEdges, 0, nodes->size() - 1);
+	fordFulkerson(nodes, 0, nodes->size() - 1);
 	
 	stringstream output;
 	int numMatches = 0;
@@ -75,7 +59,7 @@ int main(int argc, char ** argv) {
 	return 0;
 }
 
-int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstream & inputfile) {
+void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstream & inputfile) {
 	// Add a vector of edges for the source node
 	vector<edge *> * source = new vector<edge *>;
 	nodes->push_back(source);
@@ -90,13 +74,10 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 	vector<edge *> * sink = new vector<edge *>;
 	nodes->push_back(sink);
 
-	int edgeId = 0;
-
 	// Add the edges from the source to the guys
 	for (int i = 1; i <= numGuys; i++) {
 		// Add the edge from source to the guy
 		edge * forward = new edge;
-		forward->id = edgeId++;
 		forward->fromNode = 0;
 		forward->toNode = i;
 		forward->capacity = 1;
@@ -105,7 +86,6 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 		
 		// Add the reverse edge
 		edge * reverse = new edge;
-		reverse->id = edgeId++;
 		reverse->fromNode = i;
 		reverse->toNode = 0;
 		reverse->capacity = 0;
@@ -117,7 +97,6 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 	for (int i = numGuys + 1; i <= numGuys + numGals; i++) {
 		// Add the edge from gal to the sink
 		edge * forward = new edge;
-		forward->id = edgeId++;
 		forward->fromNode = i;
 		forward->toNode = nodes->size() - 1;
 		forward->capacity = 1;
@@ -126,7 +105,6 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 		
 		// Add the reverse edge
 		edge * reverse = new edge;
-		reverse->id = edgeId++;
 		reverse->fromNode = nodes->size() - 1;
 		reverse->toNode = i;
 		reverse->capacity = 0;
@@ -147,7 +125,6 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 
 		// Add the edge from guy to gal
 		edge * forward = new edge;
-		forward->id = edgeId++;
 		forward->fromNode = guy;
 		forward->toNode = gal;
 		forward->capacity = INT_MAX;
@@ -156,21 +133,15 @@ int parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fstr
 		
 		// Add the reverse edge
 		edge * reverse = new edge;
-		reverse->id = edgeId++;
 		reverse->fromNode = gal;
 		reverse->toNode = guy;
 		reverse->capacity = 0;
 		reverse->flow = 0;
 		nodes->at(gal)->push_back(reverse);
 	}
-	
-	return edgeId;
 }
 
-vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int numEdges, int fromNode, int toNode) {
-#ifdef DEBUG
-	cout << "findPath(" << fromNode << ", " << toNode << ");" << endl;
-#endif
+vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int fromNode, int toNode) {
 	// The actual path to return
 	vector<int> p(nodes->size(), -1);
 	p[fromNode] = -2;
@@ -188,21 +159,12 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int numEdges, 
 	while (!q.empty()) {
 		int currentNode = q.front();
 		q.pop();
-		
-#ifdef DEBUG
-		cout << "Current Node: " << currentNode << endl;
-#endif
 
 		vector<edge *> * edges = nodes->at(currentNode);
 
 		for (int i = 0; i < edges->size(); i++) {
 			edge * e = edges->at(i);
 			int edgeFlow = e->capacity - e->flow;
-
-#ifdef DEBUG
-			cout << "\tCurrent Edge: " << e->id << " remaining cap: " << edgeFlow << endl;
-			cout << "\tp[e->toNode]: " << p[e->toNode] << endl;
-#endif
 
 			if ((p[e->toNode] == -1) && (edgeFlow > 0)) {
 				p[e->toNode] = currentNode;
@@ -215,24 +177,11 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int numEdges, 
 					vector<pathnode *> * path = new vector<pathnode *>;
 					int var = toNode;
 
-#ifdef DEBUG
-					cout << "Found a path! " << marked[toNode] << endl;
-
-					for (int j = 0; j < nodes->size(); j++) {
-						cout << "\tM[" << j << "] = " << marked[j] << " P[" << j << "] = " << p[j] << endl;
-					}
-#endif
-
 					while (var != fromNode) {
 						pathnode * tmp = new pathnode;
 						tmp->value = marked[var];
 						
 						int from = p[var];
-						
-#ifdef DEBUG
-						cout << "\tvar = " << var << " from = " << from << endl;
-#endif
-
 						vector<edge *> * tmpEdges = nodes->at(from);
 						for (int j = 0; j < tmpEdges->size(); j++) {
 							if (tmpEdges->at(j)->toNode == var) {
@@ -255,16 +204,8 @@ vector<pathnode *> * findPath(vector< vector<edge *> * > * nodes, int numEdges, 
 	return NULL;
 }
 
-bool compareEdges(edge * edge1, edge * edge2) {
-	bool from = (edge1->fromNode == edge2->fromNode);
-	bool to = (edge1->toNode == edge2->toNode);
-	bool cap = (edge1->capacity == edge2->capacity);
-	
-	return from && to && cap;
-}
-
-void fordFulkerson(vector< vector<edge *> * > * nodes, int numEdges, int fromNode, int toNode) {
-	vector<pathnode *> * augmentingPath = findPath(nodes, numEdges, 0, nodes->size() - 1);
+void fordFulkerson(vector< vector<edge *> * > * nodes, int fromNode, int toNode) {
+	vector<pathnode *> * augmentingPath = findPath(nodes, 0, nodes->size() - 1);
 	
 	while (augmentingPath != NULL && augmentingPath->size() > 0) {
 		// Find the max flow we can push through the augmenting path
@@ -294,20 +235,9 @@ void fordFulkerson(vector< vector<edge *> * > * nodes, int numEdges, int fromNod
 			}
 		}
 		
-#ifdef DEBUG
-	// Print out the edges for each node
-	for (int i = 0; i < nodes->size(); i++) {
-		cout << "FFNode " << i << endl;
-		vector<edge *> * cur = nodes->at(i);
-		for (int j = 0; j < cur->size(); j++) {
-			cout << "\t" << cur->at(j)->fromNode << " --> " << cur->at(j)->toNode << " with " << cur->at(j)->flow << " / " << cur->at(j)->capacity << endl;
-		}
-	}
-#endif
-		
 		// Clear the augmenting path, and find a new path
 		augmentingPath->clear();
 		// TODO: delete everything....
-		augmentingPath = findPath(nodes, numEdges, 0, nodes->size() - 1);
+		augmentingPath = findPath(nodes, 0, nodes->size() - 1);
 	}
 }
