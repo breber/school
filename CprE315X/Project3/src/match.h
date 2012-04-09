@@ -10,6 +10,7 @@
 #include <fstream>
 
 typedef struct {
+	int id;
 	int fromNode;
 	int toNode;
 	int capacity;
@@ -21,12 +22,17 @@ typedef struct {
 	edge * theEdge;
 } pathnode;
 
-void parseData(std::vector< std::vector<edge *> * > *, int, int, std::fstream &);
+typedef struct {
+	int index;
+	std::vector<edge *> * edges;
+} queuednode;
 
-std::vector<pathnode *> * findPath(std::vector< std::vector<edge *> * > *, int, int, std::vector<pathnode *> &);
+int parseData(std::vector< std::vector<edge *> * > *, int, int, std::fstream &);
+
+std::vector<pathnode *> * findPath(std::vector< std::vector<edge *> * > *, int, int);
 
 bool compareEdges(edge *, edge *);
 
-void fordFulkerson(std::vector< std::vector<edge *> * > *, int, int);
+void fordFulkerson(std::vector< std::vector<edge *> * > *, int, int, int);
 
 #endif
