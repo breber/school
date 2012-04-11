@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <string.h>
 
 #define SIZE 32      /* size of the read buffer */
 #define ROOTSIZE 256 /* max size of the root directory */
@@ -82,7 +83,7 @@ int main(int argc, char * argv[])
     // Check for argument
     if (argc < 2) {
     	printf("Specify boot sector\n");
-    	exit(1);
+	return 0;    	
     }
     
     // Open the file and read the boot sector
@@ -110,29 +111,58 @@ int main(int argc, char * argv[])
 // Converts two characters to an unsigned short with two, one
 unsigned short endianSwap(unsigned char one, unsigned char two)
 {
-    // This is stub code!
-    return 0x0000;
+    return (two << 8) | one;
 }
 
 
 // Fills out the BootSector Struct from the buffer
 void decodeBootSector(struct BootSector * pBootS, unsigned char buffer[])
 {
-    int i = 3;  // Skip the first 3 bytes
+	int i = 3;  // Skip the first 3 bytes
+	int tmp;
+
+	// Pull the name and put it in the struct (remember to null-terminate)
+	for (tmp = 0; tmp < 8; tmp++, i++) {
+		pBootS->sName[tmp] = buffer[i];
+	}
+	pBootS->sName[tmp] = '\0';
+
+	// Read bytes/sector and convert to big endian
+	pBootS->iBytesSector = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+ 
+	// Read sectors/cluster, Reserved sectors and Number of Fats
+	pBootS->iSectorsCluster = buffer[i++];
+
+	pBootS->iReservedSectors = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+
+	pBootS->iNumberFATs = buffer[i++];
+
+	// Read root entries, logicical sectors and medium descriptor
+	pBootS->iRootEntries = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+
+	pBootS->iLogicalSectors = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+
+	pBootS->xMediumDescriptor = buffer[i++];
+
+	// Read and covert sectors/fat, sectors/track, and number of heads
+	pBootS->iSectorsFAT = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+
+	pBootS->iSectorsTrack = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
+
+	pBootS->iHeads = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
     
-    // Pull the name and put it in the struct (remember to null-terminate)
+	// Read hidden sectors
+	pBootS->iHiddenSectors = endianSwap(buffer[i], buffer[i + 1]);
+	i += 2;
     
-    // Read bytes/sector and convert to big endian
-    
-    // Read sectors/cluster, Reserved sectors and Number of Fats
-    
-    // Read root entries, logicical sectors and medium descriptor
-    
-    // Read and covert sectors/fat, sectors/track, and number of heads
-    
-    // Read hidden sectors
-    
-    return;
+	return;
 }
 
 
@@ -142,23 +172,26 @@ void parseDirectory(int iDirOff, int iEntries, unsigned char buffer[])
 {
     int i = 0;
     char string[13];
-    
+
     // Display table header with labels
-    printf("Filename\tAttrib\tTime\t\tDate\t\tSize\n");
-    
+    printf("\tFilename\tAttrib\tTime\t\tDate\t\tSize\n");
+
     // loop through directory entries to print information for each
-    for(i = 0; i < (iEntries); i = i + /* entry width */)   {
-    	if (  /* valid file */ ) {
-    		// Display filename
-    		printf("%s\t", toDOSName(string, buffer, /*name offset*/)  );
+    for (i = 0; i < (iEntries); i = i + 32)   {
+	 if (buffer[i] != 0x00 && buffer[i] != 0xE5) {
+    		printf("%d\t", iDirOff + i);
+		// Display filename
+    		printf("%s\t", toDOSName(string, buffer, i)  );
     		// Display Attributes
-    		printf("%s\t", parseAttributes(string, /* attr offset */)  );
+    		printf("%s\t", parseAttributes(string, buffer[i + 0x0b])  );
     		// Display Time
-    		printf("%s\t", parseTime(string, /*time offsets */ )  );
+    		printf("%s\t", parseTime(string, endianSwap(buffer[i + 0x16], buffer[i + 0x16 + 1]) )  );
     		// Display Date
-    		printf("%s\t", parseDate(string, /*date offsets */ )  );
+    		printf("%s\t", parseDate(string, endianSwap(buffer[i + 0x18], buffer[i + 0x18 + 1]) )  );
     		// Display Size
-    		printf("%d\n", /* size offsets */ );
+		int size = buffer[i + 0x1c] | (buffer[i + 0x1d] << 8) | (buffer[i + 0x1e] << 16)
+				| (buffer[i + 0x1f] << 24);
+    		printf("%d\n", size );
     	}
     }
     
@@ -170,49 +203,77 @@ void parseDirectory(int iDirOff, int iEntries, unsigned char buffer[])
 // Parses the attributes bits of a file
 char * parseAttributes(char string[], unsigned char key)
 {
-    // This is stub code!
-    return string;
+	// Clear the string
+	memset(string, 0, 13);
+
+	// Check the attributes
+	int i = 0;
+	if (key & 0x01) {
+		string[i++] = 'R';
+	}
+	if (key & 0x02) {
+		string[i++] = 'H';
+	}
+	if (key & 0x04) {
+		string[i++] = 'S';
+	}
+	if (key & 0x20) {
+		string[i++] = 'A';
+	}
+
+	return string;
 } // end parseAttributes()
 
 
 // Decodes the bits assigned to the time of each file
 char * parseTime(char string[], unsigned short usTime)
 {
-    unsigned char hour = 0x00, min = 0x00, sec = 0x00;
+	unsigned char hour = 0x00, min = 0x00, sec = 0x00;
     
-    // DEBUG: printf("time: %x", usTime);
+	sec = (usTime & 0x1F) << 1; // multiply times two
+	min = (usTime >> 5) & 0x3F;
+	hour = (usTime >> 11) & 0x1F;
     
-    // This is stub code!
+	sprintf(string, "%02i:%02i:%02i", hour, min, sec);
     
-    sprintf(string, "%02i:%02i:%02i", hour, min, sec);
-    
-    return string;
-    
-    
+	return string;
 } // end parseTime()
 
 
 // Decodes the bits assigned to the date of each file
 char * parseDate(char string[], unsigned short usDate)
 {
-    unsigned char month = 0x00, day = 0x00;
-    unsigned short year = 0x0000;
-    
-    //printf("date: %x", usDate);
-    
-    // This is stub code!
-    
-    sprintf(string, "%d/%d/%d", year, month, day);
-    
-    return string;
-    
+	unsigned char month = 0x00, day = 0x00;
+	unsigned short year = 0x0000;
+
+	day = usDate & 0x1F;
+	month = (usDate >> 5) & 0xF;
+	year = 1980 + ((usDate >> 9) & 0x7F);
+
+	sprintf(string, "%d/%d/%d", year, month, day);
+
+	return string;
 } // end parseDate()
 
 
 // Formats a filename string as DOS (adds the dot to 8-dot-3)
 char * toDOSName(char string[], unsigned char buffer[], int offset)
 {
-    // This is stub code!
-    return string;
+	// Clear the string
+	memset(string, 0, 13);
+
+	// This is stub code!
+	int i;
+	for (i = offset; i < offset + 8; i++) {
+		string[i - offset] = buffer[i];
+	}
+
+	string[i - offset] = '.';
+
+	for (; i < offset + 11; i++) {
+		string[i + 1 - offset] = buffer[i];
+	}
+
+	return string;
 } // end toDosNameRead-Only Bit
 
