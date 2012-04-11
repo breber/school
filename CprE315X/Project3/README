@@ -1,0 +1,40 @@
+Brian Reber (breber)
+CprE 315X
+Programming Project 3
+Spring 2012
+
+-----------------
+-- Building
+-----------------
+
+To build this project, run make from the src directory.
+
+-----------------
+-- Running
+-----------------
+
+To run this project, run:
+
+	./match inputfile outputfile
+
+Where inputfile is the path to a file in the specified format, 
+and outputfile is the path that the matching results will be
+written to. The output on the terminal will be the algorithm
+runtime in seconds, as well as a reminder that the matching
+results are in the specified path.
+
+-----------------
+-- Results
+-----------------
+
+I ran these tests on a Red Hat desktop with an Intel Xeon
+CPU clocked at 3.30 GHz (a desktop in 1212 Coover).
+
+Runtimes:
+
+Case1: 0 seconds
+Case2: .19 seconds
+Case3: 2.72 seconds
+
+These times include the actual runtime of the algorithm, not
+including any file IO.

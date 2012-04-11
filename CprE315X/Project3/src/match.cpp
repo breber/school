@@ -10,21 +10,29 @@
 
 using namespace std;
 
+double diffclock(clock_t clock1, clock_t clock2) {
+	double diffticks = clock1 - clock2;
+	double diffms = (diffticks * 1000) / CLOCKS_PER_SEC;
+	return diffms / 1000;
+}
+
 int main(int argc, char ** argv) {
 	fstream inputfile;
+	fstream outputfile;
 	int numGuys = 0;
 	int numGals = 0;
 	
 	vector< vector<edge *> * > * nodes = new vector< vector<edge *> * >;
 	
 	// Parse the command line argument
-	if (argc != 2) {
+	if (argc != 3) {
 		cout << "Wrong number of arguments" << endl;
-		cout << "\t./match inputfile" << endl;
+		cout << "\t./match inputfile outputfile" << endl;
 		
 		return 0;
 	} else {
 		inputfile.open(argv[1], fstream::in);
+		outputfile.open(argv[2], fstream::out);
 	}
 	
 	// Get the number of guys and gals from the first two lines
@@ -33,6 +41,9 @@ int main(int argc, char ** argv) {
 
 	// Parse the bulk of the data
 	parseData(nodes, numGuys, numGals, inputfile);
+
+	// Start timing the algorithm
+	clock_t start = clock();
 
 	// Perform the Ford Fulkerson Algorithm
 	fordFulkerson(nodes, 0, nodes->size() - 1);
@@ -52,9 +63,13 @@ int main(int argc, char ** argv) {
 		}
 	}
 	
+	clock_t end = clock();
+	cout << "Algorithm Runtime: " << double(diffclock(end, start)) << " seconds" << endl;
+	cout << "See " << argv[2] << " for the matching results" << endl;
+
 	// Print out the number of connections, and then the buffered output
-	cout << numMatches << endl;
-	cout << output.str() << endl;
+	outputfile << numMatches << endl;
+	outputfile << output.str() << endl;
 
 	return 0;
 }
@@ -126,7 +141,7 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		// If we weren't able to read the input as an int,
 		// break out of this loop
 		if (inputfile.fail()) {
-			break;
+			continue;
 		}
 
 		// So each node has a unique id, gals will be given the id
