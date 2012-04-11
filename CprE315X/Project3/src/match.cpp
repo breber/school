@@ -120,8 +120,14 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 	while (!inputfile.eof()) {
 		int guy;
 		int gal;
-		inputfile >> guy;
-		inputfile >> gal;
+		inputfile >> dec >> guy;
+		inputfile >> dec >> gal;
+
+		// If we weren't able to read the input as an int,
+		// break out of this loop
+		if (inputfile.fail()) {
+			break;
+		}
 
 		// So each node has a unique id, gals will be given the id
 		// numGuys + gal
@@ -134,7 +140,7 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		forward->capacity = INT_MAX;
 		forward->flow = 0;
 		nodes->at(guy)->push_back(forward);
-		
+
 		// Add the reverse edge
 		edge * reverse = new edge;
 		reverse->fromNode = gal;
@@ -143,6 +149,8 @@ void parseData(vector< vector<edge *> * > * nodes, int numGuys, int numGals, fst
 		reverse->flow = 0;
 		nodes->at(gal)->push_back(reverse);
 	}
+
+	inputfile.close();
 }
 
 /**
