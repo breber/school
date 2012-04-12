@@ -176,7 +176,6 @@ void parseDirectory(int iDirOff, int iEntries, unsigned char buffer[]) {
 	// loop through directory entries to print information for each
 	for (i = 0; i < (iEntries); i = i + 32) {
 		if (buffer[i] != 0x00 && buffer[i] != 0xE5) {
-			printf("%d\t", iDirOff + i);
 			// Display filename
 			printf("%s\t", toDOSName(string, buffer, i));
 			// Display Attributes
@@ -225,8 +224,13 @@ char * parseAttributes(char string[], unsigned char key) {
 char * parseTime(char string[], unsigned short usTime) {
 	unsigned char hour = 0x00, min = 0x00, sec = 0x00;
 
+	// Seconds is the lowest 5 bits multiplied by 2
 	sec = (usTime & 0x1F) << 1; // multiply times two
+	
+	// Minutes is bits 6-11
 	min = (usTime >> 5) & 0x3F;
+	
+	// Hours is bits 12-18
 	hour = (usTime >> 11) & 0x1F;
 
 	sprintf(string, "%02i:%02i:%02i", hour, min, sec);
@@ -240,8 +244,13 @@ char * parseDate(char string[], unsigned short usDate) {
 	unsigned char month = 0x00, day = 0x00;
 	unsigned short year = 0x0000;
 
+	// Day is the lowest 5 bits
 	day = usDate & 0x1F;
+	
+	// Month is bits 6-9
 	month = (usDate >> 5) & 0xF;
+	
+	// Year is 1980 + the top 9 bits
 	year = 1980 + ((usDate >> 9) & 0x7F);
 
 	sprintf(string, "%d/%d/%d", year, month, day);
@@ -255,14 +264,16 @@ char * toDOSName(char string[], unsigned char buffer[], int offset) {
 	// Clear the string
 	memset(string, 0, 13);
 
-	// This is stub code!
+	// Copy the file name to the string
 	int i;
 	for (i = offset; i < offset + 8; i++) {
 		string[i - offset] = buffer[i];
 	}
 
+	// Add the period
 	string[i - offset] = '.';
 
+	// Copy the file extension
 	for (; i < offset + 11; i++) {
 		string[i + 1 - offset] = buffer[i];
 	}
