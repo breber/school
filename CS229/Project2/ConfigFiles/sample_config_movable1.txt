@@ -1,0 +1,29 @@
+<Simulation>
+width = 35
+height = 35
+</Simulation>
+<Object> 
+type = ball
+xloc = 5
+yloc = 6
+name = Ball
+display = R3
+color = beige
+</Object>
+<Object>
+type = robot
+xloc = 4
+yloc = 7
+color = blue
+name = Robot
+display = BR
+energy-contents = 200
+recharge = 2
+move-cost = 1
+turn-cost = 1
+probe-cost = 1
+paramA = 1.1
+paramB = 1.2
+paramC = 1.0
+</Object>
+

@@ -1,0 +1,400 @@
+// !$*UTF8*$!
+{
+	1D3623240D0F684500981E51 /* MotionUnlockAppDelegate.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1411, 818}}";
+			sepNavSelRange = "{365, 0}";
+			sepNavVisRange = "{0, 516}";
+		};
+	};
+	1D3623250D0F684500981E51 /* MotionUnlockAppDelegate.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1352, 741}}";
+			sepNavSelRange = "{545, 0}";
+			sepNavVisRange = "{0, 650}";
+		};
+	};
+	1D6058900D05DD3D006BFB54 /* MotionUnlock */ = {
+		activeExec = 0;
+		executables = (
+			DECEAA2E1135F93800F80C09 /* MotionUnlock */,
+		);
+	};
+	28D7ACF60DDB3853001CB0EB /* MotionUnlockViewController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1015, 832}}";
+			sepNavSelRange = "{590, 0}";
+			sepNavVisRange = "{0, 824}";
+		};
+	};
+	28D7ACF70DDB3853001CB0EB /* MotionUnlockViewController.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1015, 3133}}";
+			sepNavSelRange = "{5494, 0}";
+			sepNavVisRange = "{0, 905}";
+			sepNavWindowFrame = "{{15, 4}, {1043, 774}}";
+		};
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = DECEAA2E1135F93800F80C09 /* MotionUnlock */;
+		activeSDKPreference = iphoneos3.1.3;
+		activeTarget = 1D6058900D05DD3D006BFB54 /* MotionUnlock */;
+		addToTargets = (
+			1D6058900D05DD3D006BFB54 /* MotionUnlock */,
+		);
+		breakpoints = (
+		);
+		codeSenseManager = DECEAA421135F95400F80C09 /* Code sense */;
+		executables = (
+			DECEAA2E1135F93800F80C09 /* MotionUnlock */,
+		);
+		expressions = (
+			"abs(postSlope[j] - preSlope[j])",
+			"postSlope[j]",
+			"postSlope[j] - preSlope[j]",
+		);
+		perUserDictionary = {
+			"PBXConfiguration.PBXBreakpointsDataSource.v1:1CA1AED706398EBD00589147" = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXBreakpointsDataSource_BreakpointID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					198,
+					20,
+					99,
+					99,
+					29,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXBreakpointsDataSource_ActionID,
+					PBXBreakpointsDataSource_TypeID,
+					PBXBreakpointsDataSource_BreakpointID,
+					PBXBreakpointsDataSource_UseID,
+					PBXBreakpointsDataSource_LocationID,
+					PBXBreakpointsDataSource_ConditionID,
+					PBXBreakpointsDataSource_IgnoreCountID,
+					PBXBreakpointsDataSource_ContinueID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXBookmarksDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXBookmarksDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					200,
+					200,
+					643,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXBookmarksDataSource_LocationID,
+					PBXBookmarksDataSource_NameID,
+					PBXBookmarksDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					721,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					837,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.XCSCMDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					813,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_SCM_ColumnID,
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					793,
+					60,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 294174447;
+			PBXWorkspaceStateSaveDate = 294174447;
+		};
+		perUserProjectItems = {
+			DE644468117FEE6500214BF1 /* PBXTextBookmark */ = DE644468117FEE6500214BF1 /* PBXTextBookmark */;
+			DE74F50C1180128C0029A03D /* PlistBookmark */ = DE74F50C1180128C0029A03D /* PlistBookmark */;
+			DE88AF431186A91000586562 /* PBXBookmark */ = DE88AF431186A91000586562 /* PBXBookmark */;
+			DE88AF441186A91000586562 /* PBXBookmark */ = DE88AF441186A91000586562 /* PBXBookmark */;
+			DE88AF451186A91000586562 /* PBXBookmark */ = DE88AF451186A91000586562 /* PBXBookmark */;
+			DEA3014A1188C0F9009AEFC0 /* PBXTextBookmark */ = DEA3014A1188C0F9009AEFC0 /* PBXTextBookmark */;
+			DEA3014B1188C0F9009AEFC0 /* PBXTextBookmark */ = DEA3014B1188C0F9009AEFC0 /* PBXTextBookmark */;
+			DEA3014C1188C0F9009AEFC0 /* PBXTextBookmark */ = DEA3014C1188C0F9009AEFC0 /* PBXTextBookmark */;
+			DEA3014D1188C0F9009AEFC0 /* PBXTextBookmark */ = DEA3014D1188C0F9009AEFC0 /* PBXTextBookmark */;
+			DEB213DE1188B419009F7D99 /* PBXTextBookmark */ = DEB213DE1188B419009F7D99 /* PBXTextBookmark */;
+			DECEAA7D1135FEBC00F80C09 /* PBXTextBookmark */ = DECEAA7D1135FEBC00F80C09 /* PBXTextBookmark */;
+			DECEAA7F1135FEBC00F80C09 /* PBXTextBookmark */ = DECEAA7F1135FEBC00F80C09 /* PBXTextBookmark */;
+		};
+		sourceControlManager = DECEAA411135F95400F80C09 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	29B97316FDCFA39411CA2CEA /* main.m */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 364}}";
+			sepNavSelRange = "{142, 0}";
+			sepNavVisRange = "{0, 373}";
+		};
+	};
+	32CA4F630368D1EE00C91783 /* MotionUnlock_Prefix.pch */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1011, 364}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 193}";
+		};
+	};
+	8D1107310486CEB800E47090 /* MotionUnlock-Info.plist */ = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{15, 4}, {1043, 774}}";
+		};
+	};
+	DE644468117FEE6500214BF1 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 1D3623240D0F684500981E51 /* MotionUnlockAppDelegate.h */;
+		name = "MotionUnlockAppDelegate.h: 15";
+		rLen = 0;
+		rLoc = 365;
+		rType = 0;
+		vrLen = 516;
+		vrLoc = 0;
+	};
+	DE74F50C1180128C0029A03D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* MotionUnlock-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			NSMainNibFile,
+		);
+		name = "/Users/brianreber/MotionUnlock/MotionUnlock/MotionUnlock-Info.plist";
+		rLen = 0;
+		rLoc = 9223372036854775808;
+	};
+	DE88AF431186A91000586562 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = DE88AE9F11869F2700586562 /* MotionUnlockOpen.jpg */;
+	};
+	DE88AF441186A91000586562 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = DE88AE9E11869F2700586562 /* MotionUnlockFail.jpg */;
+	};
+	DE88AF451186A91000586562 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = DE88AEA011869F2700586562 /* MotionUnlockImage.jpg */;
+	};
+	DEA3014A1188C0F9009AEFC0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 28D7ACF70DDB3853001CB0EB /* MotionUnlockViewController.m */;
+		name = "MotionUnlockViewController.m: 209";
+		rLen = 0;
+		rLoc = 5494;
+		rType = 0;
+		vrLen = 905;
+		vrLoc = 0;
+	};
+	DEA3014B1188C0F9009AEFC0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 28D7ACF60DDB3853001CB0EB /* MotionUnlockViewController.h */;
+		name = "MotionUnlockViewController.h: 26";
+		rLen = 0;
+		rLoc = 590;
+		rType = 0;
+		vrLen = 824;
+		vrLoc = 0;
+	};
+	DEA3014C1188C0F9009AEFC0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DEFEC1C2117F74E700C0CDDD /* Compare.h */;
+		name = "Compare.h: 13";
+		rLen = 0;
+		rLoc = 452;
+		rType = 0;
+		vrLen = 452;
+		vrLoc = 0;
+	};
+	DEA3014D1188C0F9009AEFC0 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DEFEC1C1117F74E700C0CDDD /* Compare.c */;
+		name = "Compare.c: 15";
+		rLen = 0;
+		rLoc = 295;
+		rType = 0;
+		vrLen = 968;
+		vrLoc = 2021;
+	};
+	DEB213DE1188B419009F7D99 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = DEFEC1C1117F74E700C0CDDD /* Compare.c */;
+		name = "Compare.c: 15";
+		rLen = 0;
+		rLoc = 295;
+		rType = 0;
+		vrLen = 968;
+		vrLoc = 2021;
+	};
+	DECEAA2E1135F93800F80C09 /* MotionUnlock */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = MotionUnlock;
+		savedGlobals = {
+		};
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		variableFormatDictionary = {
+			$lr = 1;
+			$pc = 1;
+			$r0 = 1;
+			$r1 = 1;
+			$r10 = 1;
+			$r11 = 1;
+			$r12 = 1;
+			$r2 = 1;
+			$r3 = 1;
+			$r4 = 1;
+			$r5 = 1;
+			$r6 = 1;
+			$r7 = 1;
+			$r8 = 1;
+			$r9 = 1;
+			$sp = 1;
+		};
+	};
+	DECEAA411135F95400F80C09 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = MotionUnlock;
+			};
+		};
+	};
+	DECEAA421135F95400F80C09 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	DECEAA7D1135FEBC00F80C09 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 32CA4F630368D1EE00C91783 /* MotionUnlock_Prefix.pch */;
+		name = "MotionUnlock_Prefix.pch: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 193;
+		vrLoc = 0;
+	};
+	DECEAA7F1135FEBC00F80C09 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 29B97316FDCFA39411CA2CEA /* main.m */;
+		name = "main.m: 7";
+		rLen = 0;
+		rLoc = 142;
+		rType = 0;
+		vrLen = 373;
+		vrLoc = 0;
+	};
+	DEFEC1C1117F74E700C0CDDD /* Compare.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1015, 1508}}";
+			sepNavSelRange = "{295, 0}";
+			sepNavVisRange = "{2021, 968}";
+			sepNavWindowFrame = "{{15, 4}, {1043, 774}}";
+		};
+	};
+	DEFEC1C2117F74E700C0CDDD /* Compare.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1015, 523}}";
+			sepNavSelRange = "{452, 0}";
+			sepNavVisRange = "{0, 452}";
+			sepNavWindowFrame = "{{15, 4}, {1043, 774}}";
+		};
+	};
+}

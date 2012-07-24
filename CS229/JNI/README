@@ -1,0 +1,143 @@
+
+
+Initial Source: http://java.sun.com/docs/books/jni/html/start.html
+	This tutorial is heavily based on the above link.
+	I have added material to simplify compilation of the JNI files
+		-- Wayne Rowcliffe
+
+Note:
+	Items in quotes are usually either relevant code snippets or commands that should be executed in a terminal
+	I will try to prefix the executable commands with a $ to indicate that they should be run in terminal.
+		Do not include the $, it is just a standard notation since the terminal prompt usually ends in $
+
+Steps:
+
+	1. HelloWorld.java
+	2. Compile
+	3. Create header
+	4. HelloWorld.c
+	5. Makefile
+	6. Run
+		a. LD_LIBRARY_PATH
+		b. -Djava.library.path
+
+
+Step 1: HelloWorld.java
+
+	For our first step in JNI, we will follow custom and create a Hello World! program.
+	Our first JNI function will be simply using C to print the "Hello World" message.
+
+	I have copied the code from the source tutorial into the file HelloWorld.java.
+	Noteable points about this code:
+		Any methods we want to use JNI for are marked native, and have no method body.
+			"private native void print();"
+		There is a static load block where the native library is loaded.
+			"System.loadLibrary("HelloWorld");"
+		After the methods have been marked native and we have taken measures to load the native library,
+			we can use the methods just like any other.
+
+Step 2: Compile
+	To compile, we just do the standard command:
+		"javac ./HelloWorld.java"
+
+Step 3: Create Header
+	In order to link in the JNI, we need a header file for the native methods we want to implement.
+	Normally you would execute "$javah {class names}" to generate the header file we need.
+	However, popeye is not set up with javah in the path by default.
+	To get around this, we will locate javah on our own, and call it directly
+		"$locate javah" will print out all files on the filesystem containing the word "javah"
+		On popeye, the following is the file we want:
+			"/usr/java/jdk1.6.0_17/bin/javah"
+	Now that we know where javah is, we can compile our header.
+		"$/usr/java/jdk1.6.0_17/bin/javah HelloWorld"
+	This creates a file:
+		"HelloWorld.h"
+	Noteable things about this file:
+		#include <jni.h>
+			Any jni files must include this header.
+		/*
+		 * Class:     HelloWorld
+		 * Method:    print
+		 * Signature: ()V
+		 */
+		JNIEXPORT void JNICALL Java_HelloWorld_print
+		  (JNIEnv *, jobject);
+
+		  This is the native method from our Helloworld.java file.
+
+Step 4: HelloWorld.c
+	We need to create the .c file to implement our .h file in.
+	I have included "HelloWorld.c"
+
+	Basic Steps for creating this file:
+		We need to include jni.h and HelloWorld.h
+			#include <jni.h>
+
+			#include "HelloWorld.h"
+
+		Copy the method signatures from the .h file into the .c file. Be sure to give the method arguments names in the .c file.
+
+	Now we just implement the methods. For our example, we just do:
+		"printf("Hello World!\n");"
+
+	Details on the variables in the method signature and how to use them are beyond the scope of this tutorial and
+		will be provided later.
+
+Step 5: Makefile
+	In order to make the JNI work properly, we need to compile a shared library (.so file)
+	This requires some special effort and long arguments to gcc.
+
+	I have copied the Makefile example from "Assignment 1 (Optional)" and added in JNI compile options.
+		One of the variables has been left empty. This is because its value will vary by machine, so I will show you how to
+		locate it on your own. Once we fill the variable, I will discuss the compile options to use in the Makefile
+
+	We are going to make use of the "locate" command again. This time, we need to locate the "jni.h" file. Gcc needs to know
+		where this file is in order to compile our JNI files.
+		"$locate jni.h" will list several results, we are interested in the one in our java path.
+			On popeye, this line is "/usr/java/jdk1.6.0_17/include/jni.h"
+			We want to copy the directory path (without jni.h) into the JNI_INCLUDE variable of the Makefile.
+			I.e. "JNI_INCLUDE=/usr/java/jdk1.6.0_17/include"
+			Now, the arguments should work properly so that we can compile our JNI code
+
+	Our build process requires two steps, first make the .o files, then create the .so library.
+		I have included both in the Makefile.
+		Note that:
+			Both compilation lines contain the ${JNI} variable. This is necessary for compilation to succeed.
+			Our shared library is compiled with the -shared flag
+			The shared library's name starts with lib and ends with the .so extension
+
+	Running "make" should build the files properly at this point.
+
+Step 6: Running
+
+	In order for the JVM to execute JNI code, we need to tell it where to look for the libraries.
+	This can be done in two ways. I will explain both briefly.
+
+	1. Set the LD_LIBRARY_PATH variable
+		In bash shell (I believe the default for popeye login), we set variables using the export command.
+		In general, we will want to run:
+			"export LD_LIBRARY_PATH=/path/to/libraries"
+				Where /path/to/libraries is the path to the directory containing our .so files.
+				Multiple directories can be listed, separated by a colon (:)
+				I.e. "export LD_LIBRARY_PATH=/path/to/a:/path/to/b"
+		Specifically, if our class files are in the same location as our .so file, as in this example, we run
+			"export LD_LIBRARY_PATH=./"
+
+		After this, you should be able to run:
+			"java HelloWorld"
+
+	2. Set the JVM system property.
+		If there is no environment variable set, we can directly set the variable for the JVM.
+		Run:
+			"java -Djava.library.path=./ HelloWorld"
+
+		Again, the path can contain multiple directories separated by colons (:)
+		The disadvantage of this method is that you must remember to include the "-Djava.library.path=" argument
+			at every run. However, you do not need to remember to set an environment variable.
+
+Conclusion:
+
+	Hopefully, this tutorial has successfully led you through a Hello World in JNI.
+	If you still have questions, feel free to ask on WebCT sooner rather than later.
+
+	-- Wayne Rowcliffe

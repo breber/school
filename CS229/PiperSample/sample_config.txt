@@ -1,0 +1,24 @@
+//this set of tags MUST come first 
+<Simulation>	// Keywords inside <> are NOT case sensitive, all else is 
+width = 30 // This attribute is required and must be present 
+height = 10 // This attribute is required and must be present 
+</Simulation>
+<Object> // Characters after the // are ignored, till the next newline 
+type = robot // This attribute is required and must be present 
+xloc = 4 // This attribute is required and must be present 
+yloc = 7 // This attribute is required and must be present
+color = blue // May not be present - default value = blue 
+name = Robot 1// May not be present - default value = Object 
+display = BR // This is required, must be present and two characters long 
+//These attributes are Robot-Specific: 
+energy-contents = 200 // May not be present - default value = 100 
+recharge = 2 // May not be present - default value = 1 
+movecost = 1 // May not be present - default value = 2 
+turncost = 1 // May not be present - default value = 1 
+probecost = 1 // May not be present - default value = 1 
+paramA = 1.1 // May not be present - default value = .1 
+paramB = 1.2 // May not be present - default value = 1.6 
+paramC = 1.0 // May not be present - default value = 1.3 
+</Object>
+
+

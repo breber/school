@@ -1,0 +1,12 @@
+ Volume in drive H is breber
+ Volume Serial Number is 011C-0A12
+
+ Directory of H:\lab05
+
+02/22/2010  08:48 PM    <DIR>          .
+02/22/2010  08:39 PM    <DIR>          ..
+02/22/2010  08:48 PM                94 output.txt
+02/22/2010  08:45 PM               423 Goodbye.class
+02/22/2010  08:45 PM               120 Goodbye.java
+               3 File(s)            637 bytes
+               2 Dir(s)  181,373,108,224 bytes free

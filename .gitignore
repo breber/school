@@ -3,6 +3,7 @@
 *.o
 Thumbs.db
 .DS_STORE
+.svn/
 
 
 CprE315X/Project2/src/linux.words

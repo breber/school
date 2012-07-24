@@ -1,0 +1,3 @@
+http://web.mit.edu/10.001/Web/Course_Notes/c_Notes/tips_printf.html
+
+http://web.cs.mun.ca/~michael/c/ascii-table.html

@@ -1,0 +1,8 @@
+CprE 288 Lab 2
+
+Prelab:
+1. The 2 modes are Passive Mode, Safe Mode and Full Mode
+
+2. Full mode turns off the cliff, wheel-drop and internal charger safety features.
+
+3. We will be using the distance sensor, which has a packet id 19.

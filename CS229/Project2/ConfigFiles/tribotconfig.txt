@@ -1,0 +1,337 @@
+<Simulation>
+width = 20
+height = 15
+</Simulation>
+
+<Object>
+type = robot
+xloc = 4 
+yloc = 7
+color = blue
+name = Blue Bot
+display = BB
+energy-contents = 200
+recharge = 2
+move-cost = 1
+turn-cost = 1
+probe-cost = 1
+paramA = 1.1
+paramB = 1.2
+paramC = 1.0
+</Object>
+
+<Object>
+type = robot
+xloc = 14 
+yloc = 7
+color = red
+name = Red Bot
+display = RB
+energy-contents = 200
+recharge = 2
+move-cost = 1
+turn-cost = 1
+probe-cost = 1
+paramA = 1.1
+paramB = 1.2
+paramC = 1.0
+</Object>
+
+// begin blue side
+
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 0
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 1
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 2
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 3
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 4
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 5
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 6
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 7
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 8
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 9
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 10
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 11
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 12
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 13
+name = BlueRock
+display = Br
+color = blue
+</Object>
+<Object>
+type = earth-rock
+xloc = 0
+yloc = 14
+name = BlueRock
+display = Br
+color = blue
+</Object>
+
+// begin red side
+
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 0
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 1
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 2
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 3
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 4
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 5
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 6
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 7
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 8
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 9
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 10
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 11
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 12
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 13
+name = RedRock
+display = Rr
+color = red
+</Object>
+<Object>
+type = earth-rock
+xloc = 19
+yloc = 14
+name = RedRock
+display = Rr
+color = red
+</Object>
+
+// begin blocks 
+
+<Object>
+type = block
+xloc = 10
+yloc = 3
+display = R_
+color = red
+</Object>
+<Object>
+type = block
+xloc = 10
+yloc = 6
+display = R_
+color = red
+</Object>
+<Object>
+type = block
+xloc = 10
+yloc = 9
+display = R_
+color = red
+</Object>
+<Object>
+type = block
+xloc = 14
+yloc = 6
+display = R_
+color = red
+</Object>
+<Object>
+type = block
+xloc = 8
+yloc = 3
+display = R_
+color = red
+</Object>
+
+<Object>
+type = block
+xloc = 11
+yloc = 3
+display = B_
+color = blue
+</Object>
+<Object>
+type = block
+xloc = 9
+yloc = 6
+display = B_
+color = blue
+</Object>

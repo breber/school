@@ -1,0 +1,10 @@
+cd ConvoluteJNI; make; cd ..
+cd Convolution; make; cd ..
+cd CS2PPM; make; cd ..
+cd Filters; make; cd ..
+cd ImageStats; make; cd ..
+cd MatrixJNI; make; cd ..
+cd PPM2CS; make; cd ..
+cd Square; make; cd ..
+cd Stitch; make; cd ..
+cd Utilities; make; cd ..

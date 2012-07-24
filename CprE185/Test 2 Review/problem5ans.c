@@ -1,0 +1,22 @@
+//Write a function that returns a character array of the two inputs concatanated together.
+//If the first letter of the second word is less than 'l'(a, b, c,....k), return "word1, word2"
+//If the first letter of the second word is greater than or equal to 'l' (l, m, n ,o...., z), return "word2, word1"
+
+// ASSUME: All characters in the array are only lower case letters.
+// Put the concatanated word in combinedWord!!!
+
+void combine(char combinedWord[], char word1[], int size1, char word2[], int size2)
+{
+	if(word2[0] < 'l')
+	{
+		strcat(combinedWord, word1);
+		strcat(combinedWord, ", ");
+		strcat(combinedWord, word2);
+	}
+	else
+	{
+		strcat(combinedWord, word2);
+		strcat(combinedWord, ", ");
+		strcat(combinedWord, word1);
+	}
+}
