@@ -9,7 +9,7 @@
 #import "ViewController.h"
 
 @interface ViewController ()
-
+    
 @end
 
 @implementation ViewController
@@ -29,14 +29,16 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+        return (interfaceOrientation == UIInterfaceOrientationPortrait);
     } else {
         return YES;
     }
 }
 
 - (IBAction)userClickedButton:(id)sender {
-    myLabel.text = @"Hello World!";
+    NSArray *strings = [NSArray arrayWithObjects:@"Hello World!", @"Goodbye World!", @"CprE388 is Awesome!", nil];
+    int index = arc4random() % [strings count];
+    myLabel.text = [strings objectAtIndex:index];
 }
 
 @end
