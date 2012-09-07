@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D1E363ED15FA2D99007701ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1E363EC15FA2D99007701ED /* UIKit.framework */; };
+		D1E363EF15FA2D99007701ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1E363EE15FA2D99007701ED /* Foundation.framework */; };
+		D1E363F115FA2D99007701ED /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1E363F015FA2D99007701ED /* CoreGraphics.framework */; };
+		D1E363F715FA2D99007701ED /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D1E363F515FA2D99007701ED /* InfoPlist.strings */; };
+		D1E363F915FA2D99007701ED /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D1E363F815FA2D99007701ED /* main.m */; };
+		D1E363FD15FA2D99007701ED /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D1E363FC15FA2D99007701ED /* AppDelegate.m */; };
+		D1E3640015FA2D99007701ED /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D1E363FE15FA2D99007701ED /* MainStoryboard_iPhone.storyboard */; };
+		D1E3640315FA2D99007701ED /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D1E3640115FA2D99007701ED /* MainStoryboard_iPad.storyboard */; };
+		D1E3640615FA2D99007701ED /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1E3640515FA2D99007701ED /* ViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D1E363E815FA2D99007701ED /* BatteryMonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatteryMonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1E363EC15FA2D99007701ED /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		D1E363EE15FA2D99007701ED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D1E363F015FA2D99007701ED /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		D1E363F415FA2D99007701ED /* BatteryMonitor-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BatteryMonitor-Info.plist"; sourceTree = "<group>"; };
+		D1E363F615FA2D99007701ED /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D1E363F815FA2D99007701ED /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		D1E363FA15FA2D99007701ED /* BatteryMonitor-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BatteryMonitor-Prefix.pch"; sourceTree = "<group>"; };
+		D1E363FB15FA2D99007701ED /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		D1E363FC15FA2D99007701ED /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		D1E363FF15FA2D99007701ED /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		D1E3640215FA2D99007701ED /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		D1E3640415FA2D99007701ED /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		D1E3640515FA2D99007701ED /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D1E363E515FA2D99007701ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1E363ED15FA2D99007701ED /* UIKit.framework in Frameworks */,
+				D1E363EF15FA2D99007701ED /* Foundation.framework in Frameworks */,
+				D1E363F115FA2D99007701ED /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D1E363DD15FA2D99007701ED = {
+			isa = PBXGroup;
+			children = (
+				D1E363F215FA2D99007701ED /* BatteryMonitor */,
+				D1E363EB15FA2D99007701ED /* Frameworks */,
+				D1E363E915FA2D99007701ED /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D1E363E915FA2D99007701ED /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D1E363E815FA2D99007701ED /* BatteryMonitor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D1E363EB15FA2D99007701ED /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D1E363EC15FA2D99007701ED /* UIKit.framework */,
+				D1E363EE15FA2D99007701ED /* Foundation.framework */,
+				D1E363F015FA2D99007701ED /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D1E363F215FA2D99007701ED /* BatteryMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				D1E363FB15FA2D99007701ED /* AppDelegate.h */,
+				D1E363FC15FA2D99007701ED /* AppDelegate.m */,
+				D1E363FE15FA2D99007701ED /* MainStoryboard_iPhone.storyboard */,
+				D1E3640115FA2D99007701ED /* MainStoryboard_iPad.storyboard */,
+				D1E3640415FA2D99007701ED /* ViewController.h */,
+				D1E3640515FA2D99007701ED /* ViewController.m */,
+				D1E363F315FA2D99007701ED /* Supporting Files */,
+			);
+			path = BatteryMonitor;
+			sourceTree = "<group>";
+		};
+		D1E363F315FA2D99007701ED /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D1E363F415FA2D99007701ED /* BatteryMonitor-Info.plist */,
+				D1E363F515FA2D99007701ED /* InfoPlist.strings */,
+				D1E363F815FA2D99007701ED /* main.m */,
+				D1E363FA15FA2D99007701ED /* BatteryMonitor-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D1E363E715FA2D99007701ED /* BatteryMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D1E3640915FA2D99007701ED /* Build configuration list for PBXNativeTarget "BatteryMonitor" */;
+			buildPhases = (
+				D1E363E415FA2D99007701ED /* Sources */,
+				D1E363E515FA2D99007701ED /* Frameworks */,
+				D1E363E615FA2D99007701ED /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BatteryMonitor;
+			productName = BatteryMonitor;
+			productReference = D1E363E815FA2D99007701ED /* BatteryMonitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D1E363DF15FA2D99007701ED /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				ORGANIZATIONNAME = "Brian Reber";
+			};
+			buildConfigurationList = D1E363E215FA2D99007701ED /* Build configuration list for PBXProject "BatteryMonitor" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D1E363DD15FA2D99007701ED;
+			productRefGroup = D1E363E915FA2D99007701ED /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D1E363E715FA2D99007701ED /* BatteryMonitor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D1E363E615FA2D99007701ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1E363F715FA2D99007701ED /* InfoPlist.strings in Resources */,
+				D1E3640015FA2D99007701ED /* MainStoryboard_iPhone.storyboard in Resources */,
+				D1E3640315FA2D99007701ED /* MainStoryboard_iPad.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D1E363E415FA2D99007701ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D1E363F915FA2D99007701ED /* main.m in Sources */,
+				D1E363FD15FA2D99007701ED /* AppDelegate.m in Sources */,
+				D1E3640615FA2D99007701ED /* ViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		D1E363F515FA2D99007701ED /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D1E363F615FA2D99007701ED /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		D1E363FE15FA2D99007701ED /* MainStoryboard_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D1E363FF15FA2D99007701ED /* en */,
+			);
+			name = MainStoryboard_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		D1E3640115FA2D99007701ED /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D1E3640215FA2D99007701ED /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		D1E3640715FA2D99007701ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D1E3640815FA2D99007701ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		D1E3640A15FA2D99007701ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BatteryMonitor/BatteryMonitor-Prefix.pch";
+				INFOPLIST_FILE = "BatteryMonitor/BatteryMonitor-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		D1E3640B15FA2D99007701ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BatteryMonitor/BatteryMonitor-Prefix.pch";
+				INFOPLIST_FILE = "BatteryMonitor/BatteryMonitor-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D1E363E215FA2D99007701ED /* Build configuration list for PBXProject "BatteryMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D1E3640715FA2D99007701ED /* Debug */,
+				D1E3640815FA2D99007701ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D1E3640915FA2D99007701ED /* Build configuration list for PBXNativeTarget "BatteryMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D1E3640A15FA2D99007701ED /* Debug */,
+				D1E3640B15FA2D99007701ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D1E363DF15FA2D99007701ED /* Project object */;
+}
