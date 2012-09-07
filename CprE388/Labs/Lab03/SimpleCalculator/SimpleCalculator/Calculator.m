@@ -3,7 +3,7 @@
 
 // Todo - Insert private method signatures and instance variables in this category
 @interface Calculator (Private) {
-    // int mynewprivateinstancevariable;
+//    int mCurrentDisplay;
 }
 // - (void)mynewprivatemethod;
 @end
@@ -33,6 +33,7 @@
 - (void)issueNumberCommand:(NSString *)command {
 	// TODO - Implement
 	// ...
+    NSLog(@"issueNumberCommand: %@", command);
 }
 
 
@@ -44,6 +45,10 @@
 - (void)issueOperatorCommand:(NSString *)command {
 	// TODO - Implement
 	// ...
+    if (@"C" == command) {
+        
+    }
+    NSLog(@"issueOperatorCommand: %@", command);
 }
 
 
@@ -62,7 +67,6 @@
  * Returns the student's Name and NetID
  */
 - (NSString *)about {
-	// TODO - Enter your name and netID below
 	return @"Brian Reber - breber";
 }
 
