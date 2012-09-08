@@ -88,17 +88,12 @@
         // On any other operation, follow this line
         float result = [self getOperationResult];
         
-        // Clear the currently stored operation, and update the display
-        self.currentOperation = 0;
+        // Update the display, store the current value as the previous value,
+        // indicate we are waiting for a new number, and update the currentOperation
         self.currentDisplay = [NSString stringWithFormat:@"%g", result];
-        
-        // If the current operation is not equals, store the operation
-        // and indicate that we are waiting for a new number
-        if (![@"=" isEqualToString:command]) {
-            self.prevDisplay = self.currentDisplay;
-            self.startOver = YES;
-            self.currentOperation = [command characterAtIndex:0];
-        }
+        self.prevDisplay = self.currentDisplay;
+        self.startOver = YES;
+        self.currentOperation = [command characterAtIndex:0];
     }
 }
 

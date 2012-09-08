@@ -186,4 +186,28 @@
     STAssertEqualObjects([calculator getCurrentDisplay], @"15.5", @".  Failed to perform addition with decimals (5.5 + 10)");
 }
 
+- (void)testEqualsFollowedByNumber
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueNumberCommand:@"6"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"6", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"11", @".  Failed to perform addition (5 + 6)");
+    
+    // Start new operation without clearing the calculator
+    [calculator issueNumberCommand:@"7"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"7", nil);
+    [calculator issueOperatorCommand:@"*"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"7", nil);
+    [calculator issueNumberCommand:@"3"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"3", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"21", @".  Failed to perform multiplication without clearing calculator");
+}
+
 @end
