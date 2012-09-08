@@ -86,4 +86,86 @@
     STAssertEqualObjects([calculator getCurrentDisplay], @"6", @".  Failed to multiply two single digit numbers! :( ");
 }
 
+// ADDED TESTS
+
+- (void)testChainedAddition
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"2"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"2", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"2", nil);
+    [calculator issueNumberCommand:@"3"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"3", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", @". Pressing + should perform previous addition");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", @".  Failed to perform chained addition (2 + 3 + 5)");
+}
+
+- (void)testMultiDigitAddition
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueNumberCommand:@"10"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"15", @".  Failed to perform addition with values over 10");
+}
+
+- (void)testNegationAddition
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"±"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"-5", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"-5", nil);
+    [calculator issueNumberCommand:@"10"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", @".  Failed to perform addition with a negative value");
+}
+
+- (void)testNegationSubtraction
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"-"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueNumberCommand:@"10"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", nil);
+    [calculator issueOperatorCommand:@"±"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"-10", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"15", @".  Failed to perform subtraction with a negative value (5 - (-10))");
+}
+
+- (void)testSubtractionWithAccidentalAddition
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"-"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueNumberCommand:@"10"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"-5", @".  Failed to perform subtraction with a negative value (5 - 10)");
+}
+
 @end

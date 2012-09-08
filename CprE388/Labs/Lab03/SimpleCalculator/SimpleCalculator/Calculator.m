@@ -39,10 +39,14 @@
 - (void)issueNumberCommand:(NSString *)command {
     NSLog(@"issueNumberCommand: %@", command);
     
+    // If we are starting over (expecting a new number, set the currentDisplay
+    // value to whatever the command value is
     if (self.startOver) {
         self.currentDisplay = [NSString stringWithFormat:@"%@", command];
         self.startOver = NO;
     } else {
+        // We are not expecting a new number, so append the given command
+        // value to the currently stored value
         self.currentDisplay = [NSString stringWithFormat:@"%@%@", self.currentDisplay, command];
     }
 }
@@ -56,46 +60,65 @@
 - (void)issueOperatorCommand:(NSString *)command {
     NSLog(@"issueOperatorCommand: %@", command);
     
+    // If we are given 'C', clear the previous display, the current display,
+    // and any stored operation. Essentially clear everything.
     if ([@"C" isEqualToString:command]) {
         self.currentDisplay = @"0";
         self.prevDisplay = @"0";
         self.startOver = YES;
-    } else if ([@"=" isEqualToString:command]) {
-        // Equals just updates the display value
-        float result = 0;
-        float value1 = [self.prevDisplay floatValue];
-        float value2 = [self.currentDisplay floatValue];
-        
-        switch (self.currentOperation) {
-            case '+':
-                result = value1 + value2;
-                break;
-                
-            case '-':
-                result = value1 - value2;
-                break;
-                
-            case '*':
-                result = value1 * value2;
-                break;
-                
-            case '/':
-                result = value1 / value2;
-                break;
-        }
-        
-        self.currentDisplay = [NSString stringWithFormat:@"%f", result]; // TODO: float?
     } else if ([@"±" isEqualToString:command]) {
-        // Inverse operation
+        // Inverse operation - if we are currently displaying a negative
+        // value, remove the negative. If the display is positive, make it negative
         if ([self.currentDisplay characterAtIndex:0] == '-') {
             self.currentDisplay = [self.currentDisplay substringFromIndex:1];
         } else {
             self.currentDisplay = [NSString stringWithFormat:@"-%@", self.currentDisplay];
         }
     } else {
-        self.prevDisplay = self.currentDisplay;
-        self.startOver = YES;
-        self.currentOperation = [command characterAtIndex:0];
+        // On any other operation, follow this line
+        float result = 0;
+        double value1 = [self.prevDisplay doubleValue];
+        double value2 = [self.currentDisplay doubleValue];
+        
+        // If we are currently storing an operation, perform the operation
+        // on the values we stored
+        if (!self.startOver) {
+            switch (self.currentOperation) {
+                case '+':
+                    result = value1 + value2;
+                    break;
+                    
+                case '-':
+                    result = value1 - value2;
+                    break;
+                    
+                case '*':
+                    result = value1 * value2;
+                    break;
+                    
+                case '/':
+                    result = value1 / value2;
+                    break;
+                    
+                default:
+                    result = value2;
+                    break;
+            }
+        } else {
+            result = value2;
+        }
+        
+        // Clear the currently stored operation, and update the display
+        self.currentOperation = 0;
+        self.currentDisplay = [NSString stringWithFormat:@"%g", result];
+        
+        // If the current operation is not equals, store the operation
+        // and indicate that we are waiting for a new number
+        if (![@"=" isEqualToString:command]) {
+            self.prevDisplay = self.currentDisplay;
+            self.startOver = YES;
+            self.currentOperation = [command characterAtIndex:0];
+        }
     }
 }
 
