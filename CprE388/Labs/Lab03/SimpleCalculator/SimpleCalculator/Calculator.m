@@ -12,13 +12,19 @@
 
 @implementation Calculator
 
+@synthesize currentOperation = _currentOperation;
+@synthesize currentDisplay = _currentDisplay;
+@synthesize prevDisplay = _prevDisplay;
+@synthesize startOver = _startOver;
+
 - (id)init {
     self = [super init];
     
 	if (self) {
-		// TODO - Implement Initialization code
-		// ...
-		
+        self.currentOperation = 0;
+        self.currentDisplay = @"0";
+        self.prevDisplay = @"0";
+        self.startOver = YES;
 	}
 	return self;
 }
@@ -31,9 +37,14 @@
  * pressed on the calculator.
  */
 - (void)issueNumberCommand:(NSString *)command {
-	// TODO - Implement
-	// ...
     NSLog(@"issueNumberCommand: %@", command);
+    
+    if (self.startOver) {
+        self.currentDisplay = [NSString stringWithFormat:@"%@", command];
+        self.startOver = NO;
+    } else {
+        self.currentDisplay = [NSString stringWithFormat:@"%@%@", self.currentDisplay, command];
+    }
 }
 
 
@@ -43,12 +54,49 @@
  * It simulates the affect of pressing an operator key on the calculator.
  */
 - (void)issueOperatorCommand:(NSString *)command {
-	// TODO - Implement
-	// ...
-    if (@"C" == command) {
-        
-    }
     NSLog(@"issueOperatorCommand: %@", command);
+    
+    if ([@"C" isEqualToString:command]) {
+        self.currentDisplay = @"0";
+        self.prevDisplay = @"0";
+        self.startOver = YES;
+    } else if ([@"=" isEqualToString:command]) {
+        // Equals just updates the display value
+        float result = 0;
+        float value1 = [self.prevDisplay floatValue];
+        float value2 = [self.currentDisplay floatValue];
+        
+        switch (self.currentOperation) {
+            case '+':
+                result = value1 + value2;
+                break;
+                
+            case '-':
+                result = value1 - value2;
+                break;
+                
+            case '*':
+                result = value1 * value2;
+                break;
+                
+            case '/':
+                result = value1 / value2;
+                break;
+        }
+        
+        self.currentDisplay = [NSString stringWithFormat:@"%f", result]; // TODO: float?
+    } else if ([@"±" isEqualToString:command]) {
+        // Inverse operation
+        if ([self.currentDisplay characterAtIndex:0] == '-') {
+            self.currentDisplay = [self.currentDisplay substringFromIndex:1];
+        } else {
+            self.currentDisplay = [NSString stringWithFormat:@"-%@", self.currentDisplay];
+        }
+    } else {
+        self.prevDisplay = self.currentDisplay;
+        self.startOver = YES;
+        self.currentOperation = [command characterAtIndex:0];
+    }
 }
 
 
@@ -57,8 +105,7 @@
  * Returns the currently displayed number of the calculator.
  */
 - (NSString *)getCurrentDisplay {
-	// TODO - Implement a function that displays the current state of the calculator
-	return @"Not implemented";
+	return [NSString stringWithFormat:@"%@", self.currentDisplay];
 }
 
 
