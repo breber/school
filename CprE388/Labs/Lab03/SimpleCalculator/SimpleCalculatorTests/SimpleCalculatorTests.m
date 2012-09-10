@@ -210,4 +210,20 @@
     STAssertEqualObjects([calculator getCurrentDisplay], @"21", @".  Failed to perform multiplication without clearing calculator");
 }
 
+- (void)testAccumulation
+{
+    [calculator issueOperatorCommand:@"C"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"0", @".  Clearing the calculator should set the display to '0'.");
+    [calculator issueNumberCommand:@"5"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueOperatorCommand:@"+"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"5", nil);
+    [calculator issueNumberCommand:@"10"];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"10", nil);
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"15", @".  Failed to perform simple addition");
+    [calculator issueOperatorCommand:@"="];
+    STAssertEqualObjects([calculator getCurrentDisplay], @"25", @".  Failed to accumulate on multiple equals");
+}
+
 @end

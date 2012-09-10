@@ -10,19 +10,24 @@
 @property(nonatomic) char currentOperation;
 
 /*
- * The NSString currently displayed on the screen
+ * The NSString for the accumulated value
  */
-@property(nonatomic) NSString *currentDisplay;
+@property(nonatomic) NSString *value1;
 
 /*
- * The NSString displayed on the screen prior to the current operation
+ * The NSString for the current operation
  */
-@property(nonatomic) NSString *prevDisplay;
+@property(nonatomic) NSString *value2;
 
 /*
- * Are we to start a new number, or append on to the current number?
+ * Represents whether the last button pressed was an operator
  */
-@property(nonatomic) BOOL startOver;
+@property(nonatomic) BOOL operatorLast;
+
+/*
+ * Represents whether the last button pressed was the equal operator
+ */
+@property(nonatomic) BOOL equalLast;
 
 - (double) getOperationResult;
 @end
@@ -31,18 +36,18 @@
 @implementation Calculator
 
 @synthesize currentOperation = _currentOperation;
-@synthesize currentDisplay = _currentDisplay;
-@synthesize prevDisplay = _prevDisplay;
-@synthesize startOver = _startOver;
+@synthesize value1 = _value1;
+@synthesize value2 = _value2;
+@synthesize operatorLast = _operatorLast;
 
 - (id)init {
     self = [super init];
     
 	if (self) {
-        self.currentOperation = 0;
-        self.currentDisplay = @"0";
-        self.prevDisplay = @"0";
-        self.startOver = YES;
+        self.currentOperation = '+';
+        self.value1 = @"0";
+        self.value2 = @"0";
+        self.operatorLast = YES;
 	}
 	return self;
 }
@@ -55,14 +60,19 @@
 - (void)issueNumberCommand:(NSString *)command {
     // If we are starting over (expecting a new number, set the currentDisplay
     // value to whatever the command value is
-    if (self.startOver) {
-        self.currentDisplay = [NSString stringWithFormat:@"%@", command];
-        self.startOver = NO;
+    if (self.operatorLast) {
+        self.value2 = [NSString stringWithFormat:@"%@", command];
     } else {
-        // We are not expecting a new number, so append the given command
-        // value to the currently stored value
-        self.currentDisplay = [NSString stringWithFormat:@"%@%@", self.currentDisplay, command];
+        self.value2 = [NSString stringWithFormat:@"%@%@", self.value2, command];
     }
+    
+    // If the last button pressed was the equal operator, and the user
+    // is now entering numbers, we should clear the accumulated value
+    if (self.operatorLast && self.equalLast) {
+        self.value1 = @"0";
+    }
+    
+    self.operatorLast = NO;
 }
 
 /*
@@ -72,28 +82,34 @@
 - (void)issueOperatorCommand:(NSString *)command {
     // If we are given 'C', clear the previous display, the current display,
     // and any stored operation. Essentially clear everything.
+
+    self.operatorLast = YES;
+
     if ([@"C" isEqualToString:command]) {
-        self.currentDisplay = @"0";
-        self.prevDisplay = @"0";
-        self.startOver = YES;
+        self.value1 = @"0";
+        self.value2 = @"0";
     } else if ([@"±" isEqualToString:command]) {
         // Inverse operation - if we are currently displaying a negative
         // value, remove the negative. If the display is positive, make it negative
-        if ([self.currentDisplay characterAtIndex:0] == '-') {
-            self.currentDisplay = [self.currentDisplay substringFromIndex:1];
-        } else {
-            self.currentDisplay = [NSString stringWithFormat:@"-%@", self.currentDisplay];
-        }
+        self.value2 = [NSString stringWithFormat:@"%g", (0 - [self.value2 doubleValue])];
+        self.operatorLast = NO;
     } else {
         // On any other operation, follow this line
         float result = [self getOperationResult];
         
+        NSLog(@"Performing: %@ %c %@", self.value1, self.currentOperation, self.value2);
+        
         // Update the display, store the current value as the previous value,
         // indicate we are waiting for a new number, and update the currentOperation
-        self.currentDisplay = [NSString stringWithFormat:@"%g", result];
-        self.prevDisplay = self.currentDisplay;
-        self.startOver = YES;
-        self.currentOperation = [command characterAtIndex:0];
+        self.value1 = [NSString stringWithFormat:@"%g", result];
+        
+        if (![@"=" isEqualToString:command]) {
+            self.currentOperation = [command characterAtIndex:0];
+            self.value2 = @"0";
+            self.equalLast = NO;
+        } else {
+            self.equalLast = YES;
+        }
     }
 }
 
@@ -101,7 +117,11 @@
  * Returns the currently displayed number of the calculator.
  */
 - (NSString *)getCurrentDisplay {
-	return [NSString stringWithFormat:@"%@", self.currentDisplay];
+    if (self.operatorLast) {
+        return [NSString stringWithFormat:@"%@", self.value1];
+    } else {
+        return [NSString stringWithFormat:@"%@", self.value2];
+    }
 }
 
 /*
@@ -116,38 +136,31 @@
  */
 - (double) getOperationResult {
     double result = 0;
-    double value1 = [self.prevDisplay doubleValue];
-    double value2 = [self.currentDisplay doubleValue];
+    double value1 = [self.value1 doubleValue];
+    double value2 = [self.value2 doubleValue];
     
     // If we are currently storing an operation, perform the operation
     // on the values we stored
-    if (!self.startOver) {
-        switch (self.currentOperation) {
-            case '+':
-                result = value1 + value2;
-                break;
-                
-            case '-':
-                result = value1 - value2;
-                break;
-                
-            case '*':
-                result = value1 * value2;
-                break;
-                
-            case '/':
-                result = value1 / value2;
-                break;
-                
-            default:
-                result = value2;
-                break;
-        }
-    } else {
-        // This is the case where we enter two operations
-        // in a row (pressing + and then pressing -). In this
-        // case we want to just keep our currently displayed value.
-        result = value2;
+    switch (self.currentOperation) {
+        case '+':
+            result = value1 + value2;
+            break;
+            
+        case '-':
+            result = value1 - value2;
+            break;
+            
+        case '*':
+            result = value1 * value2;
+            break;
+            
+        case '/':
+            result = value1 / value2;
+            break;
+            
+        default:
+            result = value2;
+            break;
     }
     
     return result;
