@@ -29,7 +29,7 @@
  */
 @property(nonatomic) BOOL equalLast;
 
-- (double) getOperationResult;
+- (double) getOperationResult:(NSString *)currentOperation;
 @end
 
 
@@ -70,6 +70,8 @@
     // is now entering numbers, we should clear the accumulated value
     if (self.operatorLast && self.equalLast) {
         self.value1 = @"0";
+        self.currentOperation = '+';
+        self.equalLast = NO;
     }
     
     self.operatorLast = NO;
@@ -88,6 +90,7 @@
     if ([@"C" isEqualToString:command]) {
         self.value1 = @"0";
         self.value2 = @"0";
+        self.currentOperation = '+';
     } else if ([@"±" isEqualToString:command]) {
         // Inverse operation - if we are currently displaying a negative
         // value, remove the negative. If the display is positive, make it negative
@@ -95,9 +98,9 @@
         self.operatorLast = NO;
     } else {
         // On any other operation, follow this line
-        float result = [self getOperationResult];
+        float result = [self getOperationResult:command];
         
-        NSLog(@"Performing: %@ %c %@", self.value1, self.currentOperation, self.value2);
+//        NSLog(@"Performing: %@ %c %@", self.value1, self.currentOperation, self.value2);
         
         // Update the display, store the current value as the previous value,
         // indicate we are waiting for a new number, and update the currentOperation
@@ -117,6 +120,7 @@
  * Returns the currently displayed number of the calculator.
  */
 - (NSString *)getCurrentDisplay {
+//    NSLog(@"currentDisplay: %d [%@, %@]", self.operatorLast, self.value1, self.value2);
     if (self.operatorLast) {
         return [NSString stringWithFormat:@"%@", self.value1];
     } else {
@@ -134,33 +138,37 @@
 /*
  * Perform the stored operation and return the result
  */
-- (double) getOperationResult {
+- (double) getOperationResult:(NSString *)currentOperation {
     double result = 0;
     double value1 = [self.value1 doubleValue];
     double value2 = [self.value2 doubleValue];
     
     // If we are currently storing an operation, perform the operation
     // on the values we stored
-    switch (self.currentOperation) {
-        case '+':
-            result = value1 + value2;
-            break;
-            
-        case '-':
-            result = value1 - value2;
-            break;
-            
-        case '*':
-            result = value1 * value2;
-            break;
-            
-        case '/':
-            result = value1 / value2;
-            break;
-            
-        default:
-            result = value2;
-            break;
+    if (self.equalLast && ![@"=" isEqualToString:currentOperation]) {
+        result = value1;
+    } else {
+        switch (self.currentOperation) {
+            case '+':
+                result = value1 + value2;
+                break;
+                
+            case '-':
+                result = value1 - value2;
+                break;
+                
+            case '*':
+                result = value1 * value2;
+                break;
+                
+            case '/':
+                result = value1 / value2;
+                break;
+                
+            default:
+                result = value2;
+                break;
+        }
     }
     
     return result;
