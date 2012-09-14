@@ -1,0 +1,80 @@
+README
+
+Brian Reber (breber@iastate.edu)
+PageRank
+CprE 310, Fall 2011
+
+---------------------------------------------------------------
+Compiling PageRank
+---------------------------------------------------------------
+For your convenience, I have included a runnable Jar file with
+my submission.  Therefore, no compilation is necessary to run
+my code.  If you would like to compile it, though, follow the
+following steps.
+
+-Navigate to the src directory in my submission.
+-Run the following command to compile the code
+	
+	javac pagerank/*.java
+	
+This will compile all the java files necessary
+
+---------------------------------------------------------------
+Running PageRank
+---------------------------------------------------------------
+To run the precompiled Jar file, navigate to the base directory
+of my submission in the command line, and run
+
+	java -jar PageRank.jar -f inputfile.txt
+	
+where inputfile.txt is replaced with the actual file name of the
+input file to test.  There are optional command line arguments
+that can be used to specify different parameters of the page
+rank formula.  For a complete listing of command line arguments,
+just run
+
+	java -jar PageRank.jar -help
+
+and it will print out the following usage document. 
+
+		java -jar PageRank.jar -f [FILENAME]
+
+		Optional Arguments
+		
+		-P [P Value]
+			Set the value for P in the formula
+
+		-i [Initial Rank Value]
+			Set the initial rank value for each node in the graph
+
+		-stop [Stop Value]
+			Set the value that defines smallest change allowed between iterations
+
+		-debug
+			Enable printing of ranks of all nodes at the end of each iteration
+
+		-help
+			Print this help message
+
+If you would like to run the PageRank simulation using the code you compiled, 
+navigate to the src directory in my submission, and run the following command
+in the command line
+
+	java pagerank/PageRank -f inputfile.txt
+	
+This method is equivalent to running the Jar file I included.
+
+---------------------------------------------------------------
+Observing PageRank Output
+---------------------------------------------------------------
+The output of the PageRank program will be in the following format:
+
+A    .570541
+B    .570541
+C    1.93265
+D    3.57392
+
+The first column is the node name.  The second column is the page
+rank of the node as calculated by the program.  The nodes are not 
+necessarily going to be in alphabetical/numberical order. They 
+will be in order based on the order they were included in the input file.
