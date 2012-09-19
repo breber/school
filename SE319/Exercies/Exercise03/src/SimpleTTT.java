@@ -103,41 +103,48 @@ public class SimpleTTT extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Figure out the state of the game
+	 * 
+	 * @return the winner if there is one (1 or 2), 0 otherwise
+	 */
 	private int checkIfWinner() {
-		String result = checkThreeInARow(0, 1, 2);
+		String result = checkThreeInARow(0, 4, 8);
 
+		// Check diagonal
 		if (!"".equals(result)) {
 			return (result.equals("X") ? 1 : 2);
-		} else {
-			result = checkThreeInARow(0, 3, 6);
+		}
+
+		// Check diagonal
+		result = checkThreeInARow(2, 4, 6);
+		if (!"".equals(result)) {
+			return (result.equals("X") ? 1 : 2);
+		}
+
+		for (int i = 0; i < 3; i++) {
+			// Column
+			result = checkThreeInARow(i, i + 3, i + 6);
 			if (!"".equals(result)) {
 				return (result.equals("X") ? 1 : 2);
-			} else {
-				result = checkThreeInARow(0, 4, 8);
-				if (!"".equals(result)) {
-					return (result.equals("X") ? 1 : 2);
-				} else {
-					result = checkThreeInARow(2, 5, 8);
-					if (!"".equals(result)) {
-						return (result.equals("X") ? 1 : 2);
-					} else {
-						result = checkThreeInARow(6, 7, 8);
-						if (!"".equals(result)) {
-							return (result.equals("X") ? 1 : 2);
-						} else {
-							result = checkThreeInARow(3, 4, 5);
-							if (!"".equals(result)) {
-								return (result.equals("X") ? 1 : 2);
-							}
-						}
-					}
-				}
+			}
+
+			// Row
+			int j = i * 3;
+			result = checkThreeInARow(j, j + 1, j + 2);
+			if (!"".equals(result)) {
+				return (result.equals("X") ? 1 : 2);
 			}
 		}
 
 		return 0;
 	}
 
+	/**
+	 * Check to see if the three given locations have the same value
+	 * 
+	 * @return the value if they all match (and aren't ""), "" otherwise
+	 */
 	private String checkThreeInARow(int x, int y, int z) {
 		String x1 = gridElement[x].getText();
 		String y1 = gridElement[y].getText();

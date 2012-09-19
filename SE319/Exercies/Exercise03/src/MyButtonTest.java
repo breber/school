@@ -9,6 +9,9 @@ import javax.swing.JPanel;
 /**
  * MyButtonTest
  * 
+ * Performs same functionality of ButtonTest, but without
+ * using a ColorController.
+ * 
  * @author Brian Reber (breber)
  */
 public class MyButtonTest
