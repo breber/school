@@ -56,7 +56,6 @@ class ButtonPanel extends JPanel implements ActionListener
 		add(blueButton);
 		add(redButton);
 
-		// One-to-one relationship between Button and ColorController
 		blueButton.addActionListener(this);
 		yellowButton.addActionListener(this);
 		redButton.addActionListener(this);

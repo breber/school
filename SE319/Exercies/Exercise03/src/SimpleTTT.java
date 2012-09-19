@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -84,6 +85,68 @@ public class SimpleTTT extends JFrame implements ActionListener {
 			}
 
 			turn = !turn;
+
+			switch (checkIfWinner()) {
+			case 1:
+				JOptionPane.showMessageDialog(this, "Player 1 wins!");
+				System.exit(0);
+				break;
+			case 2:
+				JOptionPane.showMessageDialog(this, "Player 2 wins!");
+				System.exit(0);
+				break;
+
+			default:
+				// Do nothing...
+				break;
+			}
+		}
+	}
+
+	private int checkIfWinner() {
+		String result = checkThreeInARow(0, 1, 2);
+
+		if (!"".equals(result)) {
+			return (result.equals("X") ? 1 : 2);
+		} else {
+			result = checkThreeInARow(0, 3, 6);
+			if (!"".equals(result)) {
+				return (result.equals("X") ? 1 : 2);
+			} else {
+				result = checkThreeInARow(0, 4, 8);
+				if (!"".equals(result)) {
+					return (result.equals("X") ? 1 : 2);
+				} else {
+					result = checkThreeInARow(2, 5, 8);
+					if (!"".equals(result)) {
+						return (result.equals("X") ? 1 : 2);
+					} else {
+						result = checkThreeInARow(6, 7, 8);
+						if (!"".equals(result)) {
+							return (result.equals("X") ? 1 : 2);
+						} else {
+							result = checkThreeInARow(3, 4, 5);
+							if (!"".equals(result)) {
+								return (result.equals("X") ? 1 : 2);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	private String checkThreeInARow(int x, int y, int z) {
+		String x1 = gridElement[x].getText();
+		String y1 = gridElement[y].getText();
+		String z1 = gridElement[z].getText();
+
+		if (x1.equals(y1) && y1.equals(z1) && !"".equals(x1)) {
+			return x1;
+		} else {
+			return "";
 		}
 	}
 }
