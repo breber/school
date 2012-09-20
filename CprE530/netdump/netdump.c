@@ -24,7 +24,7 @@ int packettype;
 char *program_name;
 
 /* Externs */
-extern void bpf_dump(const struct bpf_program *, int);
+extern void bpf_dump(struct bpf_program *, int);
 
 extern char *copy_argv(char **);
 
@@ -33,6 +33,11 @@ extern char *copy_argv(char **);
 
 /* Length of saved portion of packet. */
 int snaplen = 1500;;
+
+/* Globals to track packet counts */
+int broadcastPackets = 0;
+int ipPackets = 0;
+int arpPackets = 0;
 
 static pcap_t *pd;
 
@@ -55,10 +60,11 @@ main(int argc, char **argv)
 	cnt = -1;
 	device = NULL;
 	
-	if ((cp = strrchr(argv[0], '/')) != NULL)
+	if ((cp = strrchr(argv[0], '/')) != NULL) {
 		program_name = cp + 1;
-	else
+	} else {
 		program_name = argv[0];
+	}
 
 	opterr = 0;
 	while ((i = getopt(argc, argv, "pa")) != -1)
@@ -78,17 +84,22 @@ main(int argc, char **argv)
 		}
 		if (done) break;
 	}
-	if (argc > (optind)) cmdbuf = copy_argv(&argv[optind]);
-		else cmdbuf = "";
+	if (argc > (optind)) {
+	    cmdbuf = copy_argv(&argv[optind]);
+	} else {
+        cmdbuf = "";
+    }
 
 	if (device == NULL) {
 		device = pcap_lookupdev(ebuf);
-		if (device == NULL)
+		if (device == NULL) {
 			error("%s", ebuf);
+		}
 	}
 	pd = pcap_open_live(device, snaplen,  1, 1000, ebuf);
-	if (pd == NULL)
+	if (pd == NULL) {
 		error("%s", ebuf);
+	}
 	i = pcap_snapshot(pd);
 	if (snaplen < i) {
 		warning("snaplen raised from %d to %d", snaplen, i);
@@ -104,22 +115,24 @@ main(int argc, char **argv)
 	 */
 	setuid(getuid());
 
-	if (pcap_compile(pd, &fcode, cmdbuf, 1, netmask) < 0)
+	if (pcap_compile(pd, &fcode, cmdbuf, 1, netmask) < 0) {
 		error("%s", pcap_geterr(pd));
+	}
 	
-	(void)setsignal(SIGTERM, program_ending);
-	(void)setsignal(SIGINT, program_ending);
+	setsignal(SIGTERM, program_ending);
+	setsignal(SIGINT, program_ending);
 	/* Cooperate with nohup(1) */
-	if ((oldhandler = setsignal(SIGHUP, program_ending)) != SIG_DFL)
-		(void)setsignal(SIGHUP, oldhandler);
+	if ((oldhandler = setsignal(SIGHUP, program_ending)) != SIG_DFL) {
+		setsignal(SIGHUP, oldhandler);
+	}
 
-	if (pcap_setfilter(pd, &fcode) < 0)
+	if (pcap_setfilter(pd, &fcode) < 0) {
 		error("%s", pcap_geterr(pd));
+	}
 	pcap_userdata = 0;
-	(void)fprintf(stderr, "%s: listening on %s\n", program_name, device);
+    fprintf(stderr, "%s: listening on %s\n", program_name, device);
 	if (pcap_loop(pd, cnt, raw_print, pcap_userdata) < 0) {
-		(void)fprintf(stderr, "%s: pcap_loop: %s\n",
-		    program_name, pcap_geterr(pd));
+		fprintf(stderr, "%s: pcap_loop: %s\n", program_name, pcap_geterr(pd));
 		exit(1);
 	}
 	pcap_close(pd);
@@ -132,16 +145,17 @@ void program_ending(int signo)
 	struct pcap_stat stat;
 
 	if (pd != NULL && pcap_file(pd) == NULL) {
-		(void)fflush(stdout);
+		fflush(stdout);
 		putc('\n', stderr);
-		if (pcap_stats(pd, &stat) < 0)
-			(void)fprintf(stderr, "pcap_stats: %s\n",
-			    pcap_geterr(pd));
-		else {
-			(void)fprintf(stderr, "%d packets received by filter\n",
-			    stat.ps_recv);
-			(void)fprintf(stderr, "%d packets dropped by kernel\n",
-			    stat.ps_drop);
+		if (pcap_stats(pd, &stat) < 0) {
+			fprintf(stderr, "pcap_stats: %s\n", pcap_geterr(pd));
+		} else {
+			fprintf(stderr, "%d packets received by filter\n", stat.ps_recv);
+            fprintf(stderr, "%d packets dropped by kernel\n", stat.ps_drop);
+
+            fprintf(stderr, "Broadcast:   %d\n", broadcastPackets);
+		    fprintf(stderr, "IP Packets:  %d\n", ipPackets);
+		    fprintf(stderr, "ARP Packets: %d\n", arpPackets);
 		}
 	}
 	exit(0);
@@ -172,10 +186,9 @@ default_print_unaligned(register const u_char *cp, register u_int length)
 /*
  * By default, print the packet out in hex.
  */
-void
-default_print(register const u_char *bp, register u_int length)
+void default_print(register const u_char *bp, register u_int length)
 {
-	register const u_short *sp;
+    register const u_short *sp;
 	register u_int i;
 	register int nshorts;
 
@@ -187,29 +200,81 @@ default_print(register const u_char *bp, register u_int length)
 	nshorts = (u_int) length / sizeof(u_short);
 	i = 0;
 	while (--nshorts >= 0) {
-		if ((i++ % 8) == 0)
-			(void)printf("\n\t");
-		(void)printf(" %04x", ntohs(*sp++));
+		if ((i++ % 8) == 0) {
+			printf("\n\t");
+		}
+		
+		printf(" %04x", ntohs(*sp++));
 	}
 	if (length & 1) {
-		if ((i % 8) == 0)
-			(void)printf("\n\t");
-		(void)printf(" %02x", *(u_char *)sp);
+		if ((i % 8) == 0) {
+			printf("\n\t");
+		}
+		
+		printf(" %02x", *(u_char *)sp);
 	}
 }
 
 /*
-insert your code in this routine
-
+    Print out data in custom format
 */
-
 void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
 {
-        u_int length = h->len;
-        u_int caplen = h->caplen;
+    u_int length = h->len;
+    u_int caplen = h->caplen;
+    u_int counter;
+    u_char *curLoc = (u_char *) p;
+    u_char isBroadcast = 1;
 
+    printf("DA = ");
+    for (counter = 0; counter < 6; counter++) {
+        printf("%02x", curLoc[counter]);
 
-        default_print(p, caplen);
-        putchar('\n');
+        // Is broadcast if destination address is 0xFF
+        isBroadcast = isBroadcast && (curLoc[counter] == 0xFF);
+
+        if (counter != 5) {
+            printf(":");
+        } else {
+            printf(", ");
+        }
+    }
+    curLoc += 6;
+
+    // Increment the broadcast counter
+    if (isBroadcast) {
+        broadcastPackets++;
+    }
+        
+    printf("SA = ");
+    for (counter = 0; counter < 6; counter++) {
+        printf("%02x", curLoc[counter]);
+
+        if (counter != 5) {
+            printf(":");
+        } else {
+            printf(", ");
+        }
+    }
+    curLoc += 6;
+
+    int typeLength = (curLoc[0] << 8) | curLoc[1];
+    if (typeLength < 0x800) {
+        printf("Len  = %5d", typeLength);
+    } else {
+        printf("Type = 0x%3x", typeLength);
+    }
+    
+    // Print out payload information
+    if (0x800 == typeLength) {
+        printf(", Payload = IP");
+        ipPackets++;
+    } else if (0x806 == typeLength) {
+        printf(", Payload = ARP");
+        arpPackets++;
+    }
+
+    //printf("\n");
+    //default_print(p, caplen);
+    putchar('\n');
 }
-
