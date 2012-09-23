@@ -1,9 +1,9 @@
 //
 //  AppDelegate.m
-//  Tabathon
+//  Lab4
 //
-//  Created by Brian Reber on 9/14/12.
-//  Copyright (c) 2012 Brian Reber. All rights reserved.
+//  Created by Ashley Nelson on 9/20/12.
+//  Copyright (c) 2012 Ashley Nelson. All rights reserved.
 //
 
 #import "AppDelegate.h"
