@@ -43,7 +43,6 @@
 		AB53CE40160B6806009DA4B5 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
 		AB53CE42160B6806009DA4B5 /* second.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = second.png; sourceTree = "<group>"; };
 		AB53CE44160B6806009DA4B5 /* second@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "second@2x.png"; sourceTree = "<group>"; };
-		AB53CE4C160B6806009DA4B5 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		ABD40121160C23E2000FF1FF /* Player1NameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player1NameViewController.h; sourceTree = "<group>"; };
 		ABD40122160C23E2000FF1FF /* Player1NameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player1NameViewController.m; sourceTree = "<group>"; };
 		D1342B18160F97B600214072 /* EndGameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndGameViewController.h; sourceTree = "<group>"; };
@@ -90,7 +89,6 @@
 				AB53CE20160B6803009DA4B5 /* UIKit.framework */,
 				AB53CE22160B6803009DA4B5 /* Foundation.framework */,
 				AB53CE24160B6803009DA4B5 /* CoreGraphics.framework */,
-				AB53CE4C160B6806009DA4B5 /* SenTestingKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

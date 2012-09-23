@@ -120,7 +120,6 @@
 
 - (void)closeModalWindow
 {
-    NSLog(@"closeModalWindow");
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             TTTBoard[i][j] = 2;
