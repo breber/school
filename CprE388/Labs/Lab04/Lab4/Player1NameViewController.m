@@ -1,18 +1,24 @@
 //
-//  EnterNameViewController.m
+//  Player1NameViewController.m
 //  Lab4
 //
 //  Created by Ashley Nelson on 9/20/12.
 //  Copyright (c) 2012 Ashley Nelson. All rights reserved.
 //
 
-#import "EnterNameViewController.h"
+#import "Player1NameViewController.h"
 
-@interface EnterNameViewController ()
+@interface Player1NameViewController ()
 
 @end
 
-@implementation EnterNameViewController
+@implementation Player1NameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [player1Name becomeFirstResponder];
+}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
@@ -26,7 +32,10 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-    [self performSegueWithIdentifier:@"goToGame" sender:self];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:[textField text] forKey:@"player1"];
+    
+    [self performSegueWithIdentifier:@"player1done" sender:self];
 }
 
 

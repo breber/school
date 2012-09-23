@@ -11,6 +11,16 @@
 
 @interface GameViewController : UIViewController
 {
+    IBOutlet UIButton *button0;
+    IBOutlet UIButton *button1;
+    IBOutlet UIButton *button2;
+    IBOutlet UIButton *button3;
+    IBOutlet UIButton *button4;
+    IBOutlet UIButton *button5;
+    IBOutlet UIButton *button6;
+    IBOutlet UIButton *button7;
+    IBOutlet UIButton *button8;
+    
     int TTTBoard[3][3];
     BOOL turn;
 }
@@ -31,5 +41,7 @@
 - (BOOL)checkWin;
 - (BOOL)checkFull;
 - (BOOL)checkIfSame:(int)first alongWith:(int)second andThis:(int)third;
+
+- (void)closeModalWindow;
 
 @end

@@ -9,7 +9,9 @@
 #import "GameViewController.h"
 #import "EndGameViewController.h"
 
-@interface GameViewController ()
+@interface GameViewController () {
+    UIButton *buttons[3][3];
+}
 
 @end
 
@@ -19,6 +21,18 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    buttons[0][0] = button0;
+    buttons[0][1] = button1;
+    buttons[0][2] = button2;
+    
+    buttons[1][0] = button3;
+    buttons[1][1] = button4;
+    buttons[1][2] = button5;
+    
+    buttons[2][0] = button6;
+    buttons[2][1] = button7;
+    buttons[2][2] = button8;
     
     for (int i = 0; i < 3; i++)
     {
@@ -42,7 +56,7 @@
 
 - (void)handlePress:(int)button withButton:(id)sender
 {
-    UIButton *but = (UIButton *)sender;
+    UIButton *but = buttons[button/3][button%3];
     if (turn) {
         [but setTitle:@"X" forState:UIControlStateNormal];
     }
@@ -56,14 +70,14 @@
     
     if ([self checkWin])
     {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         if (!turn)
         {
-            self.playerName = @"Player 1";
-            
+            self.playerName = [defaults objectForKey:@"player1"];
         }
         else
         {
-            self.playerName = @"Player 2";
+            self.playerName = [defaults objectForKey:@"player2"];
         }
         
         [self performSegueWithIdentifier:@"endGame" sender:self];
@@ -104,6 +118,20 @@
     }
 }
 
+- (void)closeModalWindow
+{
+    NSLog(@"closeModalWindow");
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            TTTBoard[i][j] = 2;
+            [buttons[i][j] setEnabled:YES];
+            [buttons[i][j] setTitle:@"" forState:UIControlStateNormal];
+        }
+    }
+    
+    [self dismissModalViewControllerAnimated:YES];
+}
+
 - (BOOL)checkFull
 {
     for (int i = 0; i < 3; i++)
@@ -112,7 +140,6 @@
         {
             if (TTTBoard[i][j] == 2) return NO;
         }
-        
     }
     
     return YES;

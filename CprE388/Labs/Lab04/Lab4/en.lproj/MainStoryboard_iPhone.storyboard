@@ -5,16 +5,16 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1926"/>
     </dependencies>
     <scenes>
-        <!--Enter Name View Controller - First-->
+        <!--Player1 Name View Controller - First-->
         <scene sceneID="11">
             <objects>
-                <viewController title="First" id="2" customClass="EnterNameViewController" sceneMemberID="viewController">
+                <viewController title="First" id="2" customClass="Player1NameViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="16">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Tic Tac Toe" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="20">
-                                <rect key="frame" x="54" y="85" width="212" height="43"/>
+                                <rect key="frame" x="54" y="78" width="212" height="43"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="36"/>
@@ -22,7 +22,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" id="SuO-I9-xAv">
-                                <rect key="frame" x="54" y="203" width="212" height="31"/>
+                                <rect key="frame" x="54" y="165" width="212" height="31"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -30,8 +30,8 @@
                                     <outlet property="delegate" destination="2" id="dlr-IO-FdP"/>
                                 </connections>
                             </textField>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Enter your name:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="iaf-mA-T5Y">
-                                <rect key="frame" x="95" y="174" width="131" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Enter First Player's Name:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="iaf-mA-T5Y">
+                                <rect key="frame" x="61" y="136" width="198" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -43,19 +43,20 @@
                     <tabBarItem key="tabBarItem" title="First" image="first" id="7"/>
                     <navigationItem key="navigationItem" id="Wq1-eT-dng"/>
                     <connections>
-                        <segue destination="4" kind="push" identifier="goToGame" id="fLe-AG-a4q"/>
+                        <outlet property="player1Name" destination="SuO-I9-xAv" id="Hha-qP-fd0"/>
+                        <segue destination="tqw-lr-NlT" kind="push" identifier="player1done" id="Qq5-XC-btp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="10" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-449" y="180"/>
+            <point key="canvasLocation" x="-778" y="180"/>
         </scene>
         <!--Game View Controller - Second-->
         <scene sceneID="13">
             <objects>
                 <viewController title="Second" id="3" customClass="GameViewController" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="17">
-                        <rect key="frame" x="0.0" y="64" width="320" height="455"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="499"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="C8I-ri-Ufb">
@@ -198,6 +199,15 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Game" image="second" id="6"/>
                     <connections>
+                        <outlet property="button0" destination="C8I-ri-Ufb" id="bSQ-Fz-rCb"/>
+                        <outlet property="button1" destination="XVP-wX-LbB" id="Y8U-lk-uKU"/>
+                        <outlet property="button2" destination="9N5-2B-YLO" id="VeJ-9U-myi"/>
+                        <outlet property="button3" destination="9Ez-wk-eo1" id="Kv8-3H-9UE"/>
+                        <outlet property="button4" destination="BmT-3f-pBs" id="uNx-9b-gaF"/>
+                        <outlet property="button5" destination="YSa-QA-ps1" id="R8Y-AC-v4G"/>
+                        <outlet property="button6" destination="ZdU-bS-IOP" id="DXg-12-cYw"/>
+                        <outlet property="button7" destination="BMu-Xe-1e3" id="hD7-OF-FIF"/>
+                        <outlet property="button8" destination="CxG-IC-w6s" id="0bt-72-4NK"/>
                         <segue destination="Ov4-CB-5wn" kind="modal" identifier="endGame" id="ydC-iN-zw4"/>
                     </connections>
                 </viewController>
@@ -213,13 +223,28 @@
                         <rect key="frame" x="0.0" y="20" width="320" height="548"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="1zN-qg-IMZ">
-                                <rect key="frame" x="20" y="98" width="280" height="21"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Winner!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="1zN-qg-IMZ">
+                                <rect key="frame" x="20" y="96" width="280" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="33"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="fh3-mD-Avo">
+                                <rect key="frame" x="124" y="402" width="73" height="44"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="Return">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="returnToGame:" destination="Ov4-CB-5wn" eventType="touchUpInside" id="zy6-MD-thQ"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -237,10 +262,10 @@
             <objects>
                 <viewController title="Third" id="zBt-Eh-bvd" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4dJ-Zb-H4X">
-                        <rect key="frame" x="0.0" y="64" width="320" height="455"/>
+                        <rect key="frame" x="0.0" y="20" width="320" height="499"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Third View" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="f2T-z0-REH">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="About" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="f2T-z0-REH">
                                 <rect key="frame" x="54" y="66" width="212" height="43"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -248,31 +273,52 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" bouncesZoom="NO" editable="NO" text="Loaded by the third view controller — an instance of ThirdViewController — specified in the app delegate." textAlignment="center" id="iaj-Gy-zcG">
-                                <rect key="frame" x="20" y="155" width="280" height="88"/>
+                            <textView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" minimumZoomScale="0.0" maximumZoomScale="0.0" bouncesZoom="NO" editable="NO" usesAttributedText="YES" id="iaj-Gy-zcG">
+                                <rect key="frame" x="20" y="155" width="280" height="108"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" size="system"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="This app was ">
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="Helvetica"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="designed">
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="Helvetica-Bold"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content=" and ">
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="Helvetica"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="engineered">
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="Helvetica-Bold"/>
+                                            <font key="NSOriginalFont" size="14" name="Helvetica-Bold"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment>
+                                        <string key="content"> by:
+
+Ashley Nelson (anelson6)
+Brian Reber (breber)</string>
+                                        <attributes>
+                                            <font key="NSFont" size="14" name="Helvetica"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
                                 <textInputTraits key="textInputTraits"/>
                             </textView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="r1b-El-dIF">
-                                <rect key="frame" x="119" y="280" width="82" height="37"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                <state key="normal" title="Dismiss">
-                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <state key="highlighted">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <connections>
-                                    <action selector="dismissModalVC" destination="zBt-Eh-bvd" eventType="touchUpInside" id="Kyw-01-ktx"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="About" id="2aQ-9m-ohK"/>
+                    <tabBarItem key="tabBarItem" title="About" image="first" id="2aQ-9m-ohK"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xlz-wx-F65" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -291,7 +337,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3dm-78-KDK" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-912" y="180"/>
+            <point key="canvasLocation" x="-1241" y="180"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="15">
@@ -313,6 +359,52 @@
             </objects>
             <point key="canvasLocation" x="132" y="180"/>
         </scene>
+        <!--Player2 Name View Controller - First-->
+        <scene sceneID="yj6-hi-VN9">
+            <objects>
+                <viewController title="First" id="tqw-lr-NlT" customClass="Player2NameViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Uax-MA-lUd">
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Tic Tac Toe" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="EDG-nM-Ka5">
+                                <rect key="frame" x="54" y="78" width="212" height="43"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="36"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" id="Ge5-xI-v9Y">
+                                <rect key="frame" x="54" y="165" width="212" height="31"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="tqw-lr-NlT" id="NH7-TB-In0"/>
+                                </connections>
+                            </textField>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Enter Second Player's Name:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="cns-4n-ipY">
+                                <rect key="frame" x="49" y="136" width="223" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="First" image="first" id="17h-pb-aws"/>
+                    <navigationItem key="navigationItem" id="HLu-kF-Zgy"/>
+                    <connections>
+                        <outlet property="player2Name" destination="Ge5-xI-v9Y" id="HBK-CB-fT9"/>
+                        <segue destination="4" kind="modal" identifier="player2done" id="bh7-r6-fbM"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0x0-nE-j18" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-294" y="180"/>
+        </scene>
     </scenes>
     <resources>
         <image name="first" width="16" height="16"/>
@@ -322,6 +414,7 @@
         <class className="EndGameViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/EndGameViewController.h"/>
             <relationships>
+                <relationship kind="action" name="returnToGame:"/>
                 <relationship kind="outlet" name="nameLabel" candidateClass="UILabel"/>
             </relationships>
         </class>
@@ -337,6 +430,27 @@
                 <relationship kind="action" name="button6Pressed:"/>
                 <relationship kind="action" name="button7Pressed:"/>
                 <relationship kind="action" name="button8Pressed:"/>
+                <relationship kind="outlet" name="button0" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button1" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button2" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button3" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button4" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button5" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button6" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button7" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="button8" candidateClass="UIButton"/>
+            </relationships>
+        </class>
+        <class className="Player1NameViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Player1NameViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="player1Name" candidateClass="UITextField"/>
+            </relationships>
+        </class>
+        <class className="Player2NameViewController" superclassName="Player1NameViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/Player2NameViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="player2Name" candidateClass="UITextField"/>
             </relationships>
         </class>
     </classes>

@@ -19,9 +19,10 @@
 		AB53CE41160B6806009DA4B5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AB53CE40160B6806009DA4B5 /* GameViewController.m */; };
 		AB53CE43160B6806009DA4B5 /* second.png in Resources */ = {isa = PBXBuildFile; fileRef = AB53CE42160B6806009DA4B5 /* second.png */; };
 		AB53CE45160B6806009DA4B5 /* second@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB53CE44160B6806009DA4B5 /* second@2x.png */; };
-		ABD40123160C23E2000FF1FF /* EnterNameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD40122160C23E2000FF1FF /* EnterNameViewController.m */; };
+		ABD40123160C23E2000FF1FF /* Player1NameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD40122160C23E2000FF1FF /* Player1NameViewController.m */; };
 		D1342B1A160F97B600214072 /* EndGameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1342B19160F97B600214072 /* EndGameViewController.m */; };
 		D1342B1E160F97FE00214072 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D1342B1D160F97FE00214072 /* Default-568h@2x.png */; };
+		D1BED467160F9DF0006B245A /* Player2NameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D1BED466160F9DF0006B245A /* Player2NameViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,11 +44,13 @@
 		AB53CE42160B6806009DA4B5 /* second.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = second.png; sourceTree = "<group>"; };
 		AB53CE44160B6806009DA4B5 /* second@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "second@2x.png"; sourceTree = "<group>"; };
 		AB53CE4C160B6806009DA4B5 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		ABD40121160C23E2000FF1FF /* EnterNameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnterNameViewController.h; sourceTree = "<group>"; };
-		ABD40122160C23E2000FF1FF /* EnterNameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EnterNameViewController.m; sourceTree = "<group>"; };
+		ABD40121160C23E2000FF1FF /* Player1NameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player1NameViewController.h; sourceTree = "<group>"; };
+		ABD40122160C23E2000FF1FF /* Player1NameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player1NameViewController.m; sourceTree = "<group>"; };
 		D1342B18160F97B600214072 /* EndGameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndGameViewController.h; sourceTree = "<group>"; };
 		D1342B19160F97B600214072 /* EndGameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EndGameViewController.m; sourceTree = "<group>"; };
 		D1342B1D160F97FE00214072 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		D1BED465160F9DEF006B245A /* Player2NameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player2NameViewController.h; sourceTree = "<group>"; };
+		D1BED466160F9DF0006B245A /* Player2NameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Player2NameViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,8 +103,10 @@
 				AB53CE3B160B6805009DA4B5 /* first.png */,
 				AB53CE3D160B6806009DA4B5 /* first@2x.png */,
 				D1342B1D160F97FE00214072 /* Default-568h@2x.png */,
-				ABD40121160C23E2000FF1FF /* EnterNameViewController.h */,
-				ABD40122160C23E2000FF1FF /* EnterNameViewController.m */,
+				ABD40121160C23E2000FF1FF /* Player1NameViewController.h */,
+				ABD40122160C23E2000FF1FF /* Player1NameViewController.m */,
+				D1BED465160F9DEF006B245A /* Player2NameViewController.h */,
+				D1BED466160F9DF0006B245A /* Player2NameViewController.m */,
 				AB53CE3F160B6806009DA4B5 /* GameViewController.h */,
 				AB53CE40160B6806009DA4B5 /* GameViewController.m */,
 				D1342B18160F97B600214072 /* EndGameViewController.h */,
@@ -196,8 +201,9 @@
 				AB53CE2D160B6804009DA4B5 /* main.m in Sources */,
 				AB53CE31160B6804009DA4B5 /* AppDelegate.m in Sources */,
 				AB53CE41160B6806009DA4B5 /* GameViewController.m in Sources */,
-				ABD40123160C23E2000FF1FF /* EnterNameViewController.m in Sources */,
+				ABD40123160C23E2000FF1FF /* Player1NameViewController.m in Sources */,
 				D1342B1A160F97B600214072 /* EndGameViewController.m in Sources */,
+				D1BED467160F9DF0006B245A /* Player2NameViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

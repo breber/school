@@ -16,4 +16,6 @@
 
 @property GameViewController *parent;
 
+- (IBAction)returnToGame:(id)sender;
+
 @end

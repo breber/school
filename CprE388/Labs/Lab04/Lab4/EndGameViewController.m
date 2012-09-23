@@ -42,4 +42,9 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+- (IBAction)returnToGame:(id)sender
+{
+    [self.parent closeModalWindow];
+}
+
 @end

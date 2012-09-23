@@ -1,5 +1,5 @@
 //
-//  EnterNameViewController.h
+//  Player1NameViewController.h
 //  Lab4
 //
 //  Created by Ashley Nelson on 9/20/12.
@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface EnterNameViewController : UIViewController <UITextFieldDelegate>
+@interface Player1NameViewController : UIViewController <UITextFieldDelegate>
 {
-    IBOutlet UITextField *myText;
+    IBOutlet UITextField *player1Name;
 }
 
 @end
