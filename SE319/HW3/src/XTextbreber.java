@@ -1,3 +1,4 @@
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -36,6 +37,72 @@ public class XTextbreber extends JFrame implements KeyListener {
 	 * Indicates whether the document has been modified since the last save
 	 */
 	private boolean mDocumentModified = false;
+
+	/**
+	 * The ActionListener for the replace button
+	 */
+	private ActionListener mReplaceActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+		}
+	};
+
+	/**
+	 * The ActionListener for the replace all button
+	 */
+	private ActionListener mReplaceAllActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+		}
+	};
+
+	/**
+	 * The ActionListener for the find button
+	 */
+	private ActionListener mFindActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+		}
+	};
+
+	/**
+	 * The ActionListener for the small button
+	 */
+	private ActionListener mSmallActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Font current = mTextArea.getFont();
+			Font updated = new Font(current.getName(), current.getStyle(), 10);
+			mTextArea.setFont(updated);
+		}
+	};
+
+	/**
+	 * The ActionListener for the medium button
+	 */
+	private ActionListener mMediumActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Font current = mTextArea.getFont();
+			Font updated = new Font(current.getName(), current.getStyle(), 15);
+			mTextArea.setFont(updated);
+		}
+	};
+
+	/**
+	 * The ActionListener for the large button
+	 */
+	private ActionListener mLargeActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Font current = mTextArea.getFont();
+			Font updated = new Font(current.getName(), current.getStyle(), 20);
+			mTextArea.setFont(updated);
+		}
+	};
 
 	/**
 	 * Main entry point
@@ -124,9 +191,17 @@ public class XTextbreber extends JFrame implements KeyListener {
 		editMenu.add(new JMenuItem("Find"));
 
 		JMenu fontSizeSubmenu = new JMenu("Font Size");
-		fontSizeSubmenu.add(new JMenuItem("Small"));
-		fontSizeSubmenu.add(new JMenuItem("Medium"));
-		fontSizeSubmenu.add(new JMenuItem("Large"));
+		JMenuItem smallMenuItem = new JMenuItem("Small");
+		smallMenuItem.addActionListener(mSmallActionListener);
+		fontSizeSubmenu.add(smallMenuItem);
+
+		JMenuItem mediumMenuItem = new JMenuItem("Medium");
+		mediumMenuItem.addActionListener(mMediumActionListener);
+		fontSizeSubmenu.add(mediumMenuItem);
+
+		JMenuItem largeMenuItem = new JMenuItem("Large");
+		largeMenuItem.addActionListener(mLargeActionListener);
+		fontSizeSubmenu.add(largeMenuItem);
 		editMenu.add(fontSizeSubmenu);
 
 		menuBar.add(editMenu);
