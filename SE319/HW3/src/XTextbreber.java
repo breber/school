@@ -1,5 +1,7 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,13 +24,18 @@ import javax.swing.filechooser.FileFilter;
  * 
  * @author Brian Reber (breber)
  */
-public class XTextbreber extends JFrame {
+public class XTextbreber extends JFrame implements KeyListener {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The JTextArea we use
 	 */
 	private JTextArea mTextArea = new JTextArea();
+
+	/**
+	 * Indicates whether the document has been modified since the last save
+	 */
+	private boolean mDocumentModified = false;
 
 	/**
 	 * Main entry point
@@ -48,6 +55,7 @@ public class XTextbreber extends JFrame {
 		// Build the text area
 		mTextArea.setEditable(true);
 		mTextArea.setLineWrap(true);
+		mTextArea.addKeyListener(this);
 
 		// Perform actions necessary to create a new document
 		newDocument();
@@ -138,6 +146,9 @@ public class XTextbreber extends JFrame {
 
 		// Clear the text area
 		mTextArea.setText("");
+
+		// The document hasn't been modified yet
+		mDocumentModified = false;
 	}
 
 	/**
@@ -145,8 +156,7 @@ public class XTextbreber extends JFrame {
 	 * to see if they want to save it, and then save it if they do.
 	 */
 	private void saveIfFileModified() {
-		// TODO: save old?
-		if (true) {
+		if (mDocumentModified) {
 			// If the document content has changed, prompt the user to see if they
 			// want to save their work
 			int saveResult = JOptionPane.showConfirmDialog(XTextbreber.this, "Would you like to save your work?", "", JOptionPane.YES_NO_OPTION);
@@ -181,6 +191,9 @@ public class XTextbreber extends JFrame {
 
 		if (JFileChooser.APPROVE_OPTION == saveResult) {
 			File f = saveFileChooser.getSelectedFile();
+
+			setTitle("XText:" + f.getName());
+
 			FileOutputStream fos;
 			try {
 				fos = new FileOutputStream(f);
@@ -188,6 +201,8 @@ public class XTextbreber extends JFrame {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+			mDocumentModified = false;
 		}
 	}
 
@@ -217,6 +232,8 @@ public class XTextbreber extends JFrame {
 
 			setTitle("XText:" + f.getName());
 
+			mDocumentModified = false;
+
 			try {
 				Scanner scanner = new Scanner(f);
 				StringBuilder temp = new StringBuilder();
@@ -230,6 +247,17 @@ public class XTextbreber extends JFrame {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) { }
+
+	@Override
+	public void keyReleased(KeyEvent arg0) { }
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		mDocumentModified = true;
 	}
 
 }
