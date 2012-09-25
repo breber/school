@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -143,7 +144,39 @@ public class XTextbreber extends JFrame implements KeyListener {
 		mTextArea.addKeyListener(this);
 
 		// Build the context menu and add it to the textarea
-		buildContextMenu();
+		final JPopupMenu menu = new JPopupMenu();
+		buildContextMenu(menu);
+		mTextArea.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				maybeShowPopup(arg0);
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				maybeShowPopup(arg0);
+			}
+
+			/**
+			 * Show the popup menu if this is a right click
+			 * 
+			 * @param e
+			 */
+			private void maybeShowPopup(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) { }
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) { }
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) { }
+		});
 
 		// Perform actions necessary to create a new document
 		newDocument();
@@ -212,18 +245,28 @@ public class XTextbreber extends JFrame implements KeyListener {
 
 		// Setup the Edit Menu
 		JMenu editMenu = new JMenu("Edit");
+		buildContextMenu(editMenu);
 
+		menuBar.add(editMenu);
+
+		return menuBar;
+	}
+
+	/**
+	 * Build the context menu for when a user right clicks
+	 */
+	private void buildContextMenu(JComponent menu) {
 		JMenuItem replaceMenuItem = new JMenuItem("Replace");
 		replaceMenuItem.addActionListener(mReplaceActionListener);
-		editMenu.add(replaceMenuItem);
+		menu.add(replaceMenuItem);
 
 		JMenuItem replaceAllMenuItem = new JMenuItem("Replace All");
 		replaceAllMenuItem.addActionListener(mReplaceAllActionListener);
-		editMenu.add(replaceAllMenuItem);
+		menu.add(replaceAllMenuItem);
 
 		JMenuItem findMenuItem = new JMenuItem("Find");
 		findMenuItem.addActionListener(mFindActionListener);
-		editMenu.add(findMenuItem);
+		menu.add(findMenuItem);
 
 		JMenu fontSizeSubmenu = new JMenu("Font Size");
 		JMenuItem smallMenuItem = new JMenuItem("Small");
@@ -237,74 +280,7 @@ public class XTextbreber extends JFrame implements KeyListener {
 		JMenuItem largeMenuItem = new JMenuItem("Large");
 		largeMenuItem.addActionListener(mLargeActionListener);
 		fontSizeSubmenu.add(largeMenuItem);
-		editMenu.add(fontSizeSubmenu);
-
-		menuBar.add(editMenu);
-
-		return menuBar;
-	}
-
-	/**
-	 * Build the context menu for when a user right clicks
-	 */
-	private void buildContextMenu() {
-		final JPopupMenu menu = new JPopupMenu();
-
-		JMenuItem replaceMenuItem = new JMenuItem("Replace");
-		replaceMenuItem.addActionListener(mReplaceActionListener);
-		menu.add(replaceMenuItem);
-
-		JMenuItem replaceAllMenuItem = new JMenuItem("Replace All");
-		replaceAllMenuItem.addActionListener(mReplaceAllActionListener);
-		menu.add(replaceAllMenuItem);
-
-		JMenuItem findMenuItem = new JMenuItem("Find");
-		findMenuItem.addActionListener(mFindActionListener);
-		menu.add(findMenuItem);
-
-		JMenuItem smallMenuItem = new JMenuItem("Small");
-		smallMenuItem.addActionListener(mSmallActionListener);
-		menu.add(smallMenuItem);
-
-		JMenuItem mediumMenuItem = new JMenuItem("Medium");
-		mediumMenuItem.addActionListener(mMediumActionListener);
-		menu.add(mediumMenuItem);
-
-		JMenuItem largeMenuItem = new JMenuItem("Large");
-		largeMenuItem.addActionListener(mLargeActionListener);
-		menu.add(largeMenuItem);
-
-		mTextArea.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				maybeShowPopup(arg0);
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-				maybeShowPopup(arg0);
-			}
-
-			/**
-			 * Show the popup menu if this is a right click
-			 * 
-			 * @param e
-			 */
-			private void maybeShowPopup(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					menu.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) { }
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) { }
-
-			@Override
-			public void mouseClicked(MouseEvent arg0) { }
-		});
+		menu.add(fontSizeSubmenu);
 	}
 
 	/**
