@@ -3,6 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileFilter;
@@ -124,12 +127,20 @@ public class XTextbreber extends JFrame implements KeyListener {
 		mTextArea.setLineWrap(true);
 		mTextArea.addKeyListener(this);
 
+		// Build the context menu and add it to the textarea
+		buildContextMenu();
+
 		// Perform actions necessary to create a new document
 		newDocument();
 
 		getContentPane().add(new JScrollPane(mTextArea));
 	}
 
+	/**
+	 * Build the menu bar with the File and Edit menu
+	 * 
+	 * @return the menubar to add to the JFrame
+	 */
 	private JMenuBar buildMenuBar() {
 		// Setup the Menu Bar
 		JMenuBar menuBar = new JMenuBar();
@@ -207,6 +218,69 @@ public class XTextbreber extends JFrame implements KeyListener {
 		menuBar.add(editMenu);
 
 		return menuBar;
+	}
+
+	/**
+	 * Build the context menu for when a user right clicks
+	 */
+	private void buildContextMenu() {
+		final JPopupMenu menu = new JPopupMenu();
+
+		JMenuItem replaceMenuItem = new JMenuItem("Replace");
+		replaceMenuItem.addActionListener(mReplaceActionListener);
+		menu.add(replaceMenuItem);
+
+		JMenuItem replaceAllMenuItem = new JMenuItem("Replace All");
+		replaceAllMenuItem.addActionListener(mReplaceAllActionListener);
+		menu.add(replaceAllMenuItem);
+
+		JMenuItem findMenuItem = new JMenuItem("Find");
+		findMenuItem.addActionListener(mFindActionListener);
+		menu.add(findMenuItem);
+
+		JMenuItem smallMenuItem = new JMenuItem("Small");
+		smallMenuItem.addActionListener(mSmallActionListener);
+		menu.add(smallMenuItem);
+
+		JMenuItem mediumMenuItem = new JMenuItem("Medium");
+		mediumMenuItem.addActionListener(mMediumActionListener);
+		menu.add(mediumMenuItem);
+
+		JMenuItem largeMenuItem = new JMenuItem("Large");
+		largeMenuItem.addActionListener(mLargeActionListener);
+		menu.add(largeMenuItem);
+
+		mTextArea.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				maybeShowPopup(arg0);
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				maybeShowPopup(arg0);
+			}
+
+			/**
+			 * Show the popup menu if this is a right click
+			 * 
+			 * @param e
+			 */
+			private void maybeShowPopup(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) { }
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) { }
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) { }
+		});
 	}
 
 	/**
