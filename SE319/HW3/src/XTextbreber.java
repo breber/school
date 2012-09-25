@@ -47,7 +47,7 @@ public class XTextbreber extends JFrame implements KeyListener {
 	private ActionListener mReplaceActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
+			performReplaceOperation(false);
 		}
 	};
 
@@ -57,7 +57,7 @@ public class XTextbreber extends JFrame implements KeyListener {
 	private ActionListener mReplaceAllActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
+			performReplaceOperation(true);
 		}
 	};
 
@@ -67,7 +67,17 @@ public class XTextbreber extends JFrame implements KeyListener {
 	private ActionListener mFindActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
+			String result = JOptionPane.showInputDialog("What would you like to find?");
+
+			if (!"".equals(result)) {
+				int cursorPosition = mTextArea.getCaretPosition();
+				String textFieldString = mTextArea.getText();
+				int index = textFieldString.indexOf(result, cursorPosition);
+
+				if (index >= 0) {
+					mTextArea.select(index, index + result.length());
+				}
+			}
 		}
 	};
 
@@ -197,9 +207,18 @@ public class XTextbreber extends JFrame implements KeyListener {
 
 		// Setup the Edit Menu
 		JMenu editMenu = new JMenu("Edit");
-		editMenu.add(new JMenuItem("Replace"));
-		editMenu.add(new JMenuItem("Replace All"));
-		editMenu.add(new JMenuItem("Find"));
+
+		JMenuItem replaceMenuItem = new JMenuItem("Replace");
+		replaceMenuItem.addActionListener(mReplaceActionListener);
+		editMenu.add(replaceMenuItem);
+
+		JMenuItem replaceAllMenuItem = new JMenuItem("Replace All");
+		replaceAllMenuItem.addActionListener(mReplaceAllActionListener);
+		editMenu.add(replaceAllMenuItem);
+
+		JMenuItem findMenuItem = new JMenuItem("Find");
+		findMenuItem.addActionListener(mFindActionListener);
+		editMenu.add(findMenuItem);
 
 		JMenu fontSizeSubmenu = new JMenu("Font Size");
 		JMenuItem smallMenuItem = new JMenuItem("Small");
@@ -398,6 +417,56 @@ public class XTextbreber extends JFrame implements KeyListener {
 		}
 	}
 
+	/**
+	 * The replace operation
+	 * 
+	 * @param replaceAll whether to replace all instances or just first
+	 */
+	private void performReplaceOperation(boolean replaceAll) {
+		String fromString = null;
+		String fullTextAreaText = mTextArea.getText();
+		String preTextAreaText = null;
+		String postTextAreaText = null;
+		String selectedText = mTextArea.getSelectedText();
+
+		// If the user hasn't selected any text, prompt them for the string to replace
+		if (selectedText == null) {
+			fromString = JOptionPane.showInputDialog("What string would you like to replace?");
+
+			// Get the text from the beginning to the cursor
+			preTextAreaText = fullTextAreaText.substring(0, mTextArea.getCaretPosition());
+
+			// Get only the string from the current position
+			postTextAreaText = fullTextAreaText.substring(mTextArea.getCaretPosition());
+		} else {
+			// If the user has selected text, use that as the from string
+			fromString = selectedText;
+
+			// Get the text from the beginning to the cursor
+			preTextAreaText = fullTextAreaText.substring(0, mTextArea.getSelectionStart());
+
+			// Get only the string from the current position
+			postTextAreaText = fullTextAreaText.substring(mTextArea.getSelectionStart());
+		}
+
+		// If the text from the current location contains the from string, prompt the user for the replacement string
+		if (fromString != null && postTextAreaText.contains(fromString)) {
+			String toString = JOptionPane.showInputDialog("What would you like to replace it with?");
+
+			// Perform a replace all or just a replace depending on what option they chose
+			if (replaceAll) {
+				postTextAreaText = postTextAreaText.replaceAll(fromString, toString);
+			} else {
+				postTextAreaText = postTextAreaText.replaceFirst(fromString, toString);
+			}
+
+			// Update the text with the updated string
+			mTextArea.setText(preTextAreaText + postTextAreaText);
+		} else {
+			JOptionPane.showConfirmDialog(this, "The text \"" + fromString + "\" was not found after the current position", "", JOptionPane.OK_CANCEL_OPTION);
+		}
+	}
+
 	@Override
 	public void keyPressed(KeyEvent arg0) { }
 
@@ -408,5 +477,4 @@ public class XTextbreber extends JFrame implements KeyListener {
 	public void keyTyped(KeyEvent arg0) {
 		mDocumentModified = true;
 	}
-
 }
