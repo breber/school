@@ -128,6 +128,11 @@ public class XTextbreber extends JFrame implements KeyListener {
 		xtext.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
+	/**
+	 * Create a new XTextbreber with the default layout and setup
+	 * 
+	 * It will be 800x600 by default.
+	 */
 	public XTextbreber() {
 		setJMenuBar(buildMenuBar());
 		setSize(800, 600);
@@ -463,7 +468,7 @@ public class XTextbreber extends JFrame implements KeyListener {
 			// Update the text with the updated string
 			mTextArea.setText(preTextAreaText + postTextAreaText);
 		} else {
-			JOptionPane.showConfirmDialog(this, "The text \"" + fromString + "\" was not found after the current position", "", JOptionPane.OK_CANCEL_OPTION);
+			JOptionPane.showMessageDialog(this, "The text \"" + fromString + "\" was not found after the current position");
 		}
 	}
 
