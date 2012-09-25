@@ -11,6 +11,7 @@
 
 @interface Player2NameViewController : Player1NameViewController {
     IBOutlet UITextField *player2Name;
+    BOOL canStoreName;
 }
 
 @end

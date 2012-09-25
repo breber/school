@@ -18,10 +18,19 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setObject:[textField text] forKey:@"player2"];
+    if (canStoreName)
+    {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [defaults setObject:[textField text] forKey:@"player2"];
     
-    [self performSegueWithIdentifier:@"player2done" sender:self];
+        [self performSegueWithIdentifier:@"player2done" sender:self];
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    canStoreName = YES;
+    return [player2Name resignFirstResponder];
 }
 
 @end

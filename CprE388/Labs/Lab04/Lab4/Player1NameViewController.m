@@ -16,7 +16,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    self.navigationController.navigationBar.tintColor = [[UIColor alloc] initWithRed:18.0/255 green:5.0/255 blue:105.0/255 alpha:1.0];
+    self.navigationItem.backBarButtonItem =
+    [[UIBarButtonItem alloc] initWithTitle:@"Back"
+                                      style:UIBarButtonItemStyleBordered
+                                     target:nil
+                                     action:nil];
     [player1Name becomeFirstResponder];
 }
 

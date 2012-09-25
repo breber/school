@@ -21,6 +21,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    self.navigationController.navigationBar.tintColor = [[UIColor alloc] initWithRed:18.0/255 green:5.0/255 blue:105.0/255 alpha:1.0];
     
     buttons[0][0] = button0;
     buttons[0][1] = button1;
@@ -59,9 +60,11 @@
     UIButton *but = buttons[button/3][button%3];
     if (turn) {
         [but setTitle:@"X" forState:UIControlStateNormal];
+        [but setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     }
     else {
         [but setTitle:@"O" forState:UIControlStateNormal];
+        [but setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
     }
     
     TTTBoard[button/3][button%3] = turn;
@@ -120,6 +123,7 @@
 
 - (void)closeModalWindow
 {
+    NSLog(@"closeModalWindow");
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             TTTBoard[i][j] = 2;
