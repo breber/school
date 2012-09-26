@@ -1,8 +1,6 @@
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -20,6 +18,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
 /**
@@ -29,7 +29,7 @@ import javax.swing.filechooser.FileFilter;
  * 
  * @author Brian Reber (breber)
  */
-public class XTextbreber extends JFrame implements KeyListener {
+public class XTextbreber extends JFrame implements DocumentListener {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -141,7 +141,7 @@ public class XTextbreber extends JFrame implements KeyListener {
 		// Build the text area
 		mTextArea.setEditable(true);
 		mTextArea.setLineWrap(true);
-		mTextArea.addKeyListener(this);
+		mTextArea.getDocument().addDocumentListener(this);
 
 		// Build the context menu and add it to the textarea
 		final JPopupMenu menu = new JPopupMenu();
@@ -381,8 +381,6 @@ public class XTextbreber extends JFrame implements KeyListener {
 
 			setTitle("XText:" + f.getName());
 
-			mDocumentModified = false;
-
 			try {
 				Scanner scanner = new Scanner(f);
 				StringBuilder temp = new StringBuilder();
@@ -395,6 +393,8 @@ public class XTextbreber extends JFrame implements KeyListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+			mDocumentModified = false;
 		}
 	}
 
@@ -449,13 +449,17 @@ public class XTextbreber extends JFrame implements KeyListener {
 	}
 
 	@Override
-	public void keyPressed(KeyEvent arg0) { }
+	public void changedUpdate(DocumentEvent e) {
+		mDocumentModified = true;
+	}
 
 	@Override
-	public void keyReleased(KeyEvent arg0) { }
+	public void insertUpdate(DocumentEvent e) {
+		mDocumentModified = true;
+	}
 
 	@Override
-	public void keyTyped(KeyEvent arg0) {
+	public void removeUpdate(DocumentEvent e) {
 		mDocumentModified = true;
 	}
 }
