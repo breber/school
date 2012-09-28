@@ -81,8 +81,17 @@ public class SimpleListEx extends JFrame
 			@Override
 			public void valueChanged(ListSelectionEvent event)
 			{
+				// Get the event source
 				JList list = (JList) event.getSource();
-				viewModuleFunctionality((File) myListModel.getElementAt(list.getSelectedIndex()));
+
+				// Get the selected index
+				int selectedIndex = list.getSelectedIndex();
+
+				// Get the element at the specified index
+				File selectedFile = (File) myListModel.getElementAt(selectedIndex);
+
+				// Have the file rendered using the provided functionality
+				viewModuleFunctionality(selectedFile);
 			}
 		});
 	}
