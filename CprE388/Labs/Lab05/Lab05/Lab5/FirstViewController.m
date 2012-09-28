@@ -29,8 +29,6 @@
     myPicker = [[GKPeerPickerController alloc] init];
     myPicker.delegate = self;
     myPicker.connectionTypesMask = GKPeerPickerConnectionTypeNearby;
-    
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -53,7 +51,6 @@
                           acceleration.z*acceleration.z);
 
     if (currMag - lastAcc > 0.3) {
-        
         NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
         [mySession sendDataToAllPeers:data withDataMode:GKSendDataUnreliable error:nil];
     }

@@ -20,7 +20,6 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -35,14 +34,11 @@
     
     if (button1.highlighted) {
         path = [[NSBundle mainBundle] pathForResource:@"mario_03" ofType:@"wav"];
-    }
-    else if (button2.highlighted) {
+    } else if (button2.highlighted) {
         path = [[NSBundle mainBundle] pathForResource:@"mario_04" ofType:@"wav"];
-    }
-    else if (button3.highlighted) {
+    } else if (button3.highlighted) {
         path = [[NSBundle mainBundle] pathForResource:@"mario_07" ofType:@"wav"];
-    }
-    else if (button4.highlighted) {
+    } else if (button4.highlighted) {
         path = [[NSBundle mainBundle] pathForResource:@"mario_14" ofType:@"wav"];
     }
     
