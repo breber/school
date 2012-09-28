@@ -1,9 +1,9 @@
 //
 //  AppDelegate.h
-//  Lab05
+//  Lab5
 //
-//  Created by Brian Reber on 9/28/12.
-//  Copyright (c) 2012 Brian Reber. All rights reserved.
+//  Created by Nelson, Ashley M on 9/28/12.
+//  Copyright (c) 2012 Nelson, Ashley M. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
