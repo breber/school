@@ -1,0 +1,10 @@
+---
+layout: layout
+title: CprE 186
+summary: Intro to Problem Solving II
+---
+
+## CprE 186
+### Intro to Problem Solving II
+
+Some text about CprE 186
