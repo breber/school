@@ -4,7 +4,7 @@ title: CprE 288
 summary: Embedded Systems I: Intro
 ---
 
-## CprE 288
+## CprE 186
 ### Embedded Systems I: Intro
 
 Some text about CprE 288
