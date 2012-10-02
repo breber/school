@@ -25,12 +25,12 @@
         <a href="http://android.brianreber.com/" class="button"><strong>Google Play</strong></a>
       </div>
     </div>
-    
+
     <div class="wrapper">
       <div class="nav">
         <ul>
           <li><a href="/">Home</a></li>
-          {% for post in site.posts reversed %}
+          {% for post in site.categories.general reversed %}
           <li><a href="{{ post.url }}">{{ post.title }}</a></li>
           {% endfor %}
         </ul>
