@@ -4,6 +4,6 @@ title: Portfolio
 summary: Portfolio containing all projects from Iowa State
 ---
 
-<h2>Brian Reber's Portfolio</h2>
+## Brian Reber's Portfolio
 
-<p>TODO: write information</p>
+TODO: write information
