@@ -8,5 +8,5 @@ category: general
 ## Iowa State Coursework
 
 {% for post in site.categories.education %}
-* [{{ post.title }}]({{ post.url }})
+* [{{ post.title }}]({{ post.url }}) - {{ post.summary }}
 {% endfor %}
