@@ -1,3 +1,12 @@
+/*
+ * Author Brian Reber (breber)
+ *
+ * The toString method in the AuthNode can be used as the "title"
+ * for the corresponding JTreeNode in the JTree. Since the toString
+ * method returns the author name, we can use that since that is what
+ * we are supposed to display in the tree.
+ */
+
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
@@ -55,17 +64,28 @@ class ErdosStructPanel extends JPanel
 		AuthNode node = erdosStruct.getRoot();
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(node.toString());
 
+		// Recursively build the tree from the root
 		buildTree(root, node);
 
+		// Set up the JTree with the root not visible (so we don't have a duplicate
+		// root), and the showsRootHandles true so that we can collapse the root
+		// node as well.
 		JTree tree = new JTree(root);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 
+		// Set up the JScrollPane wrapper and add it to this panel
 		JScrollPane sp = new JScrollPane(tree);
 		sp.setPreferredSize(new Dimension(450, 450));
 		add(sp);
 	}
 
+	/**
+	 * Recursively build the JTree from the given AuthNode
+	 *
+	 * @param tree the "root" node of the current subtree
+	 * @param node the node to add on, and to build the subtree for
+	 */
 	private void buildTree(DefaultMutableTreeNode tree, AuthNode node) {
 		DefaultMutableTreeNode current = new DefaultMutableTreeNode(node.toString());
 
