@@ -8,5 +8,5 @@ category: general
 ## Professional Work Experience
 
 {% for post in site.categories.internship %}
-* [{{ post.summary }}]({{ post.url }})
+* [{{ post.title }}]({{ post.url }})
 {% endfor %}
