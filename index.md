@@ -6,7 +6,7 @@ summary: Portfolio containing all projects from Iowa State
 
 ### Career Objective
 
-Upon graduating in May 2013, I plan to begin working full-time in the field of Computer/Software Engineering.
+Upon graduating in May 2013, I plan to begin working full-time in the field of Computer/Software Engineering. I have a strong interest in software development for mobile platforms.
 
 ### School Contact Information
 
