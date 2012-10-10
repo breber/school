@@ -62,6 +62,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -69,6 +70,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 
 
+@SuppressWarnings("serial")
 public class XText1breber extends JFrame implements ActionListener,
                                                    DocumentListener,
                                                    MouseListener
@@ -83,6 +85,8 @@ public class XText1breber extends JFrame implements ActionListener,
 	private boolean documentChanged = false;
 
 	// main text area holder: a scrolling pane
+	private final JSplitPane splitPane;
+	private final JScrollPane filePane;
 	private final JScrollPane textPane;
 
 	// menubar with menus
@@ -199,7 +203,12 @@ public class XText1breber extends JFrame implements ActionListener,
 		text = new JTextArea();
 		settingTextAreaProperty(text);
 		textPane = new JScrollPane(text);
-		getContentPane().add(textPane, BorderLayout.CENTER);
+
+		filePane = new JScrollPane();
+
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, textPane);
+
+		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		// set the documentChanged to false to indicate initially nothing has changed in the text area
 		documentChanged = false;
@@ -342,7 +351,6 @@ public class XText1breber extends JFrame implements ActionListener,
      *****************************************************************************************/
 	public void openHandler()
 	{
-
 		int returnVal;
 		JFileChooser fchooser = new JFileChooser(System.getProperty("user.home"));
 
@@ -352,19 +360,18 @@ public class XText1breber extends JFrame implements ActionListener,
 		returnVal = fchooser.showOpenDialog(XText1breber.this);
 
 		// a file to be opened is selected
-		if (returnVal == JFileChooser.APPROVE_OPTION)
-		{
-	       File file = fchooser.getSelectedFile();
-	       if (file == null || !file.exists())
-	       {
-	    	   JOptionPane.showMessageDialog(this, "File " + file.getName() + " not found!");
-	    	   return;
-	       }
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fchooser.getSelectedFile();
+			if (file == null || !file.exists()) {
+				JOptionPane.showMessageDialog(this, "File " + file.getName() + " not found!");
+				return;
+			}
 
-	       // writing function is invoked via this helper
-	       openHandlerHelper(file);
-	    }
-	    else { System.out.println("User decided not to open a file"); }
+			// writing function is invoked via this helper
+			openHandlerHelper(file);
+		} else {
+			System.out.println("User decided not to open a file");
+		}
 	}
 
 	// Another function: simple but invoked once: future use
@@ -383,23 +390,22 @@ public class XText1breber extends JFrame implements ActionListener,
 	// file reading helper
 	public void fileReading(File file)
 	{
-		try
-	       {
-	    	   BufferedReader reader = new BufferedReader(new FileReader(file));
-	    	   String line = null;
-	    	   while ((line = reader.readLine()) != null)
-	    	   {
-	    		   text.append(line);
-	    		   text.append("\n");
-	    	   }
-	    	   reader.close();
-	       } catch (IOException excep)   { excep.printStackTrace(); }
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				text.append(line);
+				text.append("\n");
+			}
+			reader.close();
+		} catch (IOException excep) {
+			excep.printStackTrace();
+		}
 	}
 
 
 	/****************************
 	 * Saving files
-	 *
 	 *****************************/
 
 	public void saveHandler()
@@ -414,35 +420,32 @@ public class XText1breber extends JFrame implements ActionListener,
 		int returnVal = fchooser.showSaveDialog(XText1breber.this);
 
 		// Some file has been selected
-	    if (returnVal == JFileChooser.APPROVE_OPTION)
-	    {
-	       File file = fchooser.getSelectedFile();
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fchooser.getSelectedFile();
 
-	       boolean newFile = true;
-	       if (file.exists())
-	       {
-	    	   newFile = false;
-	    	   // If file already exists, ask before replacing it.
-	    	   returnVal = JOptionPane.showConfirmDialog(null, "Replace existing file?", "Confirmation Window", returnVal);
-	    	   if (returnVal != JOptionPane.YES_OPTION) {
-				return;
+			boolean newFile = true;
+			if (file.exists()) {
+				newFile = false;
+				// If file already exists, ask before replacing it.
+				returnVal = JOptionPane.showConfirmDialog(null,	"Replace existing file?", "Confirmation Window", returnVal);
+				if (returnVal != JOptionPane.YES_OPTION) {
+					return;
+				}
 			}
-	       }
-	       try
-	       {
-	    	   PrintWriter out = new PrintWriter(new FileWriter(file));
-	    	   String contents = text.getText();
-	    	   out.print(contents);
-	    	   if (out.checkError()) {
-				throw new IOException("Error while writing to file.");
+			try {
+				PrintWriter out = new PrintWriter(new FileWriter(file));
+				String contents = text.getText();
+				out.print(contents);
+				if (out.checkError()) {
+					throw new IOException("Error while writing to file.");
+				}
+				out.close();
+			} catch (IOException excep) {
+				excep.printStackTrace();
 			}
-	    	   out.close();
-	       } catch (IOException excep) {excep.printStackTrace();}
-	    }
-	    else
-	    {
-	       // save is cancelled
-	    }
+		} else {
+			// save is cancelled
+		}
 	}
 
 	/***************************
@@ -682,7 +685,6 @@ public class XText1breber extends JFrame implements ActionListener,
 		documentChanged = true;
 	}
 
-
 	@Override
 	public void changedUpdate(DocumentEvent e)
 	{
@@ -690,29 +692,26 @@ public class XText1breber extends JFrame implements ActionListener,
 	}
 
 }
-	/*******************************************************************/
-    /* SIMPLE FILE FILTER */
+/*******************************************************************/
+/* SIMPLE FILE FILTER */
 
 /*
  * File filter for text documents.
  */
-class MyFileFilter extends FileFilter
-{
+class MyFileFilter extends FileFilter {
 	@Override
-	public boolean accept(File f)
-	{
-	       if (f.isDirectory()) {
+	public boolean accept(File f) {
+		if (f.isDirectory()) {
 			return true;
 		}
-	       if (f.getName().endsWith(".text") || f.getName().endsWith(".txt")) {
+		if (f.getName().endsWith(".text") || f.getName().endsWith(".txt")) {
 			return true;
 		}
-	       return false;
+		return false;
 	}
 
 	@Override
-	public String getDescription()
-	{
+	public String getDescription() {
 		return "Text Files Only";
 	}
 }
