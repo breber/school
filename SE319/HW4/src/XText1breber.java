@@ -64,10 +64,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 
 @SuppressWarnings("serial")
@@ -204,7 +206,18 @@ public class XText1breber extends JFrame implements ActionListener,
 		settingTextAreaProperty(text);
 		textPane = new JScrollPane(text);
 
-		filePane = new JScrollPane();
+		// Build first level of tree
+		File homeDirectory = new File(System.getProperty("user.home"));
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(homeDirectory.getName());
+
+		for (File f : homeDirectory.listFiles()) {
+			root.add(new DefaultMutableTreeNode(f.getName(), f.isDirectory()));
+		}
+
+		JTree tree = new JTree(root, true);
+		tree.setShowsRootHandles(true);
+		tree.setEditable(true);
+		filePane = new JScrollPane(tree);
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, textPane);
 
@@ -437,6 +450,7 @@ public class XText1breber extends JFrame implements ActionListener,
 				String contents = text.getText();
 				out.print(contents);
 				if (out.checkError()) {
+					out.close();
 					throw new IOException("Error while writing to file.");
 				}
 				out.close();
@@ -581,14 +595,13 @@ public class XText1breber extends JFrame implements ActionListener,
 		search = JOptionPane.showInputDialog(null, "Enter the search string\n", "Find", JOptionPane.PLAIN_MESSAGE);
 		if (search == null) {
 			return;
-		} else
-		{
+		} else {
 			int caretPosition = text.getCaretPosition();
 			int fromIndex = find2Handler(search, caretPosition);
 			if (fromIndex == -1) {
 				return;
 			}
-			text.select(caretPosition+fromIndex, caretPosition+fromIndex+search.length());
+			text.select(caretPosition + fromIndex, caretPosition + fromIndex + search.length());
 		}
 	}
 
