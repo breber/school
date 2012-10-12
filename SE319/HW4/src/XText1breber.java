@@ -67,15 +67,23 @@ import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeWillExpandListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreePath;
 
 
 @SuppressWarnings("serial")
 public class XText1breber extends JFrame implements ActionListener,
                                                    DocumentListener,
-                                                   MouseListener
+                                                   MouseListener,
+                                                   TreeWillExpandListener,
+                                                   TreeSelectionListener
 {
 
 	/**********************
@@ -217,6 +225,8 @@ public class XText1breber extends JFrame implements ActionListener,
 		JTree tree = new JTree(root, true);
 		tree.setShowsRootHandles(true);
 		tree.setEditable(true);
+		tree.addTreeWillExpandListener(this);
+		tree.addTreeSelectionListener(this);
 		filePane = new JScrollPane(tree);
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, textPane);
@@ -702,6 +712,57 @@ public class XText1breber extends JFrame implements ActionListener,
 	public void changedUpdate(DocumentEvent e)
 	{
 		// nothing should go in here because this is nothing to do with the text in the text area
+	}
+
+
+	@Override
+	public void treeWillCollapse(TreeExpansionEvent event)
+			throws ExpandVetoException {
+		TreePath path = event.getPath();
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
+		selectedNode.removeAllChildren();
+	}
+
+
+	@Override
+	public void treeWillExpand(TreeExpansionEvent event)
+			throws ExpandVetoException {
+		TreePath path = event.getPath();
+
+		StringBuilder sb = new StringBuilder(System.getProperty("user.home") + "/");
+		for (int i = 1; i < path.getPathCount(); i++) {
+			sb.append(path.getPathComponent(i));
+			sb.append("/");
+		}
+
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
+		File filePath = new File(sb.toString());
+
+		for (File f : filePath.listFiles()) {
+			selectedNode.add(new DefaultMutableTreeNode(f.getName(), f.isDirectory()));
+		}
+	}
+
+
+	@Override
+	public void valueChanged(TreeSelectionEvent e) {
+		TreePath path = e.getPath();
+
+		StringBuilder sb = new StringBuilder(System.getProperty("user.home") + "/");
+		for (int i = 1; i < path.getPathCount(); i++) {
+			sb.append(path.getPathComponent(i));
+			sb.append("/");
+		}
+
+		File filePath = new File(sb.toString());
+		if (!filePath.isDirectory()) {
+			String fileName = filePath.getName();
+			if (fileName.endsWith(".text") || fileName.endsWith(".txt")) {
+				System.out.println("Opening " + filePath.getPath());
+			} else {
+				JOptionPane.showMessageDialog(this, "Cannot open selected file: " + fileName);
+			}
+		}
 	}
 
 }
