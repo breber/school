@@ -39,7 +39,11 @@
  **********************************************************************************/
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -54,12 +58,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -111,7 +117,7 @@ public class XText1breber extends JFrame implements ActionListener,
 	 * - function handlers are separately defined
 	 **********************************/
 	// abstract action: to make sure the popup menu and menuitems work identically
-	private final AbstractAction replace = new AbstractAction("Replace")
+	final AbstractAction replace = new AbstractAction("Replace")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -120,7 +126,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	};
 
-	private final AbstractAction replaceAll = new AbstractAction("ReplaceAll")
+	final AbstractAction replaceAll = new AbstractAction("ReplaceAll")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -129,7 +135,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	};
 
-	private final AbstractAction find = new AbstractAction("Find")
+	final AbstractAction find = new AbstractAction("Find")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -138,7 +144,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	};
 
-	private final AbstractAction small = new AbstractAction("Small")
+	final AbstractAction small = new AbstractAction("Small")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -150,7 +156,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	};
 
-	private final AbstractAction medium = new AbstractAction("Medium")
+	final AbstractAction medium = new AbstractAction("Medium")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -162,7 +168,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	};
 
-	private final AbstractAction large = new AbstractAction("Large")
+	final AbstractAction large = new AbstractAction("Large")
 	{
 		@Override
 		public void actionPerformed(ActionEvent event)
@@ -321,7 +327,8 @@ public class XText1breber extends JFrame implements ActionListener,
 		} else if (source == open) {
 			openHandler();
 		} else if (source == save) {
-			saveHandler();
+			TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+			saveHandler(currentPane);
 		} else if (source == exit) {
 			exitHandler();
 		}
@@ -333,9 +340,8 @@ public class XText1breber extends JFrame implements ActionListener,
 	 ***********************************/
 	public void xnewHandler()
 	{
-		TextPanebreber newTextPane = new TextPanebreber();
-
-		tabbedPane.addTab("XText:New", newTextPane);
+		TextPanebreber newTextPane = new TextPanebreber(this);
+		tabbedPane.addTab("XText:New", new CloseTabIconbreber(null), newTextPane);
 		tabbedPane.setSelectedComponent(newTextPane);
 	}
 
@@ -373,12 +379,15 @@ public class XText1breber extends JFrame implements ActionListener,
 	// Another function: simple but invoked once: future use
 	public void openHandlerHelper(File file)
 	{
-		TextPanebreber newTextPane = new TextPanebreber();
-		tabbedPane.addTab("XText: " + file.getName(), newTextPane);
+		// TODO: check to see if already open
+		TextPanebreber newTextPane = new TextPanebreber(this);
+		tabbedPane.addTab("XText: " + file.getName(), new CloseTabIconbreber(null), newTextPane);
 		tabbedPane.setSelectedComponent(newTextPane);
 
 	    // file reading function is a helper to read file-data one line at a time
 	    fileReading(file, newTextPane);
+
+	    newTextPane.setDocumentChanged(false);
 	}
 
 	// file reading helper
@@ -403,7 +412,7 @@ public class XText1breber extends JFrame implements ActionListener,
 	 * Saving files
 	 *****************************/
 
-	public void saveHandler()
+	public void saveHandler(TextPanebreber textPane)
 	{
 		JFileChooser fchooser = new JFileChooser(System.getProperty("user.home"));
 
@@ -428,11 +437,9 @@ public class XText1breber extends JFrame implements ActionListener,
 				}
 			}
 			try {
-				TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
-
-				if (currentPane != null) {
+				if (textPane != null) {
 					PrintWriter out = new PrintWriter(new FileWriter(file));
-					String contents = currentPane.getTextArea().getText();
+					String contents = textPane.getTextArea().getText();
 					out.print(contents);
 					if (out.checkError()) {
 						out.close();
@@ -456,17 +463,24 @@ public class XText1breber extends JFrame implements ActionListener,
 	{
 		int returnVal;
 
-		// TODO: get this working
 		// Option to save is only provided when the current text document has been updated
-//		if (documentChanged)
-//		{
-//			// open the dialog asking whether the user wants to save the file or not
-//			returnVal = JOptionPane.showConfirmDialog(this, "Want to save the file in XText editor:" + this.getTitle(), null, JOptionPane.YES_NO_OPTION);
-//			if (returnVal == JOptionPane.YES_OPTION) {
-//				saveHandler();
-//			}
-//		}
-//		System.exit(0);
+		while (tabbedPane.getTabCount() > 0) {
+			TextPanebreber textPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+			if (textPane != null && textPane.isDocumentChanged())
+			{
+				// open the dialog asking whether the user wants to save the file or not
+				returnVal = JOptionPane.showConfirmDialog(this,
+						"Want to save the file in XText editor:" + tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()),
+						null, JOptionPane.YES_NO_OPTION);
+				if (returnVal == JOptionPane.YES_OPTION) {
+					saveHandler(textPane);
+				}
+			}
+
+			tabbedPane.remove(textPane);
+		}
+
+		System.exit(0);
 	}
 
 
@@ -687,11 +701,18 @@ public class XText1breber extends JFrame implements ActionListener,
 			}
 		}
 	}
-
 }
 
+/**
+ * A wrapper for a pane in the JTabbedPane. Contains a scrollview
+ * and the text editor. Contains the logic needed to check if the
+ * document has changed or now.
+ *
+ * @author breber
+ */
 class TextPanebreber extends JScrollPane implements DocumentListener, MouseListener
 {
+	private final XText1breber parent;
 
 	// main text area
 	private final JTextArea text;
@@ -703,8 +724,9 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	private final String face = "SansSerif";
 	private final int fontType = Font.PLAIN;
 
-	public TextPanebreber() {
+	public TextPanebreber(XText1breber parent) {
 		super();
+		this.parent = parent;
 		text = new JTextArea();
 		settingTextAreaProperty(text);
 
@@ -727,6 +749,17 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 
 	public JTextArea getTextArea() {
 		return text;
+	}
+
+	public void setDocumentChanged(boolean documentChanged) {
+		this.documentChanged = documentChanged;
+	}
+
+	/**
+	 * @return whether the document has changed
+	 */
+	public boolean isDocumentChanged() {
+		return documentChanged;
 	}
 
 	/*
@@ -770,15 +803,14 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 		// reuse the abstract action
 		if (e.isPopupTrigger())
 		{
-			// TODO
-//			JPopupMenu popup = new JPopupMenu();
-//			popup.add(replace);
-//			popup.add(replaceAll);
-//			popup.add(find);
-//			popup.add(small);
-//			popup.add(medium);
-//			popup.add(large);
-//			popup.show(e.getComponent(), e.getX(), e.getY());
+			JPopupMenu popup = new JPopupMenu();
+			popup.add(parent.replace);
+			popup.add(parent.replaceAll);
+			popup.add(parent.find);
+			popup.add(parent.small);
+			popup.add(parent.medium);
+			popup.add(parent.large);
+			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
 
@@ -801,6 +833,57 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	public void changedUpdate(DocumentEvent e)
 	{
 		// nothing should go in here because this is nothing to do with the text in the text area
+	}
+}
+
+class CloseTabIconbreber implements Icon {
+	private int x_pos;
+	private int y_pos;
+	private final int width;
+	private final int height;
+	private final Icon fileIcon;
+
+	public CloseTabIconbreber(Icon fileIcon) {
+		this.fileIcon = fileIcon;
+		width = 16;
+		height = 16;
+	}
+
+	@Override
+	public void paintIcon(Component c, Graphics g, int x, int y) {
+		this.x_pos = x;
+		this.y_pos = y;
+		Color col = g.getColor();
+		g.setColor(Color.black);
+		int y_p = y + 2;
+		g.drawLine(x + 1, y_p, x + 12, y_p);
+		g.drawLine(x + 1, y_p + 13, x + 12, y_p + 13);
+		g.drawLine(x, y_p + 1, x, y_p + 12);
+		g.drawLine(x + 13, y_p + 1, x + 13, y_p + 12);
+		g.drawLine(x + 3, y_p + 3, x + 10, y_p + 10);
+		g.drawLine(x + 3, y_p + 4, x + 9, y_p + 10);
+		g.drawLine(x + 4, y_p + 3, x + 10, y_p + 9);
+		g.drawLine(x + 10, y_p + 3, x + 3, y_p + 10);
+		g.drawLine(x + 10, y_p + 4, x + 4, y_p + 10);
+		g.drawLine(x + 9, y_p + 3, x + 3, y_p + 9);
+		g.setColor(col);
+		if (fileIcon != null) {
+			fileIcon.paintIcon(c, g, x + width, y_p);
+		}
+	}
+
+	@Override
+	public int getIconWidth() {
+		return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
+	}
+
+	@Override
+	public int getIconHeight() {
+		return height;
+	}
+
+	public Rectangle getBounds() {
+		return new Rectangle(x_pos, y_pos, width, height);
 	}
 }
 
