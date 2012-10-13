@@ -224,7 +224,6 @@ public class XText1breber extends JFrame implements ActionListener,
 
 		JTree tree = new JTree(root, true);
 		tree.setShowsRootHandles(true);
-		tree.setEditable(true);
 		tree.addTreeWillExpandListener(this);
 		tree.addTreeSelectionListener(this);
 		filePane = new JScrollPane(tree);
@@ -748,10 +747,10 @@ public class XText1breber extends JFrame implements ActionListener,
 	public void valueChanged(TreeSelectionEvent e) {
 		TreePath path = e.getPath();
 
-		StringBuilder sb = new StringBuilder(System.getProperty("user.home") + "/");
+		StringBuilder sb = new StringBuilder(System.getProperty("user.home") + File.separator);
 		for (int i = 1; i < path.getPathCount(); i++) {
 			sb.append(path.getPathComponent(i));
-			sb.append("/");
+			sb.append(File.separator);
 		}
 
 		File filePath = new File(sb.toString());
@@ -766,6 +765,7 @@ public class XText1breber extends JFrame implements ActionListener,
 	}
 
 }
+
 /*******************************************************************/
 /* SIMPLE FILE FILTER */
 
