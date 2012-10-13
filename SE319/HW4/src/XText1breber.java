@@ -60,9 +60,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
@@ -80,8 +80,6 @@ import javax.swing.tree.TreePath;
 
 @SuppressWarnings("serial")
 public class XText1breber extends JFrame implements ActionListener,
-                                                   DocumentListener,
-                                                   MouseListener,
                                                    TreeWillExpandListener,
                                                    TreeSelectionListener
 {
@@ -89,15 +87,11 @@ public class XText1breber extends JFrame implements ActionListener,
 	/**********************
 	 *  Member Attributes
 	 *********************/
-	// main text area
-	private final JTextArea text;
-	// keeps track of whether the text has changed in text area
-	private boolean documentChanged = false;
 
 	// main text area holder: a scrolling pane
 	private final JSplitPane splitPane;
+	private final JTabbedPane tabbedPane;
 	private final JScrollPane filePane;
-	private final JScrollPane textPane;
 
 	// menubar with menus
 	private final JMenuBar menubar = new JMenuBar();
@@ -110,11 +104,6 @@ public class XText1breber extends JFrame implements ActionListener,
 	private final JMenuItem open = new JMenuItem("Open", 'O');
 	private final JMenuItem exit = new JMenuItem("eXit", 'X');
 	private final JMenuItem save = new JMenuItem("Save As", 'S');
-
-	// font specifics: default values
-	private int size = 15;
-	private final String face = "SansSerif";
-	private final int fontType = Font.PLAIN;
 
 
 	/**********************************
@@ -154,7 +143,10 @@ public class XText1breber extends JFrame implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent event)
 		{
-			smallHandler();
+			TextPanebreber current = (TextPanebreber) tabbedPane.getSelectedComponent();
+			if (current != null) {
+				current.smallHandler();
+			}
 		}
 	};
 
@@ -163,7 +155,10 @@ public class XText1breber extends JFrame implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent event)
 		{
-			mediumHandler();
+			TextPanebreber current = (TextPanebreber) tabbedPane.getSelectedComponent();
+			if (current != null) {
+				current.mediumHandler();
+			}
 		}
 	};
 
@@ -172,7 +167,10 @@ public class XText1breber extends JFrame implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent event)
 		{
-			largeHandler();
+			TextPanebreber current = (TextPanebreber) tabbedPane.getSelectedComponent();
+			if (current != null) {
+				current.largeHandler();
+			}
 		}
 	};
 
@@ -210,9 +208,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		 *  4. put text area in a scrollpane
 		 *  5. put the scrollpane in the frames content pane
 		 ****************************************************************************************/
-		text = new JTextArea();
-		settingTextAreaProperty(text);
-		textPane = new JScrollPane(text);
+		tabbedPane = new JTabbedPane();
 
 		// Build first level of tree
 		File homeDirectory = new File(System.getProperty("user.home"));
@@ -228,12 +224,11 @@ public class XText1breber extends JFrame implements ActionListener,
 		tree.addTreeSelectionListener(this);
 		filePane = new JScrollPane(tree);
 
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, textPane);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, tabbedPane);
 
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 
 		// set the documentChanged to false to indicate initially nothing has changed in the text area
-		documentChanged = false;
 		setTitle("XText:New");
 
 		/*****************************************
@@ -256,17 +251,7 @@ public class XText1breber extends JFrame implements ActionListener,
 	 * 5. createMenuBar
 	 ********************/
 
-	/******************************************************
-	 * This method is called just once!!!
-	 ******************************************************/
-	public void settingTextAreaProperty(JTextArea text)
-	{
-		text.setLineWrap(true);
-		text.addMouseListener(this);
-		text.setEditable(true);
-		text.setFont(new Font(face, fontType, size));
-		text.getDocument().addDocumentListener(this);
-	}
+
 
 	/******************************************************************
 	 * Creating the file menu: the registration of ActionListener
@@ -348,21 +333,10 @@ public class XText1breber extends JFrame implements ActionListener,
 	 ***********************************/
 	public void xnewHandler()
 	{
-		int returnVal;
+		TextPanebreber newTextPane = new TextPanebreber();
 
-		// Option to save is only provided when the current text document has been updated
-		if (documentChanged)
-		{
-			// open the dialog asking whether the user wants to save the file or not
-			returnVal = JOptionPane.showConfirmDialog(this, "The textarea contents are not saved. Do you want to Save?", null, JOptionPane.YES_NO_OPTION);
-			// when the answer is yes, invoke savehandler (reuse)
-			if (returnVal == JOptionPane.YES_OPTION) {
-				saveHandler();
-			}
-		}
-		// empty the text area
-		text.setText("");
-		setTitle("XText:New");
+		tabbedPane.addTab("XText:New", newTextPane);
+		tabbedPane.setSelectedComponent(newTextPane);
 	}
 
 
@@ -399,25 +373,24 @@ public class XText1breber extends JFrame implements ActionListener,
 	// Another function: simple but invoked once: future use
 	public void openHandlerHelper(File file)
 	{
-		String title = "XText: " + file.getName();
-		setTitle(title);
+		TextPanebreber newTextPane = new TextPanebreber();
+		tabbedPane.addTab("XText: " + file.getName(), newTextPane);
+		tabbedPane.setSelectedComponent(newTextPane);
 
 	    // file reading function is a helper to read file-data one line at a time
-	    fileReading(file);
-
-	    // need to set up the documentChanged to false; otherwise it will remain true incorrectly.
-	    documentChanged = false;
+	    fileReading(file, newTextPane);
 	}
 
 	// file reading helper
-	public void fileReading(File file)
+	public void fileReading(File file, TextPanebreber textPane)
 	{
 		try {
+			JTextArea currentTextArea = textPane.getTextArea();
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line = null;
 			while ((line = reader.readLine()) != null) {
-				text.append(line);
-				text.append("\n");
+				currentTextArea.append(line);
+				currentTextArea.append("\n");
 			}
 			reader.close();
 		} catch (IOException excep) {
@@ -455,14 +428,18 @@ public class XText1breber extends JFrame implements ActionListener,
 				}
 			}
 			try {
-				PrintWriter out = new PrintWriter(new FileWriter(file));
-				String contents = text.getText();
-				out.print(contents);
-				if (out.checkError()) {
+				TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+
+				if (currentPane != null) {
+					PrintWriter out = new PrintWriter(new FileWriter(file));
+					String contents = currentPane.getTextArea().getText();
+					out.print(contents);
+					if (out.checkError()) {
+						out.close();
+						throw new IOException("Error while writing to file.");
+					}
 					out.close();
-					throw new IOException("Error while writing to file.");
 				}
-				out.close();
 			} catch (IOException excep) {
 				excep.printStackTrace();
 			}
@@ -479,16 +456,17 @@ public class XText1breber extends JFrame implements ActionListener,
 	{
 		int returnVal;
 
+		// TODO: get this working
 		// Option to save is only provided when the current text document has been updated
-		if (documentChanged)
-		{
-			// open the dialog asking whether the user wants to save the file or not
-			returnVal = JOptionPane.showConfirmDialog(this, "Want to save the file in XText editor:" + this.getTitle(), null, JOptionPane.YES_NO_OPTION);
-			if (returnVal == JOptionPane.YES_OPTION) {
-				saveHandler();
-			}
-		}
-		System.exit(0);
+//		if (documentChanged)
+//		{
+//			// open the dialog asking whether the user wants to save the file or not
+//			returnVal = JOptionPane.showConfirmDialog(this, "Want to save the file in XText editor:" + this.getTitle(), null, JOptionPane.YES_NO_OPTION);
+//			if (returnVal == JOptionPane.YES_OPTION) {
+//				saveHandler();
+//			}
+//		}
+//		System.exit(0);
 	}
 
 
@@ -503,6 +481,12 @@ public class XText1breber extends JFrame implements ActionListener,
 	 */
 	public void replaceHandler()
 	{
+		TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+		if (currentPane == null) {
+			return;
+		}
+		JTextArea text = currentPane.getTextArea();
+
 		String to = null;
 		String from = null;
 
@@ -549,6 +533,12 @@ public class XText1breber extends JFrame implements ActionListener,
 	 */
 	public void replaceAllHandler()
 	{
+		TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+		if (currentPane == null) {
+			return;
+		}
+		JTextArea text = currentPane.getTextArea();
+
 		String to = null;
 		String from = null;
 
@@ -597,6 +587,12 @@ public class XText1breber extends JFrame implements ActionListener,
 	 */
 	public void findHandler()
 	{
+		TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+		if (currentPane == null) {
+			return;
+		}
+		JTextArea text = currentPane.getTextArea();
+
 		String search = null;
 
 		String in = text.getText();
@@ -617,9 +613,14 @@ public class XText1breber extends JFrame implements ActionListener,
 	/*
 	 * Level two find handling used by replace, replaceAll and find handers
 	 */
-
 	public int find2Handler(String search, int caretPosition)
 	{
+		TextPanebreber currentPane = (TextPanebreber) tabbedPane.getSelectedComponent();
+		if (currentPane == null) {
+			return -1;
+		}
+		JTextArea text = currentPane.getTextArea();
+
 		int textLength = text.getText().length();
 		int fromIndex = -1;
 		try {
@@ -633,87 +634,9 @@ public class XText1breber extends JFrame implements ActionListener,
 	}
 
 
-
-	/*
-	 * suboption menu handler routines
-	 */
-	public void smallHandler()
-	{
-		size = 10;
-		text.setFont(new Font(face, fontType, size));
-	}
-
-	public void mediumHandler()
-	{
-		size = 15;
-		text.setFont(new Font(face, fontType, size));
-	}
-
-	public void largeHandler()
-	{
-		size = 20;
-		text.setFont(new Font(face, fontType, size));
-	}
-
-
 	/*
 	 * All the methods are implemented: We are left with the listener interfaces
 	 */
-
-
-	/****************************************************************************************
-	 * Implementing the MouseListener interface: This is for right mouse button click event,
-	 * when the popup is shown
-	 ****************************************************************************************/
-	@Override
-	public void mouseClicked(MouseEvent e) {}
-	@Override
-	public void mouseEntered(MouseEvent e) {}
-	@Override
-	public void mouseExited(MouseEvent e) {}
-	@Override
-	public void mouseReleased(MouseEvent e) {}
-
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-		// reuse the abstract action
-		if (e.isPopupTrigger())
-		{
-			JPopupMenu popup = new JPopupMenu();
-			popup.add(replace);
-			popup.add(replaceAll);
-			popup.add(find);
-			popup.add(small);
-			popup.add(medium);
-			popup.add(large);
-			popup.show(e.getComponent(), e.getX(), e.getY());
-		}
-	}
-
-	/*****************************************************************************************
-	 * Implementing the DocumentListener: this is required to keep track of text area updates
-	 *****************************************************************************************/
-	@Override
-	public void insertUpdate(DocumentEvent e)
-	{
-		documentChanged = true;
-	}
-
-
-	@Override
-	public void removeUpdate(DocumentEvent e)
-	{
-		documentChanged = true;
-	}
-
-	@Override
-	public void changedUpdate(DocumentEvent e)
-	{
-		// nothing should go in here because this is nothing to do with the text in the text area
-	}
-
-
 	@Override
 	public void treeWillCollapse(TreeExpansionEvent event)
 			throws ExpandVetoException {
@@ -757,6 +680,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		if (!filePath.isDirectory()) {
 			String fileName = filePath.getName();
 			if (fileName.endsWith(".text") || fileName.endsWith(".txt")) {
+				openHandlerHelper(filePath);
 				System.out.println("Opening " + filePath.getPath());
 			} else {
 				JOptionPane.showMessageDialog(this, "Cannot open selected file: " + fileName);
@@ -764,6 +688,120 @@ public class XText1breber extends JFrame implements ActionListener,
 		}
 	}
 
+}
+
+class TextPanebreber extends JScrollPane implements DocumentListener, MouseListener
+{
+
+	// main text area
+	private final JTextArea text;
+	// keeps track of whether the text has changed in text area
+	private boolean documentChanged = false;
+
+	// font specifics: default values
+	private int size = 15;
+	private final String face = "SansSerif";
+	private final int fontType = Font.PLAIN;
+
+	public TextPanebreber() {
+		super();
+		text = new JTextArea();
+		settingTextAreaProperty(text);
+
+		documentChanged = false;
+
+		setViewportView(text);
+	}
+
+	/******************************************************
+	 * This method is called just once!!!
+	 ******************************************************/
+	public void settingTextAreaProperty(JTextArea text)
+	{
+		text.setLineWrap(true);
+		text.addMouseListener(this);
+		text.setEditable(true);
+		text.setFont(new Font(face, fontType, size));
+		text.getDocument().addDocumentListener(this);
+	}
+
+	public JTextArea getTextArea() {
+		return text;
+	}
+
+	/*
+	 * suboption menu handler routines
+	 */
+	public void smallHandler()
+	{
+		size = 10;
+		text.setFont(new Font(face, fontType, size));
+	}
+
+	public void mediumHandler()
+	{
+		size = 15;
+		text.setFont(new Font(face, fontType, size));
+	}
+
+	public void largeHandler()
+	{
+		size = 20;
+		text.setFont(new Font(face, fontType, size));
+	}
+
+
+	/****************************************************************************************
+	 * Implementing the MouseListener interface: This is for right mouse button click event,
+	 * when the popup is shown
+	 ****************************************************************************************/
+	@Override
+	public void mouseClicked(MouseEvent e) {}
+	@Override
+	public void mouseEntered(MouseEvent e) {}
+	@Override
+	public void mouseExited(MouseEvent e) {}
+	@Override
+	public void mouseReleased(MouseEvent e) {}
+
+	@Override
+	public void mousePressed(MouseEvent e)
+	{
+		// reuse the abstract action
+		if (e.isPopupTrigger())
+		{
+			// TODO
+//			JPopupMenu popup = new JPopupMenu();
+//			popup.add(replace);
+//			popup.add(replaceAll);
+//			popup.add(find);
+//			popup.add(small);
+//			popup.add(medium);
+//			popup.add(large);
+//			popup.show(e.getComponent(), e.getX(), e.getY());
+		}
+	}
+
+	/*****************************************************************************************
+	 * Implementing the DocumentListener: this is required to keep track of text area updates
+	 *****************************************************************************************/
+	@Override
+	public void insertUpdate(DocumentEvent e)
+	{
+		documentChanged = true;
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e)
+	{
+		documentChanged = true;
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e)
+	{
+		// nothing should go in here because this is nothing to do with the text in the text area
+	}
 }
 
 /*******************************************************************/
