@@ -1,6 +1,8 @@
 /********************************************************************************
  * Homework on Java Swing: A simple text editor
  *
+ * Brian Reber (breber) - Compiles with Java 6
+ *
  * Code Map
  *
  * XText1: type JFrame acts as the main window and implements all listeners
@@ -215,7 +217,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		 *  4. put text area in a scrollpane
 		 *  5. put the scrollpane in the frames content pane
 		 ****************************************************************************************/
-		tabbedPane = new CustomTabPane(this);
+		tabbedPane = new TabPaneWithIconsbreber(this);
 
 		// Build first level of tree
 		File homeDirectory = new File(System.getProperty("user.home"));
@@ -234,9 +236,6 @@ public class XText1breber extends JFrame implements ActionListener,
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, tabbedPane);
 
 		getContentPane().add(splitPane, BorderLayout.CENTER);
-
-		// set the documentChanged to false to indicate initially nothing has changed in the text area
-		setTitle("XText:New");
 
 		/*****************************************
 		 *  create all the menus and the menubar
@@ -257,8 +256,6 @@ public class XText1breber extends JFrame implements ActionListener,
 	 * 4. createSubMenu
 	 * 5. createMenuBar
 	 ********************/
-
-
 
 	/******************************************************************
 	 * Creating the file menu: the registration of ActionListener
@@ -358,7 +355,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		JFileChooser fchooser = new JFileChooser(System.getProperty("user.home"));
 
 		fchooser.setAcceptAllFileFilterUsed(false);
-		fchooser.addChoosableFileFilter(new MyFileFilter());
+		fchooser.addChoosableFileFilter(new MyFileFilterbreber());
 
 		returnVal = fchooser.showOpenDialog(XText1breber.this);
 
@@ -380,7 +377,6 @@ public class XText1breber extends JFrame implements ActionListener,
 	// Another function: simple but invoked once: future use
 	public void openHandlerHelper(File file)
 	{
-		// TODO: check to see if already open
 		boolean needToAdd = true;
 		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
 			TextPanebreber textPane = (TextPanebreber) tabbedPane.getComponentAt(i);
@@ -428,14 +424,13 @@ public class XText1breber extends JFrame implements ActionListener,
 	/****************************
 	 * Saving files
 	 *****************************/
-
 	public void saveHandler(TextPanebreber textPane)
 	{
 		JFileChooser fchooser = new JFileChooser(System.getProperty("user.home"));
 
 		// to make sure that file filters are used appropriately
 		fchooser.setAcceptAllFileFilterUsed(false);
-		fchooser.addChoosableFileFilter(new MyFileFilter());
+		fchooser.addChoosableFileFilter(new MyFileFilterbreber());
 		fchooser.setFileHidingEnabled(false);
 
 		int returnVal = fchooser.showSaveDialog(XText1breber.this);
@@ -444,9 +439,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fchooser.getSelectedFile();
 
-			boolean newFile = true;
 			if (file.exists()) {
-				newFile = false;
 				// If file already exists, ask before replacing it.
 				returnVal = JOptionPane.showConfirmDialog(null,	"Replace existing file?", "Confirmation Window", returnVal);
 				if (returnVal != JOptionPane.YES_OPTION) {
@@ -601,13 +594,15 @@ public class XText1breber extends JFrame implements ActionListener,
 				fromIndex = fromIndex + caretPosition;
 				if (fromIndex >= 0 && from.length() > 0)
 				{
-					text.replaceRange(to, fromIndex, fromIndex+from.length());
-					text.setCaretPosition(fromIndex+to.length());
+					text.replaceRange(to, fromIndex, fromIndex + from.length());
+					text.setCaretPosition(fromIndex + to.length());
 					textLength = text.getText().length();
 					caretPosition = text.getCaretPosition();
 					try {
-						fromIndex = text.getText(caretPosition, textLength - caretPosition).indexOf(from);
-					} catch (BadLocationException excep) {excep.printStackTrace();}
+						fromIndex = text.getText(caretPosition,	textLength - caretPosition).indexOf(from);
+					} catch (BadLocationException excep) {
+						excep.printStackTrace();
+					}
 				}
 			}
 		}
@@ -625,8 +620,6 @@ public class XText1breber extends JFrame implements ActionListener,
 		JTextArea text = currentPane.getTextArea();
 
 		String search = null;
-
-		String in = text.getText();
 
 		search = JOptionPane.showInputDialog(null, "Enter the search string\n", "Find", JOptionPane.PLAIN_MESSAGE);
 		if (search == null) {
@@ -669,17 +662,15 @@ public class XText1breber extends JFrame implements ActionListener,
 	 * All the methods are implemented: We are left with the listener interfaces
 	 */
 	@Override
-	public void treeWillCollapse(TreeExpansionEvent event)
-			throws ExpandVetoException {
+	public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
 		TreePath path = event.getPath();
-		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 		selectedNode.removeAllChildren();
 	}
 
 
 	@Override
-	public void treeWillExpand(TreeExpansionEvent event)
-			throws ExpandVetoException {
+	public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
 		TreePath path = event.getPath();
 
 		StringBuilder sb = new StringBuilder(System.getProperty("user.home") + "/");
@@ -712,7 +703,6 @@ public class XText1breber extends JFrame implements ActionListener,
 			String fileName = filePath.getName();
 			if (fileName.endsWith(".text") || fileName.endsWith(".txt")) {
 				openHandlerHelper(filePath);
-				System.out.println("Opening " + filePath.getPath());
 			} else {
 				JOptionPane.showMessageDialog(this, "Cannot open selected file: " + fileName);
 			}
@@ -863,11 +853,11 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	}
 }
 
-class CustomTabPane extends JTabbedPane implements MouseListener {
+class TabPaneWithIconsbreber extends JTabbedPane implements MouseListener {
 
 	private final XText1breber parent;
 
-	public CustomTabPane(XText1breber parent) {
+	public TabPaneWithIconsbreber(XText1breber parent) {
 		super();
 		this.parent = parent;
 		addMouseListener(this);
@@ -968,7 +958,7 @@ class CloseTabIconbreber implements Icon {
 /*
  * File filter for text documents.
  */
-class MyFileFilter extends FileFilter {
+class MyFileFilterbreber extends FileFilter {
 	@Override
 	public boolean accept(File f) {
 		if (f.isDirectory()) {
