@@ -43,6 +43,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -214,7 +215,7 @@ public class XText1breber extends JFrame implements ActionListener,
 		 *  4. put text area in a scrollpane
 		 *  5. put the scrollpane in the frames content pane
 		 ****************************************************************************************/
-		tabbedPane = new JTabbedPane();
+		tabbedPane = new CustomTabPane(this);
 
 		// Build first level of tree
 		File homeDirectory = new File(System.getProperty("user.home"));
@@ -834,6 +835,54 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	{
 		// nothing should go in here because this is nothing to do with the text in the text area
 	}
+}
+
+class CustomTabPane extends JTabbedPane implements MouseListener {
+
+	private final XText1breber parent;
+
+	public CustomTabPane(XText1breber parent) {
+		super();
+		this.parent = parent;
+		addMouseListener(this);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Point mousePoint = e.getPoint();
+		for (int i = 0; i < getTabCount(); i++) {
+			CloseTabIconbreber icon = (CloseTabIconbreber) getIconAt(i);
+			Rectangle bounds = icon.getBounds();
+			if (bounds.contains(mousePoint)) {
+				TextPanebreber textPane = (TextPanebreber) getComponentAt(i);
+				if (textPane != null && textPane.isDocumentChanged())
+				{
+					// open the dialog asking whether the user wants to save the file or not
+					int returnVal = JOptionPane.showConfirmDialog(this,
+							"Want to save the file in XText editor:" + getTitleAt(i),
+							null, JOptionPane.YES_NO_OPTION);
+					if (returnVal == JOptionPane.YES_OPTION) {
+						parent.saveHandler(textPane);
+					}
+				}
+
+				removeTabAt(i);
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) { }
+
+	@Override
+	public void mouseExited(MouseEvent e) { }
+
+	@Override
+	public void mousePressed(MouseEvent e) { }
+
+	@Override
+	public void mouseReleased(MouseEvent e) { }
 }
 
 class CloseTabIconbreber implements Icon {
