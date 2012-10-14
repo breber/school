@@ -381,14 +381,30 @@ public class XText1breber extends JFrame implements ActionListener,
 	public void openHandlerHelper(File file)
 	{
 		// TODO: check to see if already open
-		TextPanebreber newTextPane = new TextPanebreber(this);
-		tabbedPane.addTab("XText: " + file.getName(), new CloseTabIconbreber(null), newTextPane);
-		tabbedPane.setSelectedComponent(newTextPane);
+		boolean needToAdd = true;
+		for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+			TextPanebreber textPane = (TextPanebreber) tabbedPane.getComponentAt(i);
+			String filePath = textPane.getFilePath();
+			if (filePath != null && filePath.equals(file.getAbsolutePath())) {
+				tabbedPane.setSelectedIndex(i);
+				needToAdd = false;
+				break;
+			}
+		}
 
-	    // file reading function is a helper to read file-data one line at a time
-	    fileReading(file, newTextPane);
+		if (needToAdd) {
+			TextPanebreber newTextPane = new TextPanebreber(this);
+			tabbedPane.addTab("XText: " + file.getName(), new CloseTabIconbreber(null), newTextPane);
+			tabbedPane.setSelectedComponent(newTextPane);
 
-	    newTextPane.setDocumentChanged(false);
+		    // file reading function is a helper to read file-data one line at a time
+		    fileReading(file, newTextPane);
+
+		    // Set the file path so we can compare later
+		    newTextPane.setFilePath(file.getAbsolutePath());
+
+		    newTextPane.setDocumentChanged(false);
+		}
 	}
 
 	// file reading helper
@@ -715,6 +731,8 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 {
 	private final XText1breber parent;
 
+	private String filePath;
+
 	// main text area
 	private final JTextArea text;
 	// keeps track of whether the text has changed in text area
@@ -750,6 +768,14 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 
 	public JTextArea getTextArea() {
 		return text;
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String fileName) {
+		this.filePath = fileName;
 	}
 
 	public void setDocumentChanged(boolean documentChanged) {
