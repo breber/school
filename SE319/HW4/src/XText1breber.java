@@ -77,12 +77,14 @@ import javax.swing.JTree;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
@@ -90,7 +92,8 @@ import javax.swing.tree.TreePath;
 @SuppressWarnings("serial")
 public class XText1breber extends JFrame implements ActionListener,
                                                    TreeWillExpandListener,
-                                                   TreeSelectionListener
+                                                   TreeSelectionListener,
+                                                   TreeExpansionListener
 {
 
 	/**********************
@@ -101,6 +104,7 @@ public class XText1breber extends JFrame implements ActionListener,
 	private final JSplitPane splitPane;
 	private final JTabbedPane tabbedPane;
 	private final JScrollPane filePane;
+	private final JTree tree;
 
 	// menubar with menus
 	private final JMenuBar menubar = new JMenuBar();
@@ -227,10 +231,11 @@ public class XText1breber extends JFrame implements ActionListener,
 			root.add(new DefaultMutableTreeNode(f.getName(), f.isDirectory()));
 		}
 
-		JTree tree = new JTree(root, true);
+		tree = new JTree(root, true);
 		tree.setShowsRootHandles(true);
 		tree.addTreeWillExpandListener(this);
 		tree.addTreeSelectionListener(this);
+		tree.addTreeExpansionListener(this);
 		filePane = new JScrollPane(tree);
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filePane, tabbedPane);
@@ -657,18 +662,39 @@ public class XText1breber extends JFrame implements ActionListener,
 		return fromIndex;
 	}
 
+	@Override
+	public void treeExpanded(TreeExpansionEvent event) {}
 
-	/*
-	 * All the methods are implemented: We are left with the listener interfaces
+	/* (non-Javadoc)
+	 * @see javax.swing.event.TreeExpansionListener#treeCollapsed(javax.swing.event.TreeExpansionEvent)
+	 *
+	 * When the tree collapses, remove the children of the collapsed
+	 * node, and then notify the tree model that the structure
+	 * has changed for the given node (so it knows to update the
+	 * display of the tree).
 	 */
 	@Override
-	public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+	public void treeCollapsed(TreeExpansionEvent event) {
 		TreePath path = event.getPath();
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 		selectedNode.removeAllChildren();
+		((DefaultTreeModel) tree.getModel()).nodeStructureChanged(selectedNode);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.event.TreeWillExpandListener#treeWillCollapse(javax.swing.event.TreeExpansionEvent)
+	 */
+	@Override
+	public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {	}
 
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.TreeWillExpandListener#treeWillExpand(javax.swing.event.TreeExpansionEvent)
+	 *
+	 * When the tree is about to expand, get the list of files
+	 * that should be displayed in the node that is expanding.
+	 * Build the tree based on this information.
+	 */
 	@Override
 	public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
 		TreePath path = event.getPath();
@@ -688,6 +714,15 @@ public class XText1breber extends JFrame implements ActionListener,
 	}
 
 
+	/* (non-Javadoc)
+	 * @see javax.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
+	 *
+	 * When a tree element is selected, build the path to the file,
+	 * and check to see if it is able to be opened (based on rules from
+	 * the assignment document). If it is, perform an open operation. If
+	 * it isn't, show a message dialog indicating the file isn't able to
+	 * be opened.
+	 */
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
 		TreePath path = e.getPath();
@@ -719,20 +754,46 @@ public class XText1breber extends JFrame implements ActionListener,
  */
 class TextPanebreber extends JScrollPane implements DocumentListener, MouseListener
 {
+	/**
+	 * The XText1 instance that is holding this TextPane
+	 */
 	private final XText1breber parent;
 
+	/**
+	 * The path of the file currently being edited
+	 */
 	private String filePath;
 
-	// main text area
+	/**
+	 * main text area
+	 */
 	private final JTextArea text;
-	// keeps track of whether the text has changed in text area
+
+	/**
+	 * keeps track of whether the text has changed in text area
+	 */
 	private boolean documentChanged = false;
 
-	// font specifics: default values
+	/**
+	 * Font size
+	 */
 	private int size = 15;
+
+	/**
+	 * The Font Face
+	 */
 	private final String face = "SansSerif";
+
+	/**
+	 * The Font Type
+	 */
 	private final int fontType = Font.PLAIN;
 
+	/**
+	 * Create a TextPanebrber with the given parent element
+	 *
+	 * @param parent the parent of this text pane
+	 */
 	public TextPanebreber(XText1breber parent) {
 		super();
 		this.parent = parent;
@@ -756,18 +817,38 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 		text.getDocument().addDocumentListener(this);
 	}
 
+	/**
+	 * Get the JTextArea for this tab
+	 *
+	 * @return the JTextArea for this tab
+	 */
 	public JTextArea getTextArea() {
 		return text;
 	}
 
+	/**
+	 * Get the path of the file in the editor
+	 *
+	 * @return the absolute path of the file being edited
+	 */
 	public String getFilePath() {
 		return filePath;
 	}
 
-	public void setFilePath(String fileName) {
-		this.filePath = fileName;
+	/**
+	 * Set the path of the file currently being edited
+	 *
+	 * @param filePath
+	 */
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 
+	/**
+	 * Manually set whether the document has been changed or not
+	 *
+	 * @param documentChanged
+	 */
 	public void setDocumentChanged(boolean documentChanged) {
 		this.documentChanged = documentChanged;
 	}
@@ -780,7 +861,7 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	}
 
 	/*
-	 * suboption menu handler routines
+	 * Handler for changing font size to small
 	 */
 	public void smallHandler()
 	{
@@ -788,12 +869,18 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 		text.setFont(new Font(face, fontType, size));
 	}
 
+	/*
+	 * Handler for changing font size to medium
+	 */
 	public void mediumHandler()
 	{
 		size = 15;
 		text.setFont(new Font(face, fontType, size));
 	}
 
+	/*
+	 * Handler for changing font size to large
+	 */
 	public void largeHandler()
 	{
 		size = 20;
@@ -853,16 +940,32 @@ class TextPanebreber extends JScrollPane implements DocumentListener, MouseListe
 	}
 }
 
+/**
+ * A JTabbedPane that will close a tab if the Icon in that tab is clicked.
+ *
+ * @author Brian Reber (breber)
+ */
 class TabPaneWithIconsbreber extends JTabbedPane implements MouseListener {
 
+	/**
+	 * The parent of this tab - used to perform save operations
+	 */
 	private final XText1breber parent;
 
+	/**
+	 * Create a new TabPane with the given parent
+	 *
+	 * @param parent the parent element of this JTabbedPane
+	 */
 	public TabPaneWithIconsbreber(XText1breber parent) {
 		super();
 		this.parent = parent;
 		addMouseListener(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		Point mousePoint = e.getPoint();
@@ -901,6 +1004,13 @@ class TabPaneWithIconsbreber extends JTabbedPane implements MouseListener {
 	public void mouseReleased(MouseEvent e) { }
 }
 
+/**
+ * An Icon that displays a close icon
+ *
+ * Source from the assignment PDF
+ *
+ * @author Brian Reber (breber)
+ */
 class CloseTabIconbreber implements Icon {
 	private int x_pos;
 	private int y_pos;
@@ -914,6 +1024,9 @@ class CloseTabIconbreber implements Icon {
 		height = 16;
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.Icon#paintIcon(java.awt.Component, java.awt.Graphics, int, int)
+	 */
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y) {
 		this.x_pos = x;
@@ -937,16 +1050,25 @@ class CloseTabIconbreber implements Icon {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.Icon#getIconWidth()
+	 */
 	@Override
 	public int getIconWidth() {
 		return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.Icon#getIconHeight()
+	 */
 	@Override
 	public int getIconHeight() {
 		return height;
 	}
 
+	/**
+	 * @return the bounds of the icon
+	 */
 	public Rectangle getBounds() {
 		return new Rectangle(x_pos, y_pos, width, height);
 	}
