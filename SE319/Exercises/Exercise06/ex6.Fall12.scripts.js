@@ -32,6 +32,7 @@ $("#Button4").click(function() {
 	$("div:first").css("background-color", "lightgreen");
 });
 
+
 /*****************************************************
 * PART 2
 *
@@ -40,16 +41,24 @@ $("#Button4").click(function() {
 *   It is what allows us to continue running the myclock
 *   function every second.
 *
+* In order to implement the required functionality,
+* I added a global variable named 'started' that 
+* will be false when the clock should not be running
+* and true when it should be. The myclock() function
+* was modified to check if started is true, and if
+* so, update the text field and schedule the myclock
+* function to run again in 1000ms. This is all started
+* when the user clicks the clockb button.
 *****************************************************/
 var started = false;
 
 function myclock() {
-    var date=new Date();
-    var hour=date.getHours();
-    var min=date.getMinutes();
-    var sec=date.getSeconds();
-    formatmin=format(min);
-    formatsec=format(sec);
+    var date = new Date();
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    var sec = date.getSeconds();
+    formatmin = format(min);
+    formatsec = format(sec);
     
     if (started) {
         $("#clocktext").val(hour + ":" + formatmin + ":" + formatsec);
