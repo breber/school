@@ -78,7 +78,6 @@
 */
 
 - (void)moveToLeft:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
- 
     if (bugDead) return;
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:1.0];
@@ -88,11 +87,9 @@
     [UIView setAnimationDidStopSelector:@selector(faceRight:finished:context:)];
     bug.center = CGPointMake(75, 200);
     [UIView commitAnimations];
-    
 }
 
 - (void)faceRight:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    
     if (bugDead) return;
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:1.0];
@@ -102,11 +99,9 @@
     [UIView setAnimationDidStopSelector:@selector(moveToRight:finished:context:)];
     bug.transform = CGAffineTransformMakeRotation(M_PI);
     [UIView commitAnimations];
-    
 }
 
 - (void)moveToRight:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    
     if (bugDead) return;
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:1.0];
@@ -116,11 +111,9 @@
     [UIView setAnimationDidStopSelector:@selector(faceLeft:finished:context:)];
     bug.center = CGPointMake(230, 250);
     [UIView commitAnimations];
-    
 }
 
 - (void)faceLeft:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    
     if (bugDead) return;    
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:1.0];
@@ -130,7 +123,29 @@
     [UIView setAnimationDidStopSelector:@selector(moveToLeft:finished:context:)];
     bug.transform = CGAffineTransformMakeRotation(0);
     [UIView commitAnimations];
-    
+}
+
+/*
+ * This function is now called when the bug isn't tapped
+ */
+- (void)bugNotTapped {
+    // Perform an animation that rotates the bug to 3 / 2 * PI
+    // with an animation duration of 1 second
+    [UIView animateWithDuration:1.0
+                          delay:0.0
+                        options:UIViewAnimationCurveEaseOut
+                     animations:^{
+                         bug.transform = CGAffineTransformMakeRotation(3 * M_PI_2);
+                     }
+                     completion:^(BOOL finished) {
+                         // When the first animation finishes, rotate to -3 / 2 * PI
+                         [UIView animateWithDuration:1.0
+                                               delay:0.0
+                                             options:0
+                                          animations:^{
+                                              bug.transform = CGAffineTransformMakeRotation(-3 * M_PI_2);
+                                          } completion:nil];
+                     }];
 }
 
 - (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -144,6 +159,7 @@
         NSLog(@"Bug tapped!");
     } else {
         NSLog(@"Bug not tapped.");
+        [self bugNotTapped];
         return;
     }
     
