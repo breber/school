@@ -18,6 +18,9 @@ RETSIGTYPE (*setsignal(int, RETSIGTYPE (*)(int)))(int);
 char cpre580f98[] = "netdump";
 
 void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p);
+int decode_ip(const u_char *p, int *isIcmp);
+int decode_arp(const u_char *p);
+int decode_icmp(const u_char *p);
 
 int packettype;
 
@@ -38,6 +41,7 @@ int snaplen = 1500;;
 int broadcastPackets = 0;
 int ipPackets = 0;
 int arpPackets = 0;
+int icmpPackets = 0;
 
 static pcap_t *pd;
 
@@ -156,6 +160,7 @@ void program_ending(int signo)
             fprintf(stderr, "Broadcast:   %d\n", broadcastPackets);
 		    fprintf(stderr, "IP Packets:  %d\n", ipPackets);
 		    fprintf(stderr, "ARP Packets: %d\n", arpPackets);
+		    fprintf(stderr, "ICMP Packets: %d\n", icmpPackets);
 		}
 	}
 	exit(0);
@@ -260,21 +265,219 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
 
     int typeLength = (curLoc[0] << 8) | curLoc[1];
     if (typeLength < 0x800) {
-        printf("Len  = %5d", typeLength);
+        printf("Len = %d", typeLength);
     } else {
         printf("Type = 0x%3x", typeLength);
     }
     
+    curLoc += 2;
+    
     // Print out payload information
     if (0x800 == typeLength) {
-        printf(", Payload = IP");
+    	int isIcmp = 0;
+        printf(", Payload = IP\n");
         ipPackets++;
+
+		curLoc += decode_ip(curLoc, &isIcmp);
+		
+		if (isIcmp) {
+			icmpPackets++;
+			curLoc += decode_icmp(curLoc);
+		}
     } else if (0x806 == typeLength) {
-        printf(", Payload = ARP");
+        printf(", Payload = ARP\n");
         arpPackets++;
+        
+		curLoc += decode_arp(curLoc);
     }
 
-    //printf("\n");
-    //default_print(p, caplen);
     putchar('\n');
+}
+
+
+int decode_arp(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+    int counter = 0;
+
+	printf("ARP Header: \n");
+	printf("\tHW Type: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+	
+	printf("\tProtocol Type: 0x%x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+	
+	printf("\tHW Length: %d\n", curLoc[0]);
+	curLoc += 1;
+
+	printf("\tProtocol Length: %d\n", curLoc[0]);
+	curLoc += 1;
+
+	printf("\tOperation: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tSender HW Address = ");
+	for (counter = 0; counter < 6; counter++) {
+		printf("%02x", curLoc[counter]);
+
+		if (counter != 5) {
+			printf(":");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 6;
+
+	printf("\tSender Protocol Address = ");
+	for (counter = 0; counter < 4; counter++) {
+		printf("%d", curLoc[counter]);
+
+		if (counter != 3) {
+			printf(".");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 4;
+
+	printf("\tTarget HW Address = ");
+	for (counter = 0; counter < 6; counter++) {
+		printf("%02x", curLoc[counter]);
+
+		if (counter != 5) {
+			printf(":");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 6;
+
+	printf("\tTarget Protocol Address = ");
+	for (counter = 0; counter < 4; counter++) {
+		printf("%d", curLoc[counter]);
+
+		if (counter != 3) {
+			printf(".");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 4;
+	
+	return curLoc - p;
+}
+
+
+int decode_ip(const u_char *p, int *isIcmp) {
+    u_char *curLoc = (u_char *) p;
+    int counter = 0;
+
+	printf("IP Header: \n");
+	printf("\tVersion Number: %d\n", (curLoc[0] & 0xf0) >> 4);
+	printf("\tHeader Length: %d\n", (curLoc[0] & 0x0f));
+	curLoc += 1;
+	
+	printf("\tType of Service: %d\n", curLoc[0]);
+	curLoc += 1;
+
+	printf("\tLength: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tIdentifier: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+	
+	printf("\tFlags: %d%d%d\n", (curLoc[0] & 0x80) >> 7, 
+								(curLoc[0] & 0x40) >> 6,
+								(curLoc[0] & 0x20) >> 5);
+	printf("\tOffset: %d\n", (curLoc[0] & 0x1f) << 8 | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tTTL: %d\n", curLoc[0]);
+	curLoc += 1;
+	
+	printf("\tProtocol: %d\n", curLoc[0]);
+	*isIcmp = (curLoc[0] == 1);	
+	curLoc += 1;
+
+	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tSource IP Address = ");
+	for (counter = 0; counter < 4; counter++) {
+		printf("%d", curLoc[counter]);
+
+		if (counter != 3) {
+			printf(".");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 4;
+
+	printf("\tDestination IP Address = ");
+	for (counter = 0; counter < 4; counter++) {
+		printf("%d", curLoc[counter]);
+
+		if (counter != 3) {
+			printf(".");
+		} else {
+			printf("\n");
+		}
+	}
+	curLoc += 4;
+	
+	return curLoc - p;
+}
+
+
+int decode_icmp(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+    int counter = 0;
+    int type;
+    int code;
+
+	printf("ICMP Header: \n");
+	printf("\tType: %d\n", curLoc[0]);
+	type = curLoc[0];
+	curLoc += 1;
+	
+	printf("\tCode: %d\n", curLoc[0]);
+	code = curLoc[0];
+	curLoc += 1;
+
+	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+	
+	switch (type) {
+		case 0:
+		case 8:
+		case 13:
+		case 14:
+			printf("\tID: %d\n", (curLoc[0] << 8) | curLoc[1]);
+			curLoc += 2;
+			printf("\tSeq Number: %d\n", (curLoc[0] << 8) | curLoc[1]);
+			curLoc += 2;
+			break;
+
+		case 5:
+			printf("\tNew Router IP Address = ");
+			for (counter = 0; counter < 4; counter++) {
+				printf("%d", curLoc[counter]);
+		
+				if (counter != 3) {
+					printf(".");
+				} else {
+					printf("\n");
+				}
+			}
+			curLoc += 4;
+			break;
+
+		case 3:
+		case 11:
+		default:
+			curLoc += 4;
+			break;
+	}
+	
+	return curLoc - p;
 }
