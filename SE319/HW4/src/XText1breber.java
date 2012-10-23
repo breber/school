@@ -677,8 +677,10 @@ public class XText1breber extends JFrame implements ActionListener,
 	public void treeCollapsed(TreeExpansionEvent event) {
 		TreePath path = event.getPath();
 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-		selectedNode.removeAllChildren();
-		((DefaultTreeModel) tree.getModel()).nodeStructureChanged(selectedNode);
+		if (!selectedNode.isRoot()) {
+			selectedNode.removeAllChildren();
+			((DefaultTreeModel) tree.getModel()).nodeStructureChanged(selectedNode);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -705,7 +707,7 @@ public class XText1breber extends JFrame implements ActionListener,
 			sb.append("/");
 		}
 
-		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent();
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 		File filePath = new File(sb.toString());
 
 		for (File f : filePath.listFiles()) {
