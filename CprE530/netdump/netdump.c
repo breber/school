@@ -18,9 +18,10 @@ RETSIGTYPE (*setsignal(int, RETSIGTYPE (*)(int)))(int);
 char cpre580f98[] = "netdump";
 
 void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p);
-int decode_ip(const u_char *p, int *isIcmp);
+int decode_ip(const u_char *p, int *protocol);
 int decode_arp(const u_char *p);
 int decode_icmp(const u_char *p);
+int decode_tcp(const u_char *p);
 
 int packettype;
 
@@ -42,6 +43,7 @@ int broadcastPackets = 0;
 int ipPackets = 0;
 int arpPackets = 0;
 int icmpPackets = 0;
+int tcpPackets = 0;
 
 static pcap_t *pd;
 
@@ -161,6 +163,7 @@ void program_ending(int signo)
 		    fprintf(stderr, "IP Packets:  %d\n", ipPackets);
 		    fprintf(stderr, "ARP Packets: %d\n", arpPackets);
 		    fprintf(stderr, "ICMP Packets: %d\n", icmpPackets);
+		    fprintf(stderr, "TCP Packets: %d\n", tcpPackets);
 		}
 	}
 	exit(0);
@@ -274,15 +277,18 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
     
     // Print out payload information
     if (0x800 == typeLength) {
-    	int isIcmp = 0;
+    	int protocol = 0;
         printf(", Payload = IP\n");
         ipPackets++;
 
-		curLoc += decode_ip(curLoc, &isIcmp);
+		curLoc += decode_ip(curLoc, &protocol);
 		
-		if (isIcmp) {
+		if (protocol == 1) {
 			icmpPackets++;
 			curLoc += decode_icmp(curLoc);
+		} else if (protocol == 6) {
+			tcpPackets++;
+			curLoc += decode_tcp(curLoc);
 		}
     } else if (0x806 == typeLength) {
         printf(", Payload = ARP\n");
@@ -367,7 +373,7 @@ int decode_arp(const u_char *p) {
 }
 
 
-int decode_ip(const u_char *p, int *isIcmp) {
+int decode_ip(const u_char *p, int *protocol) {
     u_char *curLoc = (u_char *) p;
     int counter = 0;
 
@@ -395,7 +401,7 @@ int decode_ip(const u_char *p, int *isIcmp) {
 	curLoc += 1;
 	
 	printf("\tProtocol: %d\n", curLoc[0]);
-	*isIcmp = (curLoc[0] == 1);	
+	*protocol = curLoc[0];
 	curLoc += 1;
 
 	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
@@ -479,5 +485,47 @@ int decode_icmp(const u_char *p) {
 			break;
 	}
 	
+	return curLoc - p;
+}
+
+int decode_tcp(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+    int counter = 0;
+
+	printf("TCP Packet: \n");
+	printf("\tSource Port: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tDestination Port: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	unsigned int sequenceNumber = (curLoc[0] << 8) | curLoc[1];
+	sequenceNumber = (sequenceNumber << 8) | curLoc[2];
+	sequenceNumber = (sequenceNumber << 8) | curLoc[3];
+	printf("\tSequence Number: %u\n", sequenceNumber);
+	curLoc += 4;
+
+	unsigned int ackNumber = (curLoc[0] << 8) | curLoc[1];
+	ackNumber = (ackNumber << 8) | curLoc[2];
+	ackNumber = (ackNumber << 8) | curLoc[3];
+	printf("\tAcknowledgment Number: %u\n", ackNumber);
+	curLoc += 4;
+
+	printf("\tHeader Length: %d\n", (curLoc[0] & 0xf0) >> 4);
+	printf("\tReserved: 0x%x\n", ((curLoc[0] & 0xf) << 2) | (curLoc[1] & 0xc0) >> 6);
+	curLoc += 1;
+	
+	printf("\tFlags: 0x%x\n", (curLoc[0] & 0x3f));
+	curLoc += 1;
+
+	printf("\tWindow Size: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tUrgent Pointer: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
 	return curLoc - p;
 }
