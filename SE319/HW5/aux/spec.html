@@ -1,0 +1,93 @@
+
+<h2>Homework 5</h2>
+
+<h3>Organization of the html page</h3>
+
+<ol>
+<li>Create a folder hw5.Fall12<br/>
+Download the hw5.Fall12.html file in that folder</li>
+<li>
+Create a subfolder aux under hw5.Fall12
+<br/>Download the other html files in that folder</li>
+</li>
+<li>Create a subfolder css under hw5.Fall12
+<br/>Download the css file for this assignment in this subfolder
+/li>
+<li>
+Create a subfolder js under hw5.Fall12<br/>
+Download the jQuery library and save it as jquery.js in this subfolder. 
+You will also create a javascript file hw5.Fall12.js in this subfolder
+and write your implementation for realizing the assignment
+</li>
+
+Now open the hw5.Fall12.html file in your browser. There are two
+components that constructs the html page:
+<ul>
+<li>hw5.Fall12.html: contains the contents that you view on the page</li>
+<li>hw5.Fall12.css: constains the styling elements that are used in the hw5.Fall12.html</li>
+</ul>
+The CSS style is used to organize the contents of the html page in four groups:
+header (at the top), footer (in the bottom), leftnavigation (in the left) and 
+content (in the middle). 
+
+
+<h4>Specification of html list elements</h4>
+
+In the html page, the list elements are written based on the following specifications.
+
+<li>
+Top-level list has the id <tt>dmenu</tt>
+</li>
+
+<li>
+Every top-level list item name must start with "__"
+</li>
+
+<li>
+The top-level list items contains second-level list, which is
+an un-ordered list with class value <tt>menuitems</tt>
+</li>
+
+<li>
+For each second-level list item there is file &lt;filename&gt;.html
+such that the text element associated with the list item is identical
+to the filename. For instance, for the second level list item
+FindExisting there is a FindExisting.html.
+</li>
+</ol>
+Review the given hw5.Fall12.html file to better understand the above
+specification.
+
+<h4>Your Assignment</h4> Assume that x.html is the html file which
+includes your hw5.Fall12.js javascript file and contains a two-level
+list element as per the above specification.  You are required to
+write javascript functions in the <tt>hw5.Fall12.js</tt> such that the
+following dynamics are realized in x.html (for your assignment, we have
+provided one such x.html in the form of hw5.Fall12.html):<br/>
+
+<ol>
+<li>
+<b>Intialize</b>: When the x.html is loaded, a pop-up window stating "Hello! I am &lt;yournetid&gt;"
+should show up, and  only the top-level list items should be visible
+</li>
+
+<li>
+<b>Expand</b>: Clicking on a top-level list item makes the second level list items visible.
+Nothing else in view of the x.html should change. 
+</li>
+
+<li>
+<b>Collapse</b>: Clicking on a already expanded top-level list item makes its
+second level list items invisible. Nothing else in the  view of the x.html should change. 
+</li>
+
+<li>
+<b>Explore</b>: Clicking on a second level list item will open the corresponding html page
+in the section identified by "id=content" in the x.html page.
+</li>
+
+
+</ol>
+
+<font color="red" style="text-transform:uppercase"><b>Do not update the given html 
+and css files.</b></font>
