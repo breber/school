@@ -27,9 +27,7 @@ int	from_len;			/* Source addr size of last packet */
 
 extern int errno;
 
-main(argc, argv, envp)
-	int argc;
-	char *argv[], *envp[];
+int main(int argc, char **argv, char **envp)
 {
 	int vs, ns, blen, done=0, i;
 	int port_num = PORT;
@@ -73,31 +71,35 @@ main(argc, argv, envp)
 		exit(1);
 	}	
 	if (bind(vs, (struct sockaddr *)&nsaddr, sizeof(nsaddr)) < 0) {
-		printf("bind(vs, %s[%d]) errno = %d\n "
-		 ,inet_ntoa(nsaddr.sin_addr), ntohs(nsaddr.sin_port),errno);
+		printf("bind(vs, %s[%d]) errno = %d\n ", inet_ntoa(nsaddr.sin_addr), ntohs(nsaddr.sin_port), errno);
 		perror("bind error");
 		exit(1);
 	}
 	fprintf(stderr,"SERVER: bind(vs, %s[%d]):\n ",
 		inet_ntoa(nsaddr.sin_addr), ntohs(nsaddr.sin_port));
 	printf("SERVER: listen waiting\n");
-	if ((listen(vs,5)) < 0 ) {
+	if ((listen(vs, 5)) < 0) {
 		perror("listen");
 		exit(1);
 	}
-	printf("SERVER: waiting  buf size = %d\n",sizeof(buf));
+	printf("SERVER: waiting  buf size = %ld\n", sizeof(buf));
 	from_len = sizeof(from_addr);
-	if ((ns = accept(vs, (struct sockaddr *) &from_addr, &from_len)) < 0) perror("accept");	
-	printf("SERVER: accepted call\n");
-	fprintf(stderr,"SERVER: from_addr(ns, %s[%d]):\n ",
-		inet_ntoa(from_addr.sin_addr), ntohs(from_addr.sin_port));
-	blen = recv(ns,buf,sizeof(buf), 0);
-	buf[blen] = 0;
-	printf("SERVER: --<%s>--\n",buf);
-	strcpy(buf,"hello");
-	printf("SERVER: sending\n");
-	if (send(ns, buf, strlen(buf), 0) != strlen(buf)) {
-		    perror("Sendto");
+	if ((ns = accept(vs, (struct sockaddr *) &from_addr, &from_len)) < 0) {
+		perror("accept");
 	}
+	printf("SERVER: accepted call\n");
+	fprintf(stderr,"SERVER: from_addr(ns, %s[%d]):\n ", inet_ntoa(from_addr.sin_addr), ntohs(from_addr.sin_port));
+	
+	while ((blen = recv(ns,buf,sizeof(buf), 0)) != -1 && blen != 0) {
+		buf[blen] = 0;
+		printf("SERVER: --<%s>--\n", buf);
+		
+		strcpy(buf,"hello\n");
+		printf("SERVER: sending\n");
+		if (send(ns, buf, strlen(buf), 0) != strlen(buf)) {
+			perror("Sendto");
+		}
+	}
+	
 	shutdown(ns,2);
 }

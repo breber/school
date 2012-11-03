@@ -27,28 +27,25 @@ int	from_len;
 
 extern	int	errno;
 
-main(argc, argv)
-int	argc;
-char	**argv;
-
+int main(int argc, char **argv)
 {
 	struct timeval 	timeout;
 	register int 	n;
 	u_short 	len;
 	char 		*cp;
 	int 		i, retry, resplen, done = 0;
+	int			port = 2000;
 	int 		dsmask, flags, sockFD;
-	char		buf[100],answer[4048];
-	char	hostname[100];
-	struct	hostent	*h_name;
-	struct	servent	*s_name;
+	char		buf[100], answer[4048];
+	char		hostname[100];
+	struct hostent	*h_name;
+	struct servent	*s_name;
 
 	int 		numTimeOuts	= 0;
 
 	sockFD = -1;
 
 	// Change this to match the hostname of the tcp_server
-
 	strcpy(hostname, "spock.ee.iastate.edu");
 
 	opterr = 0;
@@ -68,6 +65,7 @@ char	**argv;
 		break;
 		case 'p':
 			// add code for the p flag set
+			port = atoi(argv[optind]);
 			optind++;
 		break;
 		case 'f':
@@ -85,9 +83,9 @@ char	**argv;
 
 	h_name = gethostbyname(hostname);
 	sock_in.sin_family = AF_INET;
-	sock_in.sin_port = htons(2000);
+	sock_in.sin_port = htons(port);
 	sock_in.sin_addr.s_addr	= *(u_long *)h_name->h_addr;
-	printf("port = %d -- %s (%s)\n",ntohs(sock_in.sin_port),hostname, inet_ntoa(sock_in.sin_addr));
+	printf("port = %d -- %s (%s)\n", ntohs(sock_in.sin_port), hostname, inet_ntoa(sock_in.sin_addr));
 	// Send request
 	sockFD = socket(AF_INET, SOCK_STREAM, 0);
 

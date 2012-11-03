@@ -28,22 +28,18 @@ int	from_len;
 
 extern	int	errno;
 
-main(argc, argv)
-int	argc;
-char	**argv;
-
+int main(int argc, char **argv)
 {
 	struct timeval 	timeout;
 	register int 	n;
 	u_short 	len;
 	char 		*cp;
 	int 		i, retry, resplen, done = 0;
-	int 		dsmask, flags, sockFD;
-	char		buf[100],answer[4048];
-	struct	hostent	*h_name;
-	struct	servent	*s_name;
-	char	hostname[100];
-
+	int			dsmask, flags, sockFD;
+	char		buf[100], answer[4048];
+	struct		hostent	*h_name;
+	struct		servent	*s_name;
+	char		hostname[100];
 	int 		numTimeOuts	= 0;
 
 	sockFD = -1;
@@ -77,7 +73,7 @@ char	**argv;
 		if (done) break;
 	}
 
-	strcpy(buf,"hello there\n");
+	strcpy(buf, "hello there\n");
 
 	h_name = gethostbyname(hostname);
 	sock_in.sin_family = AF_INET;

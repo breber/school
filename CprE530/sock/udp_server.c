@@ -27,9 +27,7 @@ int	from_len;			/* Source addr size of last packet */
 
 extern int errno, opterr;
 
-main(argc, argv, envp)
-	int argc;
-	char *argv[], *envp[];
+int main(int argc, char **argv, char **envp)
 {
 	int n, vs;
 	int i, blen, addlen, done=0;
@@ -81,18 +79,20 @@ main(argc, argv, envp)
 	strcpy(buf, inet_ntoa(nsaddr.sin_addr));
 	printf("SERVER: bind(vs, %s:", inet_ntoa(nsaddr.sin_addr));
 	printf("[%d]):\n ", ntohs(nsaddr.sin_port));
-	printf("SERVER: waiting  buf size = %d\n",sizeof(buf));
+	printf("SERVER: waiting  buf size = %ld\n",sizeof(buf));
 	addlen = sizeof(rcvaddr);
-	blen = recvfrom(vs,buf,sizeof(buf), 0 , (struct sockaddr *) &rcvaddr, &addlen);
-	printf("SERVER: data from (vs, %s[%d]):\n ",
-		inet_ntoa(rcvaddr.sin_addr), ntohs(rcvaddr.sin_port));
-	buf[blen] = 0;
-	printf("--<%s>--",buf);
-	strcpy(buf,"hello from server\n");
-	printf("SERVER: sending\n");
-	if (sendto(vs, buf, strlen(buf), 0, (struct sockaddr *) &rcvaddr,
- 	    sizeof(rcvaddr)) != strlen(buf)) {
-		    perror("Sendto");
+	
+	while ((blen = recvfrom(vs, buf, sizeof(buf), 0, (struct sockaddr *)&rcvaddr, &addlen)) != -1 && blen != 0) {
+		printf("SERVER: data from (vs, %s[%d]):\n ",
+			inet_ntoa(rcvaddr.sin_addr), ntohs(rcvaddr.sin_port));
+		buf[blen] = 0;
+		printf("--<%s>--",buf);
+		strcpy(buf, "hello from server\n");
+		printf("SERVER: sending\n");
+		if (sendto(vs, buf, strlen(buf), 0, (struct sockaddr *) &rcvaddr,
+			sizeof(rcvaddr)) != strlen(buf)) {
+				perror("Sendto");
+		}
 	}
 	sleep(5);
 }
