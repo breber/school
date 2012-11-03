@@ -73,7 +73,9 @@ int main(int argc, char **argv)
 		if (done) break;
 	}
 
-	strcpy(buf, "hello there\n");
+	printf("Text to send: ");
+	fgets(buf, sizeof(buf), stdin);
+//	strcpy(buf, "hello there\n");
 
 	h_name = gethostbyname(hostname);
 	sock_in.sin_family = AF_INET;

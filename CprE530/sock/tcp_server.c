@@ -64,14 +64,15 @@ int main(int argc, char **argv, char **envp)
 	nsaddr.sin_addr.s_addr = INADDR_ANY;
 	nsaddr.sin_port = htons(port_num);
 	/*
-	** Open stream port.
-	*/
+	 * Open stream port.
+	 */
 	if ((vs = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("socket(SOCK_DGRAM): %d\n",errno);
 		exit(1);
 	}	
 	if (bind(vs, (struct sockaddr *)&nsaddr, sizeof(nsaddr)) < 0) {
-		printf("bind(vs, %s[%d]) errno = %d\n ", inet_ntoa(nsaddr.sin_addr), ntohs(nsaddr.sin_port), errno);
+		printf("bind(vs, %s[%d]) errno = %d\n ", inet_ntoa(nsaddr.sin_addr), 
+			ntohs(nsaddr.sin_port), errno);
 		perror("bind error");
 		exit(1);
 	}
@@ -88,18 +89,19 @@ int main(int argc, char **argv, char **envp)
 		perror("accept");
 	}
 	printf("SERVER: accepted call\n");
-	fprintf(stderr,"SERVER: from_addr(ns, %s[%d]):\n ", inet_ntoa(from_addr.sin_addr), ntohs(from_addr.sin_port));
+	fprintf(stderr,"SERVER: from_addr(ns, %s[%d]):\n ", 
+		inet_ntoa(from_addr.sin_addr), ntohs(from_addr.sin_port));
 	
-	while ((blen = recv(ns,buf,sizeof(buf), 0)) != -1 && blen != 0) {
+	while ((blen = recv(ns, buf, sizeof(buf), 0)) != -1 && blen != 0) {
 		buf[blen] = 0;
 		printf("SERVER: --<%s>--\n", buf);
 		
-		strcpy(buf,"hello\n");
+		strcpy(buf,"hello");
 		printf("SERVER: sending\n");
 		if (send(ns, buf, strlen(buf), 0) != strlen(buf)) {
 			perror("Sendto");
 		}
 	}
 	
-	shutdown(ns,2);
+	shutdown(ns, 2);
 }

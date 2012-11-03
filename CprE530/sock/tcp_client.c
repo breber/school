@@ -29,19 +29,19 @@ extern	int	errno;
 
 int main(int argc, char **argv)
 {
-	struct timeval 	timeout;
-	register int 	n;
-	u_short 	len;
-	char 		*cp;
-	int 		i, retry, resplen, done = 0;
-	int			port = 2000;
-	int 		dsmask, flags, sockFD;
-	char		buf[100], answer[4048];
-	char		hostname[100];
+	struct timeval	timeout;
+	register int	n;
+	u_short 		len;
+	char 			*cp;
+	int 			i, retry, resplen, done = 0;
+	int				port = 2000;
+	int 			dsmask, flags, sockFD;
+	char			buf[100], answer[4048];
+	char			hostname[100];
 	struct hostent	*h_name;
 	struct servent	*s_name;
-
-	int 		numTimeOuts	= 0;
+	int				numTimeOuts	= 0;
+	FILE 			*file = NULL;
 
 	sockFD = -1;
 
@@ -70,6 +70,7 @@ int main(int argc, char **argv)
 		break;
 		case 'f':
 			// add code for the f flag set
+			file = fopen(argv[optind], "r");
 			optind++;
 		break;
 		case '?':
@@ -79,7 +80,6 @@ int main(int argc, char **argv)
 		}
 		if (done) break;
 	}
-	strcpy(buf,"hello there\n");
 
 	h_name = gethostbyname(hostname);
 	sock_in.sin_family = AF_INET;
@@ -94,11 +94,22 @@ int main(int argc, char **argv)
 		(void) close(sockFD);
 		exit(1);
 	}
-	strcpy(buf,"from client");
-	if (send(sockFD, buf, strlen(buf),0) != strlen(buf)) {
-		perror("send request");
-		(void) close(sockFD);
-		exit(1);
+	
+	if (!file) {
+		strcpy(buf,"from client");
+		if (send(sockFD, buf, strlen(buf), 0) != strlen(buf)) {
+			perror("send request");
+			(void) close(sockFD);
+			exit(1);
+		}
+	} else {
+		while (fgets(buf, 100, file)) {
+			if (send(sockFD, buf, strlen(buf), 0) != strlen(buf)) {
+				perror("send request");
+				(void) close(sockFD);
+				exit(1);
+			}
+		}
 	}
 	cp = answer;
 	if ((n = recv(sockFD, cp, 100, 0)) < 0){
