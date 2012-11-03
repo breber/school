@@ -1,3 +1,7 @@
+// Brian Reber (breber)
+// SE/ComS 319 Homework 5
+
+// Set up all the handlers once the page is ready
 $().ready(function() {
 	// When the page is loaded, hide the submenus
 	$("ul.menuitems").hide();

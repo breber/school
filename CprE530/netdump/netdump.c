@@ -22,6 +22,7 @@ int decode_ip(const u_char *p, int *protocol);
 int decode_arp(const u_char *p);
 int decode_icmp(const u_char *p);
 int decode_tcp(const u_char *p);
+int decode_udp(const u_char *p);
 
 int packettype;
 
@@ -44,6 +45,7 @@ int ipPackets = 0;
 int arpPackets = 0;
 int icmpPackets = 0;
 int tcpPackets = 0;
+int dnsPackets = 0;
 
 static pcap_t *pd;
 
@@ -164,6 +166,7 @@ void program_ending(int signo)
 		    fprintf(stderr, "ARP Packets: %d\n", arpPackets);
 		    fprintf(stderr, "ICMP Packets: %d\n", icmpPackets);
 		    fprintf(stderr, "TCP Packets: %d\n", tcpPackets);
+		    fprintf(stderr, "DNS Packets: %d\n", dnsPackets);
 		}
 	}
 	exit(0);
@@ -289,6 +292,9 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
 		} else if (protocol == 6) {
 			tcpPackets++;
 			curLoc += decode_tcp(curLoc);
+		} else if (protocol == 17) {
+			// UDP - decode to see if it is DNS
+			curLoc += decode_udp(curLoc);
 		}
     } else if (0x806 == typeLength) {
         printf(", Payload = ARP\n");
@@ -493,11 +499,18 @@ int decode_tcp(const u_char *p) {
     int counter = 0;
 
 	printf("TCP Packet: \n");
-	printf("\tSource Port: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	int sourcePort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tSource Port: %d\n", sourcePort);
 	curLoc += 2;
 
-	printf("\tDestination Port: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	int destinationPort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tDestination Port: %d\n", destinationPort);
 	curLoc += 2;
+
+	// If either port is 53, increment DNS packet counter
+	if (sourcePort == 53 || destinationPort == 53) {
+		dnsPackets++;
+	}
 
 	unsigned int sequenceNumber = (curLoc[0] << 8) | curLoc[1];
 	sequenceNumber = (sequenceNumber << 8) | curLoc[2];
@@ -525,6 +538,34 @@ int decode_tcp(const u_char *p) {
 	curLoc += 2;
 
 	printf("\tUrgent Pointer: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	return curLoc - p;
+}
+
+int decode_udp(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+    int counter = 0;
+
+	printf("UDP Packet:\n");
+	
+	int sourcePort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tSource Port: %d\n", sourcePort);
+	curLoc += 2;
+
+	int destinationPort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tDestination Port: %d\n", destinationPort);
+	curLoc += 2;
+
+	// If either port is 53, increment DNS packet counter
+	if (sourcePort == 53 || destinationPort == 53) {
+		dnsPackets++;
+	}
+
+	printf("\tUDP Total Length: %d\n", (curLoc[0] << 8) | curLoc[1]);
+	curLoc += 2;
+
+	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
 	curLoc += 2;
 
 	return curLoc - p;
