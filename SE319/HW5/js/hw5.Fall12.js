@@ -12,7 +12,7 @@ $().ready(function() {
 	// When a submenu item has been clicked, load the content
 	// of the "aux/[li text].html" into the div with ID = content
 	$("#dmenu > li > ul.menuitems > li").click(function(event) {
-		$("#content").load("aux/" + $(this).text() + ".html");
+		$("#content").load("auxi/" + $(this).text() + ".html");
 
 		// Stop the propagation of the even so that the
 		// first level list items don't collapse
