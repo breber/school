@@ -32,6 +32,10 @@ function makemenuDynamic() {
     $($('#dmenu').children('li')).click(
 		function(){
 			if (!flag) {   // not because of second level click
+				// No matter what, hide all submenus every time there is a click
+				// Then we will slide down the one menu we want
+				$('#dmenu > li').children('ul').slideUp();
+
 				if ($(this).find('ul:visible').size() == 0) {  // collapsed tree
 					$(this).children('ul').slideDown();
 				} else {                                        // expanded tree
