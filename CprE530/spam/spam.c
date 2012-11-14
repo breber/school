@@ -30,30 +30,30 @@ int	from_len;
 extern	int	errno;
 int debug = 0;
 
-int sendmessage(int fd, char *message);
+void sendmessage(int fd, char *message);
 
 main(argc, argv)
 int	argc;
 char	**argv;
-
 {
 	struct timeval 	timeout;
-	register int 	n;
-	u_short 	len;
-	char 		*cp;
-	int 		i, retry, resplen, done = 0;
-	int 		dsmask, flags, sockFD;
-	char		buf[100],answer[4048];
-	struct	hostent	*h_name;
-	struct	servent	*s_name;
-	char 		source[50];
-	char 		username[50];
+	register int	n;
+	u_short			len;
+	char			*cp;
+	int				i, retry, resplen, done = 0;
+	int				dsmask, flags, sockFD;
+	char			buf[100], answer[4048];
+	struct hostent	*h_name;
+	struct servent	*s_name;
+	char 			source[50];
+	char 			username[50];
+	char 			filename[50];
+	int 			numTimeOuts	= 0;
 
-	int 		numTimeOuts	= 0;
-
+	strcpy(filename, "");
 
 	opterr = 0;
-	while ((i = getopt(argc, argv, "sud")) != -1)
+	while ((i = getopt(argc, argv, "sudf")) != -1)
 	{
 		switch (i)
 		{
@@ -65,6 +65,11 @@ char	**argv;
 		case 's':
 			// code for u flag
 			strcpy(source, argv[optind]);
+			optind++;
+		break;
+		case 'f':
+			// code for f flag
+			strcpy(filename, argv[optind]);
 			optind++;
 		break;
 		case 'd':
@@ -104,15 +109,30 @@ char	**argv;
 	if (answer[0] == '2') printf("got OK from server\n");
 
 
-	sendmessage(sockFD, "helo spock.ee.iastate.edu\n");
+	sendmessage(sockFD, "helo spock.ee.iastate.edu\r\n");
 	
-	sprintf(buf, "mail from: %s\n", source);
+	sprintf(buf, "mail from: %s\r\n", source);
 	sendmessage(sockFD, buf);
 
-	sprintf(buf, "rcpt to: %s\n", username);
+	sprintf(buf, "rcpt to: %s\r\n", username);
 	sendmessage(sockFD, buf);
 
-	sprintf(buf, "DATA\nhello world!!!\n.\n");
+	sprintf(buf, "DATA\r\n");
+	sendmessage(sockFD, buf);
+	if (strcmp(filename, "") == 0) {
+		sprintf(buf, "hello world!!!");
+		sendmessage(sockFD, buf);
+	} else {
+		FILE *file = fopen(filename, "r");
+		while (fgets(buf, 100, file)) {
+			if (send(sockFD, buf, strlen(buf), 0) != strlen(buf)) {
+				perror("send request");
+				(void) close(sockFD);
+				exit(1);
+			}
+		}
+	}
+	sprintf(buf, "\r\n.\r\n");
 	sendmessage(sockFD, buf);
 
 	(void) close(sockFD);
@@ -155,7 +175,7 @@ int getline(int fd, char *answer)
 	}
 }
 
-int sendmessage(int fd, char *message)
+void sendmessage(int fd, char *message)
 {
 	char answer[100];
 	printf("%s", message);
