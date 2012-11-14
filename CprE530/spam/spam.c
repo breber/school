@@ -30,6 +30,8 @@ int	from_len;
 extern	int	errno;
 int debug = 0;
 
+int sendmessage(int fd, char *message);
+
 main(argc, argv)
 int	argc;
 char	**argv;
@@ -44,6 +46,8 @@ char	**argv;
 	char		buf[100],answer[4048];
 	struct	hostent	*h_name;
 	struct	servent	*s_name;
+	char 		source[50];
+	char 		username[50];
 
 	int 		numTimeOuts	= 0;
 
@@ -55,10 +59,12 @@ char	**argv;
 		{
 		case 'u':
 			// code for s flag
+			strcpy(username, argv[optind]);
 			optind++;
 		break;
 		case 's':
 			// code for u flag
+			strcpy(source, argv[optind]);
 			optind++;
 		break;
 		case 'd':
@@ -75,7 +81,7 @@ char	**argv;
 
 	// change default hostname
 
-	h_name = gethostbyname("scotty.ee.iastate.edu");
+	h_name = gethostbyname("spock.ee.iastate.edu");
 	s_name = getservbyname("smtp", "tcp");
 	s_in.sin_port	= s_name->s_port; 
 	s_in.sin_family = AF_INET;
@@ -96,14 +102,19 @@ char	**argv;
 		exit(0);
 	}
 	if (answer[0] == '2') printf("got OK from server\n");
-// add your code here
-	printf("[%s]\n", answer);
-	if (send(sockFD, buf, strlen(buf),0) != strlen(buf)) {
-		perror("send request");
-		(void) close(sockFD);
-		exit(1);
-	}
-// add your code above here
+
+
+	sendmessage(sockFD, "helo spock.ee.iastate.edu\n");
+	
+	sprintf(buf, "mail from: %s\n", source);
+	sendmessage(sockFD, buf);
+
+	sprintf(buf, "rcpt to: %s\n", username);
+	sendmessage(sockFD, buf);
+
+	sprintf(buf, "DATA\nhello world!!!\n.\n");
+	sendmessage(sockFD, buf);
+
 	(void) close(sockFD);
 	exit(1);
 }
@@ -111,26 +122,26 @@ char	**argv;
 int getline(int fd, char *answer)
 {
 	char *cp = answer;
-        struct timeval  timeout;
+	struct timeval  timeout;
 	int dsmask, reply, done = 0;
 	char buf[100];
 	int n = 0;
 	answer[0] = 0;
-        /* Wait for reply */
+	/* Wait for reply */
 	while (1)
 	{
-        	timeout.tv_sec = 4;
-        	timeout.tv_usec = 0;
-        	dsmask = 1 << fd;
-        	n = select(fd+1, (fd_set *) &dsmask, 0, 0, &timeout);
-        	if (n < 0) {
-                	perror("spam select error");
-                	return 0;
-        	}
-        	if (n == 0) {    /* timeout */
-                	printf("spam: mask = %d after slect call\n",dsmask);
-                	return 0;
-        	}
+		timeout.tv_sec = 4;
+		timeout.tv_usec = 0;
+		dsmask = 1 << fd;
+		n = select(fd+1, (fd_set *) &dsmask, 0, 0, &timeout);
+		if (n < 0) {
+			perror("spam select error");
+			return 0;
+		}
+		if (n == 0) {    /* timeout */
+			printf("spam: mask = %d after slect call\n",dsmask);
+			return 0;
+		}
 		if ((n = recv(fd, buf, 100, 0)) < 0){
 			perror("recv");
 			(void) close(fd);
@@ -144,3 +155,18 @@ int getline(int fd, char *answer)
 	}
 }
 
+int sendmessage(int fd, char *message)
+{
+	char answer[100];
+	printf("%s", message);
+	if (send(fd, message, strlen(message), 0) != strlen(message)) {
+		perror("send request");
+		(void) close(fd);
+		exit(1);
+	}
+	if (getline(fd, answer) == 0){
+		printf("error: no response from server\n");
+		exit(0);
+	}
+	printf("[%s]\n", answer);
+}
