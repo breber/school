@@ -21,8 +21,12 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p);
 int decode_ip(const u_char *p, int *protocol);
 int decode_arp(const u_char *p);
 int decode_icmp(const u_char *p);
-int decode_tcp(const u_char *p);
+int decode_tcp(const u_char *p, int *sourcePort, int *destPort);
 int decode_udp(const u_char *p);
+int decode_smtp(const u_char *p);
+int decode_pop(const u_char *p);
+int decode_imap(const u_char *p);
+int decode_http(const u_char *p);
 
 int packettype;
 
@@ -46,6 +50,10 @@ int arpPackets = 0;
 int icmpPackets = 0;
 int tcpPackets = 0;
 int dnsPackets = 0;
+int smtpPackets = 0;
+int popPackets = 0;
+int imapPackets = 0;
+int httpPackets = 0;
 
 static pcap_t *pd;
 
@@ -154,19 +162,23 @@ void program_ending(int signo)
 
 	if (pd != NULL && pcap_file(pd) == NULL) {
 		fflush(stdout);
-		putc('\n', stderr);
+		putc('\n', stdout);
 		if (pcap_stats(pd, &stat) < 0) {
-			fprintf(stderr, "pcap_stats: %s\n", pcap_geterr(pd));
+			fprintf(stdout, "pcap_stats: %s\n", pcap_geterr(pd));
 		} else {
-			fprintf(stderr, "%d packets received by filter\n", stat.ps_recv);
-            fprintf(stderr, "%d packets dropped by kernel\n", stat.ps_drop);
+			fprintf(stdout, "%d packets received by filter\n", stat.ps_recv);
+            fprintf(stdout, "%d packets dropped by kernel\n", stat.ps_drop);
 
-            fprintf(stderr, "Broadcast:   %d\n", broadcastPackets);
-		    fprintf(stderr, "IP Packets:  %d\n", ipPackets);
-		    fprintf(stderr, "ARP Packets: %d\n", arpPackets);
-		    fprintf(stderr, "ICMP Packets: %d\n", icmpPackets);
-		    fprintf(stderr, "TCP Packets: %d\n", tcpPackets);
-		    fprintf(stderr, "DNS Packets: %d\n", dnsPackets);
+            fprintf(stdout, "Broadcast:   %d\n", broadcastPackets);
+		    fprintf(stdout, "IP Packets:  %d\n", ipPackets);
+		    fprintf(stdout, "ARP Packets: %d\n", arpPackets);
+		    fprintf(stdout, "ICMP Packets: %d\n", icmpPackets);
+		    fprintf(stdout, "TCP Packets: %d\n", tcpPackets);
+		    fprintf(stdout, "DNS Packets: %d\n", dnsPackets);
+		    fprintf(stdout, "SMTP Packets: %d\n", smtpPackets);
+		    fprintf(stdout, "POP Packets: %d\n", popPackets);
+		    fprintf(stdout, "IMAP Packets: %d\n", imapPackets);
+		    fprintf(stdout, "HTTP Packets: %d\n", httpPackets);
 		}
 	}
 	exit(0);
@@ -281,6 +293,8 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
     // Print out payload information
     if (0x800 == typeLength) {
     	int protocol = 0;
+    	int sourcePort = 0;
+    	int destPort = 0;
         printf(", Payload = IP\n");
         ipPackets++;
 
@@ -291,7 +305,25 @@ void raw_print(u_char *user, const struct pcap_pkthdr *h, const u_char *p)
 			curLoc += decode_icmp(curLoc);
 		} else if (protocol == 6) {
 			tcpPackets++;
-			curLoc += decode_tcp(curLoc);
+			curLoc += decode_tcp(curLoc, &sourcePort, &destPort);
+			
+			if (sourcePort == 25 || destPort == 25) {
+				// SMTP
+				smtpPackets++;
+				curLoc += decode_smtp(curLoc);
+			} else if (sourcePort == 110 || destPort == 110) {
+				// POP
+				popPackets++;
+				curLoc += decode_pop(curLoc);
+			} else if (sourcePort == 143 || destPort == 143) {
+				// IMAP
+				imapPackets++;
+				curLoc += decode_imap(curLoc);
+			} else if (sourcePort == 80 || destPort == 80) {
+				// HTTP
+				httpPackets++;
+				curLoc += decode_http(curLoc);
+			}
 		} else if (protocol == 17) {
 			// UDP - decode to see if it is DNS
 			curLoc += decode_udp(curLoc);
@@ -494,21 +526,21 @@ int decode_icmp(const u_char *p) {
 	return curLoc - p;
 }
 
-int decode_tcp(const u_char *p) {
+int decode_tcp(const u_char *p, int *sourcePort, int *destPort) {
     u_char *curLoc = (u_char *) p;
     int counter = 0;
 
 	printf("TCP Packet: \n");
-	int sourcePort = (curLoc[0] << 8) | curLoc[1];
-	printf("\tSource Port: %d\n", sourcePort);
+	*sourcePort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tSource Port: %d\n", *sourcePort);
 	curLoc += 2;
 
-	int destinationPort = (curLoc[0] << 8) | curLoc[1];
-	printf("\tDestination Port: %d\n", destinationPort);
+	*destPort = (curLoc[0] << 8) | curLoc[1];
+	printf("\tDestination Port: %d\n", *destPort);
 	curLoc += 2;
 
 	// If either port is 53, increment DNS packet counter
-	if (sourcePort == 53 || destinationPort == 53) {
+	if (*sourcePort == 53 || *destPort == 53) {
 		dnsPackets++;
 	}
 
@@ -524,7 +556,8 @@ int decode_tcp(const u_char *p) {
 	printf("\tAcknowledgment Number: %u\n", ackNumber);
 	curLoc += 4;
 
-	printf("\tHeader Length: %d\n", (curLoc[0] & 0xf0) >> 4);
+	int headerLength = (curLoc[0] & 0xf0) >> 4; // Number of 32 bit words
+	printf("\tHeader Length: %d\n", headerLength);
 	printf("\tReserved: 0x%x\n", ((curLoc[0] & 0xf) << 2) | (curLoc[1] & 0xc0) >> 6);
 	curLoc += 1;
 	
@@ -540,7 +573,7 @@ int decode_tcp(const u_char *p) {
 	printf("\tUrgent Pointer: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
 	curLoc += 2;
 
-	return curLoc - p;
+	return headerLength * 4;
 }
 
 int decode_udp(const u_char *p) {
@@ -567,6 +600,59 @@ int decode_udp(const u_char *p) {
 
 	printf("\tChecksum: 0x%04x\n", (curLoc[0] << 8) | curLoc[1]);
 	curLoc += 2;
+
+	return curLoc - p;
+}
+
+int decode_smtp(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+
+	printf("SMTP Packet:\n");
+	
+	char temp[4048];
+ 	strcpy(temp, curLoc);
+ 	printf("\t%s", temp);
+	curLoc += strlen(temp);
+
+	return curLoc - p;
+}
+
+int decode_pop(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+
+	printf("POP Packet:\n");
+
+	char temp[4048];
+ 	strcpy(temp, curLoc);
+ 	printf("\t%s", temp);
+	curLoc += strlen(temp);
+
+	return curLoc - p;
+}
+
+int decode_imap(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+
+	printf("IMAP Packet:\n");
+
+	char temp[4048];
+ 	strcpy(temp, curLoc);
+ 	printf("\t%s", temp);
+	curLoc += strlen(temp);
+
+	return curLoc - p;
+}
+
+
+int decode_http(const u_char *p) {
+    u_char *curLoc = (u_char *) p;
+
+	printf("HTTP Packet:\n");
+
+	char temp[4048];
+ 	strcpy(temp, curLoc);
+ 	printf("\t%s", temp);
+	curLoc += strlen(temp);
 
 	return curLoc - p;
 }
