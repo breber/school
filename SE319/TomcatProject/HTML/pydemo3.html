@@ -1,0 +1,51 @@
+<!-- Adapted from Example 16-11 (p. 1000) in _Programming Python_
+     by Mark Lutz, 3rd edition. O'Reilly, 2006. -->
+
+<html>
+<title>Common form input types</title>
+<body>
+<h1>Common form input types</h1>
+<hr />
+<form method=POST action="../cgi-bin/pydemo3.py">
+    <h3>Please complete the following form and click Send.</h3>
+	<p><table>
+	    <tr>
+		    <th align=right>Name:</th>
+			<td><input type=text name=name /></td>
+		</tr><tr>
+		    <th align=right>Shoe size:</th>
+			<td><table><tr>
+			    <td><input type=radio name=shoesize value=small />Small</td>
+				<td><input type=radio name=shoesize value=medium />Medium</td>
+				<td><input type=radio name=shoesize value=large />Large</td>
+			</tr></table></td>
+		</tr><tr>
+		    <th align=right>Occupation:</th>
+			<td><select name=job>
+			    <option>Developer</option>
+				<option>Manager</option>
+				<option>Student</option>
+				<option>Evangelist</option>
+				<option>Other</option>
+			</select></td>
+		</tr><tr>
+		    <th align=right>Editor of choice:</th>
+			<td><table><tr>
+			    <td><input type=checkbox name=editor value=vi />vi[m]</td>
+				<td><input type=checkbox name=editor value=emacs />emacs</td>
+				<td><input type=checkbox name=editor value=npp />Notepad++</td>
+				<td><input type=checkbox name=editor value=msword />MS Word</td>
+				<td><input type=checkbox name=editor value=eclipse />Eclipse</td>
+				<td><input type=checkbox name=language value=other />Other</td>
+			</tr></table></td>
+		</tr><tr>
+		    <th align=right>Comments:</th>
+			<td><textarea name=comment cols=30 rows=2>Enter text here</textarea></td>
+		</tr><tr>
+		    <td colspan=2 align=center><input type=submit value="Send" /></td>
+		</tr>
+	</table></p>
+</form>
+<hr />
+</body></html>
+			
