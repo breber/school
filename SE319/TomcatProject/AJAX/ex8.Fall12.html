@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>Ajax Notes</title>
+
+<style>
+pre {
+	color: red
+}
+
+h4 {
+	background-color: blue;
+	color: white;
+}
+</style>
+
+<script src="../script/jquery.js" type="text/javascript"></script>
+<html>
+<body>
+	<h3>The book ordering example</h3>
+
+	<input type="button" value="Order"
+		onclick="getHtml('../JSP/order1.jsp', 'jspholder1')" />
+	<input type="button" value="Review Order"
+		onclick="sendData('../JSP/response1.jsp', 'jspholder1')" />
+	<div id="jspholder1"></div>
+
+	<h4>This is a simple book ordering example</h4>
+
+	<input type="button" id="chgH4" value="Change H4 style" />
+
+</body>
+
+<script language="javascript">
+	$('#chgH4').click(function() {
+		$('h4').css('backgroundColor', 'red');
+	});
+
+	/*
+	 WRITE YOUR CODE HERE 
+	 */
+</script>
+
+</html>
