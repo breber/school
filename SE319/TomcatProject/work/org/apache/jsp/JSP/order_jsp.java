@@ -84,7 +84,6 @@ myBeans.Stock.Cart oldCart = (myBeans.Stock.Cart)session.getAttribute("cart");
       out.write("<h4>The available books are as follows:</h4>\n");
       out.write("\n");
       out.write("<!-- create a form to submit to response.jsp -->\n");
-      out.write("<form action=\"http://localhost:8080/TomcatProject/JSP/response.jsp\" method=\"post\">\n");
       out.write("<table border=\"2\">\n");
       out.write("\t<tr>\n");
       out.write("\t\t<th> Name of the book </th>\n");
@@ -162,11 +161,6 @@ for(int i=0; i < theBooks.length; i++)
 
       out.write("\n");
       out.write("</table>\n");
-      out.write("<input type=\"submit\" value=\"Order Now\"/>\n");
-      out.write("</form>\n");
-      out.write("\n");
-      out.write("\n");
-      out.write("\n");
       out.write("\n");
       out.write("</body>\n");
       out.write("</html>\n");

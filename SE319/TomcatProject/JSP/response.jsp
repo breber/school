@@ -68,9 +68,5 @@ for(int i=0; i < theBooks.length; i++)
 
 <h4>Thanks for ordering. Your total cost is $<%=Math.ceil(total*100)/100 %></h4>
 
-<p>
-<b>If you want to revise your selection: <a href="order.jsp">Click Here</a>, Do not Press Back-Button</b>
-</p>
-
 </body>
 </html>

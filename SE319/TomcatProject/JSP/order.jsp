@@ -23,7 +23,6 @@ myBeans.Stock.Cart oldCart = (myBeans.Stock.Cart)session.getAttribute("cart");
 <h4>The available books are as follows:</h4>
 
 <!-- create a form to submit to response.jsp -->
-<form action="http://localhost:8080/TomcatProject/JSP/response.jsp" method="post">
 <table border="2">
 	<tr>
 		<th> Name of the book </th>
@@ -70,11 +69,6 @@ for(int i=0; i < theBooks.length; i++)
 }
 %>
 </table>
-<input type="submit" value="Order Now"/>
-</form>
-
-
-
 
 </body>
 </html>

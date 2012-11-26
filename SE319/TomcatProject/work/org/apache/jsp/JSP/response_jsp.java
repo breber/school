@@ -139,10 +139,6 @@ for(int i=0; i < theBooks.length; i++)
       out.print(Math.ceil(total*100)/100 );
       out.write("</h4>\n");
       out.write("\n");
-      out.write("<p>\n");
-      out.write("<b>If you want to revise your selection: <a href=\"order.jsp\">Click Here</a>, Do not Press Back-Button</b>\n");
-      out.write("</p>\n");
-      out.write("\n");
       out.write("</body>\n");
       out.write("</html>\n");
     } catch (Throwable t) {

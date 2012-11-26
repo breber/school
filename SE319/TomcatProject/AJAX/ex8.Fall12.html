@@ -1,3 +1,4 @@
+<!-- Brian Reber (breber) -->
 <html>
 <head>
 <title>Ajax Notes</title>
@@ -19,9 +20,9 @@ h4 {
 	<h3>The book ordering example</h3>
 
 	<input type="button" value="Order"
-		onclick="getHtml('../JSP/order1.jsp', 'jspholder1')" />
+		onclick="getHtml('../JSP/order.jsp', 'jspholder1')" />
 	<input type="button" value="Review Order"
-		onclick="sendData('../JSP/response1.jsp', 'jspholder1')" />
+		onclick="sendData('../JSP/response.jsp', 'jspholder1')" />
 	<div id="jspholder1"></div>
 
 	<h4>This is a simple book ordering example</h4>
@@ -35,9 +36,17 @@ h4 {
 		$('h4').css('backgroundColor', 'red');
 	});
 
-	/*
-	 WRITE YOUR CODE HERE 
-	 */
+	function getHtml(page, dest) {
+		$.get(page, function(data) {
+			$("#" + dest).html(data);
+		});
+	}
+	
+	function sendData(page, dest) {
+		$.post(page, function(data) {
+			$("#" + dest).html(data);
+		});
+	}
 </script>
 
 </html>
