@@ -31,19 +31,43 @@ h4 {
 
 </body>
 
-<script language="javascript">
+<script type="text/javascript">
 	$('#chgH4').click(function() {
 		$('h4').css('backgroundColor', 'red');
 	});
 
 	function getHtml(page, dest) {
+		// Just get the page with no arguments
 		$.get(page, function(data) {
 			$("#" + dest).html(data);
 		});
 	}
-	
+
 	function sendData(page, dest) {
-		$.post(page, function(data) {
+		// Get each tr element in the table
+		var tableRows = $("table tr");
+		var postData = {};
+		
+		// For each element, add the relevant information to the postData
+		$.each(tableRows, function(index, row) {
+			if (index !== 0) {
+				var i = index - 1;
+				var checkedCount = $(this).find("#check" + i + ":checked").length;
+
+				// Add the name, author and price for all books
+				postData["name" + i] = $("#name" + i).val();
+				postData["author" + i] = $("#author" + i).val();
+				postData["price" + i] = $("#price" + i).val();
+				
+				// Only add checked if the item was checked
+				if (checkedCount > 0) {
+					postData["check" + i] = true;
+				}
+			}
+		});
+
+		// Post to the given page with the data we built
+ 		$.post(page, postData, function(data) {
 			$("#" + dest).html(data);
 		});
 	}
