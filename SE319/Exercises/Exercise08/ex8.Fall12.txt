@@ -1,0 +1,7 @@
+Brian Reber (breber)
+
+Before the order view is created, there is just two buttons (order and review order), a div with the text "This is a simple book ordering example", and another button to change the color of the H4 elements. When you click the "Change H4 style" button, the text in the blue box changes to have a background color of Red.
+
+After the order button is pressed, the inner content is added, and it is a table with books in it. There is also another H4 element that starts out blue. When you click the "Change H4 style" button again, this also changes to red. Though if you click the Order button again, the H4 that is a part of the order.jsp page goes back to blue since we are reloading this part of the page.
+
+When the "Review Order" button is pressed, it goes through all the rows in the table, and builds the POST body that response.jsp expects, including the "check" + i parameter if the row is checked. It also generates the inner content of the page by calling response.jsp. Similar behavior to the order page regarding the H4 elements in the generated response.jsp portion of the page occurs when clicking on the Review Order button multiple times.
