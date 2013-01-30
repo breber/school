@@ -19,6 +19,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -40,9 +42,9 @@ public class Driver extends Configured implements Tool {
 	
 	public int run ( String[] args ) throws Exception {
 		
-		String input = "/datasets/Lab2/Shakespeare";    // Change this accordingly
-		String temp = "/user/breber/Lab2/temp";      // Change this accordingly
-		String output = "/user/breber/Lab2/output/";  // Change this accordingly
+		String input = "/datasets/Lab2/Gutenberg";    // Change this accordingly
+		String temp = "/user/breber/Lab2/tempgutenberg";      // Change this accordingly
+		String output = "/user/breber/Lab2/outputgutenberg/";  // Change this accordingly
 		
 		int reduce_tasks = 2;  // The number of reduce tasks that will be assigned to the job
 		Configuration conf = new Configuration();
@@ -105,10 +107,9 @@ public class Driver extends Configured implements Tool {
 		job_two.setJarByClass(Driver.class); 
 		job_two.setNumReduceTasks(1); 
 		
-		job_two.setOutputKeyClass(Text.class); 
-		job_two.setOutputValueClass(IntWritable.class);
-		
-		job_two.setSortComparatorClass(new WritableComparator());
+		job_two.setOutputKeyClass(IntWritable.class); 
+		job_two.setOutputValueClass(Text.class);
+		job_two.setSortComparatorClass(IntComparator.class);
 		
 		// If required the same Map / Reduce classes can also be used
 		// Will depend on logic if separate Map / Reduce classes are needed
@@ -137,6 +138,24 @@ public class Driver extends Configured implements Tool {
 		return 0;
 		
 	} // End run
+	
+	public static class IntComparator extends WritableComparator {
+
+		protected IntComparator() {
+			super(IntWritable.class, true);
+		}
+		
+		@Override
+		public int compare(byte[] arg0, int arg1, int arg2, byte[] arg3,
+				int arg4, int arg5) {
+			return (-1) * super.compare(arg0, arg1, arg2, arg3, arg4, arg5);
+		}
+		
+		@Override
+		public int compare(Object a, Object b) {
+			return (-1) * super.compare(a, b);
+		}
+	}
 	
 	// The Map Class
 	// The input to the map method would be a LongWritable (long) key and Text (String) value
@@ -177,7 +196,7 @@ public class Driver extends Configured implements Tool {
 				isEnd = (current.endsWith(".") || current.endsWith("!") || current.endsWith("?"));
 				
 				// Remove punctuation
-				current = current.replaceAll(".;,!?", "");
+				current = current.replaceAll("[.;,!?]", "");
 				
 				// If we have a bigram, output it with value of 1
 				if (prev != null) {
@@ -222,25 +241,28 @@ public class Driver extends Configured implements Tool {
 			String line = value.toString();
 			
 			// Tokenize to get the individual words
-			StringTokenizer tokens = new StringTokenizer(line, "\t");
+			String[] tokens = line.split("\t");
 			
-			String bigram = tokens.nextToken();
-			String count = tokens.nextToken();
+			String bigram = tokens[0];
+			String count = tokens[1];
 			context.write(new IntWritable(Integer.parseInt(count)), new Text(bigram));
 		}  // End method "map"
 	}  // End Class Map_Two
 	
 	// The second Reduce class
-	public static class Reduce_Two extends Reducer<Text, Text, Text, IntWritable>  {
+	public static class Reduce_Two extends Reducer<IntWritable, Text, Text, IntWritable>  {
 		
 		private static int count = 0;
 		
 		public void reduce(IntWritable key, Iterable<Text> values, Context context) 
 				throws IOException, InterruptedException  {
-			if (count < 10) {
-				for (Text val : values) {
+			System.out.println("Key: " + key.toString());
+			for (Text val : values) {
+				if (count < 10) {
 					context.write(val, key);
 					count++;
+				} else {
+					break;
 				}
 			}
 		}  // End method "reduce"
