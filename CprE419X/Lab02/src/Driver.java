@@ -2,6 +2,9 @@
   *****************************************
   *****************************************
   * Cpr E 419 - Lab 2 *********************
+  * 
+  * @author breber (Brian Reber)
+  * 
   * For question regarding this code,
   * please contact:
   * Srikanta Tirthapura (snt@iastate.edu)
@@ -19,7 +22,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -33,11 +35,9 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class Driver extends Configured implements Tool {
 	
-	public static void main ( String[] args ) throws Exception {
-		
+	public static void main (String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new Driver(), args);
 		System.exit(res); 
-		
 	} // End main
 	
 	public int run ( String[] args ) throws Exception {
@@ -127,20 +127,16 @@ public class Driver extends Configured implements Tool {
 		// Run the job
 		job_two.waitForCompletion(true); 
 		
-		/**
-		 * **************************************
-		 * **************************************
-		 * FILL IN CODE FOR MORE JOBS IF YOU NEED
-		 * **************************************
-		 * **************************************
-		 */
-		
 		return 0;
-		
 	} // End run
 	
+	/**
+	 * Comparator that allows us to specify that elements
+	 * should enter our reducer in reverse order (largest to smallest)
+	 * 
+	 * @author breber
+	 */
 	public static class IntComparator extends WritableComparator {
-
 		protected IntComparator() {
 			super(IntWritable.class, true);
 		}
@@ -196,16 +192,21 @@ public class Driver extends Configured implements Tool {
 				isEnd = (current.endsWith(".") || current.endsWith("!") || current.endsWith("?"));
 				
 				// Remove punctuation
-				current = current.replaceAll("[.;,!?]", "");
+//				current = current.replaceAll("[.;,!?]", "");
+				current = current.replaceAll("[^-A-Za-z]", "");
 				
 				// If we have a bigram, output it with value of 1
-				if (prev != null) {
+				if (prev != null && !"".equals(current)) {
 					context.write(new Text(prev + " " + current), one);
 				}
 				
 				// If this isn't the last word in the sentence, store it as the previous
-				if (!isEnd) {
+				if (!isEnd && !"".equals(current)) {
 					prev = current;
+				} else if (!isEnd) {
+					// Do nothing...
+				} else {
+					prev = null;
 				}
 			} // End while
 		} // End method "map"
@@ -216,13 +217,11 @@ public class Driver extends Configured implements Tool {
 	// The key is Text and must match the datatype of the output key of the map method
 	// The value is IntWritable and also must match the datatype of the output value of the map method
 	public static class Reduce_One extends Reducer<Text, IntWritable, Text, IntWritable>  {
-		
 		// The reduce method
 		// For key, we have an Iterable over all values associated with this key
 		// The values come in a sorted fasion.
 		public void reduce(Text key, Iterable<IntWritable> values, Context context) 
 											throws IOException, InterruptedException  {
-
 			int sum = 0;
 			for (IntWritable val : values) {
 				int value = val.get();
@@ -235,7 +234,6 @@ public class Driver extends Configured implements Tool {
 	
 	// The second Map Class
 	public static class Map_Two extends Mapper<LongWritable, Text, IntWritable, Text>  {
-		
 		public void map(LongWritable key, Text value, Context context) 
 				throws IOException, InterruptedException  {
 			String line = value.toString();
@@ -256,7 +254,10 @@ public class Driver extends Configured implements Tool {
 		
 		public void reduce(IntWritable key, Iterable<Text> values, Context context) 
 				throws IOException, InterruptedException  {
-			System.out.println("Key: " + key.toString());
+
+			// Print out all values that have the higest key value
+			// Stop printing when we get to 10 values.
+			// This solution only works since we specify 1 reducer.
 			for (Text val : values) {
 				if (count < 10) {
 					context.write(val, key);
@@ -267,14 +268,5 @@ public class Driver extends Configured implements Tool {
 			}
 		}  // End method "reduce"
 	}  // End Class Reduce_Two
-	
-	
-	/**
-	 * ******************************************************
-	 * ******************************************************
-	 * YOUR CODE HERE FOR MORE MAP / REDUCE CLASSES IF NEEDED
-	 * ******************************************************
-	 * ******************************************************
-	 */
 	
 }
