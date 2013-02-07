@@ -37,8 +37,8 @@ public class Experiment1 extends Configured implements Tool {
 	
 	public int run ( String[] args ) throws Exception {
 		
-//		String input = "/datasets/Lab3/Graph";
-		String input = "/user/breber/ex1.txt";
+		String input = "/datasets/Lab3/Graph";
+//		String input = "/user/breber/ex1.txt";
 		String temp = "/user/breber/Lab3/temp";
 		String output = "/user/breber/Lab3/output/";
 		
@@ -83,6 +83,26 @@ public class Experiment1 extends Configured implements Tool {
 		
 		job_two.waitForCompletion(true); 
 		
+		
+		Job job_three = new Job(conf, Experiment1.class.getName() + " Round Three"); 
+		job_three.setJarByClass(Experiment1.class); 
+		job_three.setNumReduceTasks(1); 
+
+		job_three.setOutputKeyClass(IntWritable.class); 
+		job_three.setOutputValueClass(Text.class);
+		job_three.setSortComparatorClass(IntComparator.class);
+
+		job_three.setMapperClass(Map_Three.class); 
+		job_three.setReducerClass(Reduce_Three.class);
+
+		job_three.setInputFormatClass(TextInputFormat.class); 
+		job_three.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job_three, new Path(temp + "round2")); 
+		FileOutputFormat.setOutputPath(job_three, new Path(output));
+
+		job_three.waitForCompletion(true); 
+		
 		return 0;
 	} // End run
 	
@@ -109,7 +129,7 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
-	public static class Map_One extends Mapper<LongWritable, Text, Text, Text>  {
+	public static class Map_One extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
 			
@@ -125,7 +145,7 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
-	public static class Reduce_One extends Reducer<Text, Text, Text, Text>  {
+	public static class Reduce_One extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			List<String> prev = new ArrayList<String>();
 			for (Text val : values) {
@@ -149,7 +169,7 @@ public class Experiment1 extends Configured implements Tool {
 	}
 	
 	
-	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text>  {
+	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException  {
 			String line = value.toString().substring(1, value.toString().length() - 1);
 			
@@ -176,9 +196,9 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
-	public static class Reduce_Two extends Reducer<Text, Text, Text, Text>  {
+	public static class Reduce_Two extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			Map<String, String> set = new HashMap<String, String>();
+			Map<String, List<String>> set = new HashMap<String, List<String>>();
 			for (Text val : values) {
 				System.out.println("Received Key: " + key.toString() + " Val: " + val.toString());
 				String valString = val.toString();
@@ -186,17 +206,80 @@ public class Experiment1 extends Configured implements Tool {
 				valString = valString.replace(")", "");
 				
 				if (valString.contains(",")) {
-					set.put(valString.substring(0, valString.indexOf(",")), valString);
+					String first = valString.substring(0, valString.indexOf(","));
+					List<String> existing = set.get(first);
+					
+					if (existing == null) {
+						existing = new ArrayList<String>();
+					}
+					
+					existing.add(valString);
+					
+					set.put(first, existing);
 				} else {
-					set.put(valString, valString);
+					List<String> existing = set.get(valString);
+					
+					if (existing == null) {
+						existing = new ArrayList<String>();
+					}
+					
+					set.put(valString, existing);
 				}
 			}
 			
 			System.out.println("Set Key: " + set.keySet() + " Vals: " + set.values());
 			
 			// TODO: could probably be simplified
-			for (String s : set.values()) {
-				context.write(key, new Text(s));
+			int count = 0;
+			StringBuilder sb = new StringBuilder();
+			
+			for (String s : set.keySet()) {
+				List<String> val = set.get(s);
+				
+				if (val.isEmpty()) {
+					count++;
+					sb.append(s + "---");
+				} else {
+					for (String s1 : val) {
+						count++;
+						sb.append(s1 + "---");
+					}
+				}
+			}
+			
+			context.write(key, new Text(count + "~~~~" + sb.toString()));
+		}
+	}
+	
+	
+	public static class Map_Three extends Mapper<LongWritable, Text, IntWritable, Text> {
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
+
+			// Tokenize to get the individual words
+			String[] tokens = line.split("\t");
+
+			String val = tokens[0];
+			String rest = tokens[1];
+			context.write(new IntWritable(Integer.parseInt(rest.substring(0, rest.indexOf("~~~")))), new Text(val));
+		}
+	}
+
+	public static class Reduce_Three extends Reducer<IntWritable, Text, Text, IntWritable> {
+
+		private static int count = 0;
+
+		public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			// Print out all values that have the higest key value
+			// Stop printing when we get to 10 values.
+			// This solution only works since we specify 1 reducer.
+			for (Text val : values) {
+				if (count < 10) {
+					context.write(val, key);
+					count++;
+				} else {
+					break;
+				}
 			}
 		}
 	}
