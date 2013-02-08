@@ -33,7 +33,7 @@ public class Experiment1 extends Configured implements Tool {
 	public static void main (String[] args) throws Exception {
 		int res = ToolRunner.run(new Configuration(), new Experiment1(), args);
 		System.exit(res); 
-	} // End main
+	}
 	
 	public int run ( String[] args ) throws Exception {
 		
@@ -104,7 +104,7 @@ public class Experiment1 extends Configured implements Tool {
 		job_three.waitForCompletion(true); 
 		
 		return 0;
-	} // End run
+	}
 	
 	/**
 	 * Comparator that allows us to specify that elements
@@ -129,6 +129,20 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
+	/**
+	 * First round of map reduce takes in
+	 * 
+	 *  citing_node	cited_node
+	 * 
+	 * And outputs:
+	 * 
+	 * citing_node		(cited_node,citing_node)
+	 * cited_node		citing_node
+	 * 
+	 * For each node.
+	 * 
+	 * @author breber
+	 */
 	public static class Map_One extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
@@ -145,6 +159,19 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
+	/**
+	 * Reducer 1 takes in all paths of length 1 ending in the key node,
+	 * and all nodes that cite the key node.
+	 * 
+	 * node_n	(prev_node,node_n) ... citing_node_1 citing_node_2
+	 * 
+	 * And outputs:
+	 * 
+	 * (node1,node2)		// If we found a path of length 1
+	 * (node1,node2,node3)	// If we found a path of length 2
+	 *  
+	 * @author breber
+	 */
 	public static class Reduce_One extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			List<String> prev = new ArrayList<String>();
@@ -168,7 +195,19 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
-	
+	/**
+	 * The second round of map-reduce takes in all paths of length 2:
+	 * 
+	 * (node1,node2)		// Represents a one-hop path
+	 * (node1,node2,node3)	// Represents a two-hop path
+	 * 
+	 * And outputs to the reducer:
+	 * 
+	 * node1	(node2)			// For the first case
+	 * node1	(node2,node3)	// For the second case
+	 *  
+	 * @author breber
+	 */
 	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException  {
 			String line = value.toString().substring(1, value.toString().length() - 1);
@@ -196,11 +235,26 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
+	/**
+	 * The second reducer takes input in the form of:
+	 * 
+	 * node1	(node2)			// Represents a one-hop path
+	 * node1	(node2,node3)	// Represents a two-hop path
+	 * 
+	 * And outputs the node and the number of "unique" paths to it:
+	 * 
+	 * node1	1				// For the two inputs that are above,
+	 * 							// it would output 1, as node1,node2 is not 
+	 * 							// different from node1,node2,node3
+	 * 
+	 * Note: it also outputs the paths it used, for debugging purposes
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_Two extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			Map<String, List<String>> set = new HashMap<String, List<String>>();
 			for (Text val : values) {
-				System.out.println("Received Key: " + key.toString() + " Val: " + val.toString());
 				String valString = val.toString();
 				valString = valString.replace("(", "");
 				valString = valString.replace(")", "");
@@ -227,9 +281,6 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 			
-			System.out.println("Set Key: " + set.keySet() + " Vals: " + set.values());
-			
-			// TODO: could probably be simplified
 			int count = 0;
 			StringBuilder sb = new StringBuilder();
 			
@@ -251,7 +302,22 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 	
-	
+	/**
+	 * The third round of map reduce takes as input a node and the
+	 * number of one or two-hop paths entering the given node.
+	 * 
+	 * node1	2
+	 * 
+	 * And outputs in the form of
+	 * 
+	 * 2		node1
+	 * 
+	 * It reverses the key and value so that we can use the number of
+	 * citing nodes as the key to the reducer, allowing us to find
+	 * the top 10.
+	 *  
+	 * @author breber
+	 */
 	public static class Map_Three extends Mapper<LongWritable, Text, IntWritable, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
@@ -265,6 +331,17 @@ public class Experiment1 extends Configured implements Tool {
 		}
 	}
 
+	/**
+	 * The third reducer takes in a count, and the nodes that have that count.
+	 * 
+	 * 2		node1
+	 * 4		node2
+	 * 
+	 * And it outputs the 10 largest values. For this to work properly,
+	 * only 1 reducer can be used.
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_Three extends Reducer<IntWritable, Text, Text, IntWritable> {
 
 		private static int count = 0;
