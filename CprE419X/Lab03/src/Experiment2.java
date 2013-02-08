@@ -105,6 +105,20 @@ public class Experiment2 extends Configured implements Tool {
 		return 0;
 	}
 	
+	/**
+	 * First round of map reduce takes in
+	 * 
+	 *  citing_node	cited_node
+	 * 
+	 * And outputs:
+	 * 
+	 * citing_node		cited_node
+	 * cited_node		citing_node
+	 * 
+	 * For each node.
+	 * 
+	 * @author breber
+	 */
 	public static class Map_One extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
@@ -121,6 +135,17 @@ public class Experiment2 extends Configured implements Tool {
 		}
 	}
 	
+	/**
+	 * First round of reducer takes in
+	 * 
+	 * node		list_of_neighboring_nodes
+	 * 
+	 * And outputs:
+	 * 
+	 * node		(list_of_neighboring_nodes)]
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_One extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			StringBuilder stringBuilder = new StringBuilder("(");
@@ -142,7 +167,18 @@ public class Experiment2 extends Configured implements Tool {
 		}
 	}
 	
-	
+	/**
+	 * Second round of mapper takes in
+	 * 
+	 * node		list_of_neighboring_nodes
+	 * 
+	 * And outputs a list of neighbors for all of the node's neighbors:
+	 * 
+	 * neighbor1	[node,(list_of_neighboring_nodes)]
+	 * neighbor2	[node,(list_of_neighboring_nodes)]
+	 * 
+	 * @author breber
+	 */
 	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException  {
 			String line = value.toString();
@@ -150,8 +186,6 @@ public class Experiment2 extends Configured implements Tool {
 			String lineKey = tokens.nextToken();
 			String lineVal = tokens.nextToken();
 
-			System.out.println("Map_Two: key: " + lineKey + " --- val: " + lineVal);
-			
 			// Remove parenthesis from the list of neighbors
 			lineVal = lineVal.replace("(", "");
 			lineVal = lineVal.replace(")", "");
@@ -165,6 +199,17 @@ public class Experiment2 extends Configured implements Tool {
 		}
 	}
 	
+	/**
+	 * Second round of reducer takes in
+	 * 
+	 * neighbor1	[node,(list_of_neighboring_nodes)]
+	 * 
+	 * And outputs all the triangles the node is a part of:
+	 * 
+	 * <node1,node2,node3>
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_Two extends Reducer<Text, Text, Text, Text> {
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			Map<String, String> neighborsVisited = new HashMap<String, String>();
@@ -205,7 +250,17 @@ public class Experiment2 extends Configured implements Tool {
 		}
 	}
 	
-	
+	/**
+	 * Third round of mapper takes in
+	 * 
+	 * <node1,node2,node3>
+	 * 
+	 * And mirrors the input to the output
+	 * 
+	 * <node1,node2,node3>
+	 * 
+	 * @author breber
+	 */
 	public static class Map_Three extends Mapper<LongWritable, Text, Text, IntWritable> {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString().trim();
@@ -214,6 +269,16 @@ public class Experiment2 extends Configured implements Tool {
 		}
 	}
 
+	/**
+	 * Third round of mapper takes in
+	 * 
+	 * <node1,node2,node3>
+	 * 
+	 * And counts all the times the reduce method is called, which is the
+	 * number of triangles.
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_Three extends Reducer<Text, IntWritable, IntWritable, Text> {
 
 		private static int count = 0;
