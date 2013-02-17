@@ -9,7 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define ITERATION_SIZE 5
+#define ITERATION_SIZE 1
 
 int main(int argc, char ** argv) {
 	if (argc == 1) {

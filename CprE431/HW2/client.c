@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #define TRUE 1
-#define ITERATION_SIZE 5
-#define THRESHOLD 35000000
+#define ITERATION_SIZE 1
+#define THRESHOLD 10000000
 
 int main(int argc, char ** argv) {
 	char messageReceived[1000];
