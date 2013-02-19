@@ -6,6 +6,8 @@
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -32,15 +34,15 @@ public class Experiment1 extends Configured implements Tool {
 	@Override
 	public int run ( String[] args ) throws Exception {
 		String input = "/datasets/Lab4/group-files";
-		//		String input = "/user/breber/ex1.txt";
-		String temp = "/user/breber/Lab4/temp";
+//		String input = "/user/breber/ex1.txt";
+//		String temp = "/user/breber/Lab4/temp";
 		String output = "/user/breber/Lab4/exp1/";
 
-		int reduce_tasks = 2;  // The number of reduce tasks that will be assigned to the job
+		int reduce_tasks = 1;  // The number of reduce tasks that will be assigned to the job
 		Configuration conf = new Configuration();
 
 		// Create the job
-		Job job_one = new Job(conf, Experiment1.class.getName() + " Round One");
+		Job job_one = new Job(conf, Experiment1.class.getName() + "");
 		job_one.setJarByClass(Experiment1.class);
 		job_one.setNumReduceTasks(reduce_tasks);
 
@@ -54,7 +56,7 @@ public class Experiment1 extends Configured implements Tool {
 		job_one.setOutputFormatClass(TextOutputFormat.class);
 
 		FileInputFormat.addInputPath(job_one, new Path(input));
-		FileOutputFormat.setOutputPath(job_one, new Path(temp + "round1"));
+		FileOutputFormat.setOutputPath(job_one, new Path(output));
 
 		job_one.waitForCompletion(true);
 
@@ -76,10 +78,31 @@ public class Experiment1 extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
-			int minHash = Integer.MAX_VALUE;
+			int minHash1 = Integer.MAX_VALUE;
+			int minHash2 = Integer.MAX_VALUE;
+			int minHash3 = Integer.MAX_VALUE;
 
-			String documentId = line.substring(0, line.indexOf('-'));
-			String documentContents = line.substring(line.indexOf('-'));
+			String documentContents = line.substring(line.indexOf('-') + 1);
+
+			List<String> shingles = getKShingles(documentContents, 9);
+			
+			for (String shingle : shingles) {
+				minHash1 = Math.min(minHash1, Experiment1.hash(shingle.getBytes(), 100));
+				minHash2 = Math.min(minHash2, Experiment1.hash(shingle.getBytes(), 54351));
+				minHash3 = Math.min(minHash3, Experiment1.hash(shingle.getBytes(), 2416));
+			}
+			
+			context.write(new Text(minHash1 + "-" + /** minHash2 + "-" + */ minHash3), value);
+		}
+		
+		private List<String> getKShingles(String s, int k) {
+			List<String> shingles = new ArrayList<String>();
+			
+			for (int i = 0; i < s.length() - k; i++) {
+				shingles.add(s.substring(i, i + k));
+			}
+			
+			return shingles;
 		}
 	}
 
@@ -91,9 +114,36 @@ public class Experiment1 extends Configured implements Tool {
 	 * @author breber
 	 */
 	public static class Reduce_One extends Reducer<Text, Text, Text, Text> {
+		
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-
+			List<String> documentIds = new ArrayList<String>();
+			String documentContents = null;
+			
+			for (Text t : values) {
+				String full = t.toString();
+				String docId = full.substring(0, full.indexOf('-'));
+				String docContents = full.substring(full.indexOf('-') + 1);
+				
+				if (documentContents == null) {
+					documentContents = docContents;
+				}
+				
+				documentIds.add(docId);
+			}
+			
+			StringBuilder outKey = new StringBuilder();
+			
+			outKey.append(documentIds.size() + "~~");
+			
+			for (String s : documentIds) {
+				outKey.append(s);
+				outKey.append(',');
+			}
+			
+			String outKeyString = outKey.toString();
+			
+			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
 
