@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -118,8 +117,9 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 
-			for (int i = 0; i < minHash.length; i++) {
-				context.write(new Text(minHash[i] + ""), value);
+			for (int i = 0; i < minHash.length; i += 2) {
+				int combinedHash = Experiment1.hash(new String(minHash[i] + "" + minHash[i + 1]).getBytes(), 5000);
+				context.write(new Text(combinedHash + ""), value);
 			}
 		}
 
@@ -221,19 +221,19 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 
-			System.out.println("Group " + count++ + ": " + documentIds.size());
-			
-			if (documentIds.size() > 10) {
+			if (documentIds.size() == 100) {
+				System.out.println("Group " + count++ + ": " + documentIds.size());
+				
 				StringBuilder outKey = new StringBuilder();
 	
 				outKey.append(documentIds.size() + "~~");
 	
-				List<Integer> docIds = new LinkedList<Integer>(documentIds);
-				Collections.sort(docIds);
-				for (Integer s : docIds) {
-					outKey.append(s);
-					outKey.append(',');
-				}
+//				List<Integer> docIds = new LinkedList<Integer>(documentIds);
+//				Collections.sort(docIds);
+//				for (Integer s : docIds) {
+//					outKey.append(s);
+//					outKey.append(',');
+//				}
 	
 				String outKeyString = outKey.toString();
 	
