@@ -7,7 +7,11 @@
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -34,18 +38,16 @@ public class Experiment1 extends Configured implements Tool {
 	@Override
 	public int run ( String[] args ) throws Exception {
 		String input = "/datasets/Lab4/group-files";
-		//		String input = "/datasets/Lab4/test-files";
-		//		String input = "/user/breber/ex1.txt";
-		//		String temp = "/user/breber/Lab4/temp";
+//		String input = "/datasets/Lab4/test-files";
+		String temp = "/user/breber/Lab4/temp";
 		String output = "/user/breber/Lab4/exp1/";
 
-		int reduce_tasks = 1;  // The number of reduce tasks that will be assigned to the job
 		Configuration conf = new Configuration();
 
 		// Create the job
-		Job job_one = new Job(conf, Experiment1.class.getName() + "");
+		Job job_one = new Job(conf, Experiment1.class.getName() + " Round 1");
 		job_one.setJarByClass(Experiment1.class);
-		job_one.setNumReduceTasks(reduce_tasks);
+		job_one.setNumReduceTasks(2);
 
 		job_one.setOutputKeyClass(Text.class);
 		job_one.setOutputValueClass(Text.class);
@@ -57,9 +59,28 @@ public class Experiment1 extends Configured implements Tool {
 		job_one.setOutputFormatClass(TextOutputFormat.class);
 
 		FileInputFormat.addInputPath(job_one, new Path(input));
-		FileOutputFormat.setOutputPath(job_one, new Path(output));
-
+		FileOutputFormat.setOutputPath(job_one, new Path(temp));
+		
 		job_one.waitForCompletion(true);
+		
+		
+		Job job_two = new Job(conf, Experiment1.class.getName() + " Round 2");
+		job_two.setJarByClass(Experiment1.class);
+		job_two.setNumReduceTasks(1);
+
+		job_two.setOutputKeyClass(Text.class);
+		job_two.setOutputValueClass(Text.class);
+
+		job_two.setMapperClass(Map_Two.class);
+		job_two.setReducerClass(Reduce_Two.class);
+
+		job_two.setInputFormatClass(TextInputFormat.class);
+		job_two.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job_two, new Path(temp));
+		FileOutputFormat.setOutputPath(job_two, new Path(output));
+
+		job_two.waitForCompletion(true);
 
 		return 0;
 	}
@@ -79,25 +100,27 @@ public class Experiment1 extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
-			int minHash1 = Integer.MAX_VALUE;
-			int minHash2 = Integer.MAX_VALUE;
-			int minHash3 = Integer.MAX_VALUE;
-
+			
+			int[] seeds = new int[] { 100, 54351, 2416, 3426, 983, 7582, 1305, 54325, 83021, 4332, 9476, 4328 };
+			int[] minHash = new int[seeds.length];
+			
+			for (int i = 0; i < minHash.length; i++) {
+				minHash[i] = Integer.MAX_VALUE;
+			}
+			
 			String documentContents = line.substring(line.indexOf('-') + 1);
 
 			List<String> shingles = getKShingles(documentContents, 9);
 
-			System.out.println("Shingles: " + shingles);
-
 			for (String shingle : shingles) {
-				minHash1 = Math.min(minHash1, Experiment1.hash(shingle.getBytes(), 100));
-				minHash2 = Math.min(minHash2, Experiment1.hash(shingle.getBytes(), 54351));
-				minHash3 = Math.min(minHash3, Experiment1.hash(shingle.getBytes(), 2416));
+				for (int i = 0; i < minHash.length; i++) {
+					minHash[i] = Math.min(minHash[i], Experiment1.hash(shingle.getBytes(), seeds[i]));
+				}
 			}
 
-			System.out.println("MinHash: " + minHash1 + " ~~ " + minHash2 + " ~~ " + minHash3);
-
-			context.write(new Text(minHash1 + "-" + minHash2 /* + "-" + minHash3 */), value);
+			for (int i = 0; i < minHash.length; i++) {
+				context.write(new Text(minHash[i] + ""), value);
+			}
 		}
 
 		private List<String> getKShingles(String s, int k) {
@@ -151,6 +174,74 @@ public class Experiment1 extends Configured implements Tool {
 			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
+	
+	
+	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text> {
+		@Override
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
+			// Remove count
+			line = line.substring(line.indexOf("~~") + 2);
+			
+			// Get the keys
+			String keys = line.substring(0, line.indexOf('\t'));
+			String[] splitKeys = keys.split(",");
+			List<Integer> keyInts = new ArrayList<Integer>();
+			
+			for (String k : splitKeys) {
+				keyInts.add(Integer.parseInt(k));
+			}
+			
+			Collections.sort(keyInts);
+			
+			context.write(new Text(keyInts.get(0) + ""), new Text(line));
+		}
+	}
+	
+	public static class Reduce_Two extends Reducer<Text, Text, Text, Text> {
+		private int count = 0;
+		@Override
+		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			Set<Integer> documentIds = new HashSet<Integer>();
+			String documentContents = null;
+
+			for (Text t : values) {
+				String full = t.toString();
+				String keys = full.substring(0, full.indexOf('\t'));
+				String docContents = full.substring(full.indexOf('\t') + 1);
+
+				if (documentContents == null) {
+					documentContents = docContents;
+				}
+
+				String[] splitKeys = keys.split(",");
+				
+				for (String k : splitKeys) {
+					documentIds.add(Integer.parseInt(k));
+				}
+			}
+
+			System.out.println("Group " + count++ + ": " + documentIds.size());
+			
+			if (documentIds.size() > 10) {
+				StringBuilder outKey = new StringBuilder();
+	
+				outKey.append(documentIds.size() + "~~");
+	
+				List<Integer> docIds = new LinkedList<Integer>(documentIds);
+				Collections.sort(docIds);
+				for (Integer s : docIds) {
+					outKey.append(s);
+					outKey.append(',');
+				}
+	
+				String outKeyString = outKey.toString();
+	
+				context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(/*documentContents*/));
+			}
+		}
+	}
+	
 
 	/*
 	 * Below is a hash function that can be used throughout your Application to
@@ -197,9 +288,9 @@ public class Experiment1 extends Configured implements Tool {
 		}
 
 		h ^= h >> 13;
-			h *= m;
-			h ^= h >> 15;
+		h *= m;
+		h ^= h >> 15;
 
-			return h;
+		return h;
 	}
 }
