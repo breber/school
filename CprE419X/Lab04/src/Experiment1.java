@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,9 +37,9 @@ public class Experiment1 extends Configured implements Tool {
 	@Override
 	public int run ( String[] args ) throws Exception {
 		String input = "/datasets/Lab4/group-files";
-//		String input = "/datasets/Lab4/test-files";
+//		String input = "/datasets/Lab4/second-group-files";
 		String temp = "/user/breber/Lab4/temp";
-		String output = "/user/breber/Lab4_1/exp1/";
+		String output = "/user/breber/Lab4/exp1/";
 
 		Configuration conf = new Configuration();
 
@@ -94,6 +93,8 @@ public class Experiment1 extends Configured implements Tool {
 	 * 
 	 * min_hash		(document_id,document_contents)
 	 * 
+	 * For k different minhash seed values.
+	 * 
 	 * @author breber
 	 */
 	public static class Map_One extends Mapper<LongWritable, Text, Text, Text> {
@@ -101,29 +102,43 @@ public class Experiment1 extends Configured implements Tool {
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
 			
+			// An array of the different seeds to use when calculating minhashes
 			int[] seeds = new int[] { 100, 54351, 2416, 3426, 983, 7582, 1305, 54325, 83021, 4332, 9476, 4328 };
 			int[] minHash = new int[seeds.length];
 			
+			// Set all the minhash values to the maximum int value to start with
 			for (int i = 0; i < minHash.length; i++) {
 				minHash[i] = Integer.MAX_VALUE;
 			}
 			
+			// Parse out the document content from the input
 			String documentContents = line.substring(line.indexOf('-') + 1);
 
+			// Get a list of the shingles (9-shingles in this case)
 			List<String> shingles = getKShingles(documentContents, 9);
 
+			// Go through and calculate the minhashes of the document
 			for (String shingle : shingles) {
 				for (int i = 0; i < minHash.length; i++) {
 					minHash[i] = Math.min(minHash[i], Experiment1.hash(shingle.getBytes(), seeds[i]));
 				}
 			}
 
+			// Output the minhashes with the entire document contents
 			for (int i = 0; i < minHash.length; i += 2) {
+				// Combine two hashes together when outputting to help prevent false-positives
 				int combinedHash = Experiment1.hash(new String(minHash[i] + "" + minHash[i + 1]).getBytes(), 5000);
 				context.write(new Text(combinedHash + ""), value);
 			}
 		}
 
+		/**
+		 * Calculate the k-shingles of the given string
+		 * 
+		 * @param s the string to calculate the shingles for
+		 * @param k how many characters in each shingle
+		 * @return a list of the k-shingles
+		 */
 		private List<String> getKShingles(String s, int k) {
 			List<String> shingles = new ArrayList<String>();
 
@@ -136,9 +151,13 @@ public class Experiment1 extends Configured implements Tool {
 	}
 
 	/**
+	 * The first round of reducing takes in:
+	 * 
+	 * combined_minhash		list_of_documents_with_minhash
 	 * 
 	 * And outputs:
 	 * 
+	 * list,of,docids		contents_of_single_document
 	 * 
 	 * @author breber
 	 */
@@ -146,9 +165,11 @@ public class Experiment1 extends Configured implements Tool {
 
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			List<String> documentIds = new ArrayList<String>();
+			Set<String> documentIds = new HashSet<String>();
 			String documentContents = null;
 
+			// Go through each document and add its id to the list, and
+			// store the document contents
 			for (Text t : values) {
 				String full = t.toString();
 				String docId = full.substring(0, full.indexOf('-'));
@@ -161,44 +182,65 @@ public class Experiment1 extends Configured implements Tool {
 				documentIds.add(docId);
 			}
 
+			// Build the key with all document ids to write out to
 			StringBuilder outKey = new StringBuilder();
-
-			outKey.append(documentIds.size() + "~~");
 
 			for (String s : documentIds) {
 				outKey.append(s);
 				outKey.append(',');
 			}
 
+			// Write the document contents with the key just created
 			String outKeyString = outKey.toString();
-
 			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
 	
-	
+	/**
+	 * The second round of mapping takes in:
+	 * 
+	 * list,of,docids		contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * min_doc_id		list,of,docids	contents_of_single_document
+	 * 
+	 * @author breber
+	 */
 	public static class Map_Two extends Mapper<LongWritable, Text, Text, Text> {
 		@Override
 		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			String line = value.toString();
-			// Remove count
-			line = line.substring(line.indexOf("~~") + 2);
 			
 			// Get the keys
 			String keys = line.substring(0, line.indexOf('\t'));
 			String[] splitKeys = keys.split(",");
+
+			// Get a list of the document ids
 			List<Integer> keyInts = new ArrayList<Integer>();
-			
 			for (String k : splitKeys) {
 				keyInts.add(Integer.parseInt(k));
 			}
 			
+			// Sort them, minimum first in list
 			Collections.sort(keyInts);
 			
+			// Write with key being the smallest item in the list
 			context.write(new Text(keyInts.get(0) + ""), new Text(line));
 		}
 	}
 	
+	/**
+	 * The second round of reducing takes in:
+	 * 
+	 * min_doc_id		list,of,docids	contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * list,of,docids		contents_of_single_document
+	 * 
+	 * @author breber
+	 */
 	public static class Reduce_Two extends Reducer<Text, Text, Text, Text> {
 		private int count = 0;
 		@Override
@@ -206,6 +248,7 @@ public class Experiment1 extends Configured implements Tool {
 			Set<Integer> documentIds = new HashSet<Integer>();
 			String documentContents = null;
 
+			// Go through the results, and combine the groups of keys
 			for (Text t : values) {
 				String full = t.toString();
 				String keys = full.substring(0, full.indexOf('\t'));
@@ -226,18 +269,12 @@ public class Experiment1 extends Configured implements Tool {
 				System.out.println("Group " + count++ + ": " + documentIds.size());
 				
 				StringBuilder outKey = new StringBuilder();
-	
-	//			outKey.append(documentIds.size() + "~~");
-	
-				List<Integer> docIds = new LinkedList<Integer>(documentIds);
-				Collections.sort(docIds);
-				for (Integer s : docIds) {
+				for (Integer s : documentIds) {
 					outKey.append(s);
 					outKey.append(',');
 				}
 	
 				String outKeyString = outKey.toString();
-	
 				context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 			}
 		}
