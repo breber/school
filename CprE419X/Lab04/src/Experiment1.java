@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -221,24 +222,22 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 
-			if (documentIds.size() == 100) {
-				System.out.println("Group " + count++ + ": " + documentIds.size());
-				
-				StringBuilder outKey = new StringBuilder();
-	
-				outKey.append(documentIds.size() + "~~");
-	
-//				List<Integer> docIds = new LinkedList<Integer>(documentIds);
-//				Collections.sort(docIds);
-//				for (Integer s : docIds) {
-//					outKey.append(s);
-//					outKey.append(',');
-//				}
-	
-				String outKeyString = outKey.toString();
-	
-				context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(/*documentContents*/));
+			System.out.println("Group " + count++ + ": " + documentIds.size());
+			
+			StringBuilder outKey = new StringBuilder();
+
+//			outKey.append(documentIds.size() + "~~");
+
+			List<Integer> docIds = new LinkedList<Integer>(documentIds);
+			Collections.sort(docIds);
+			for (Integer s : docIds) {
+				outKey.append(s);
+				outKey.append(',');
 			}
+
+			String outKeyString = outKey.toString();
+
+			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
 	
