@@ -40,7 +40,7 @@ public class Experiment1 extends Configured implements Tool {
 		String input = "/datasets/Lab4/group-files";
 //		String input = "/datasets/Lab4/test-files";
 		String temp = "/user/breber/Lab4/temp";
-		String output = "/user/breber/Lab4/exp1/";
+		String output = "/user/breber/Lab4_1/exp1/";
 
 		Configuration conf = new Configuration();
 
@@ -222,22 +222,24 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 
-			System.out.println("Group " + count++ + ": " + documentIds.size());
-			
-			StringBuilder outKey = new StringBuilder();
-
-//			outKey.append(documentIds.size() + "~~");
-
-			List<Integer> docIds = new LinkedList<Integer>(documentIds);
-			Collections.sort(docIds);
-			for (Integer s : docIds) {
-				outKey.append(s);
-				outKey.append(',');
+			if (documentIds.size() == 100) {
+				System.out.println("Group " + count++ + ": " + documentIds.size());
+				
+				StringBuilder outKey = new StringBuilder();
+	
+	//			outKey.append(documentIds.size() + "~~");
+	
+				List<Integer> docIds = new LinkedList<Integer>(documentIds);
+				Collections.sort(docIds);
+				for (Integer s : docIds) {
+					outKey.append(s);
+					outKey.append(',');
+				}
+	
+				String outKeyString = outKey.toString();
+	
+				context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 			}
-
-			String outKeyString = outKey.toString();
-
-			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
 	
