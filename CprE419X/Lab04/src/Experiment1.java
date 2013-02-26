@@ -36,10 +36,10 @@ public class Experiment1 extends Configured implements Tool {
 
 	@Override
 	public int run ( String[] args ) throws Exception {
-		String input = "/datasets/Lab4/group-files";
-//		String input = "/datasets/Lab4/second-group-files";
-		String temp = "/user/breber/Lab4/temp";
-		String output = "/user/breber/Lab4/exp1/";
+//		String input = "/datasets/Lab4/group-files";
+		String input = "/datasets/Lab4/second-group-files";
+		String temp = "/user/breber/Lab4_secondgroup/temp";
+		String output = "/user/breber/Lab4_secondgroup/exp1/";
 
 		Configuration conf = new Configuration();
 
@@ -77,10 +77,48 @@ public class Experiment1 extends Configured implements Tool {
 		job_two.setOutputFormatClass(TextOutputFormat.class);
 
 		FileInputFormat.addInputPath(job_two, new Path(temp));
-		FileOutputFormat.setOutputPath(job_two, new Path(output));
+		FileOutputFormat.setOutputPath(job_two, new Path(temp + "2"));
 
 		job_two.waitForCompletion(true);
+		
+		
+		Job job_three = new Job(conf, Experiment1.class.getName() + " Round 3");
+		job_three.setJarByClass(Experiment1.class);
+		job_three.setNumReduceTasks(1);
 
+		job_three.setOutputKeyClass(Text.class);
+		job_three.setOutputValueClass(Text.class);
+
+		job_three.setMapperClass(Map_Three.class);
+		job_three.setReducerClass(Reduce_Three.class);
+
+		job_three.setInputFormatClass(TextInputFormat.class);
+		job_three.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job_three, new Path(temp + "2"));
+		FileOutputFormat.setOutputPath(job_three, new Path(temp + "3"));
+
+		job_three.waitForCompletion(true);
+
+		
+		Job job_four = new Job(conf, Experiment1.class.getName() + " Round 4");
+		job_four.setJarByClass(Experiment1.class);
+		job_four.setNumReduceTasks(1);
+
+		job_four.setOutputKeyClass(Text.class);
+		job_four.setOutputValueClass(Text.class);
+
+		job_four.setMapperClass(Map_Four.class);
+		job_four.setReducerClass(Reduce_Four.class);
+
+		job_four.setInputFormatClass(TextInputFormat.class);
+		job_four.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job_four, new Path(temp + "3"));
+		FileOutputFormat.setOutputPath(job_four, new Path(output));
+
+		job_four.waitForCompletion(true);
+		
 		return 0;
 	}
 
@@ -237,7 +275,7 @@ public class Experiment1 extends Configured implements Tool {
 	 * 
 	 * And outputs:
 	 * 
-	 * list,of,docids		contents_of_single_document
+	 * group_num~~list,of,docids		contents_of_single_document
 	 * 
 	 * @author breber
 	 */
@@ -265,18 +303,159 @@ public class Experiment1 extends Configured implements Tool {
 				}
 			}
 
-			if (documentIds.size() == 100) {
-				System.out.println("Group " + count++ + ": " + documentIds.size());
-				
-				StringBuilder outKey = new StringBuilder();
-				for (Integer s : documentIds) {
-					outKey.append(s);
-					outKey.append(',');
-				}
-	
-				String outKeyString = outKey.toString();
-				context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
+			System.out.println("Group " + count + ": " + documentIds.size());
+			
+			StringBuilder outKey = new StringBuilder();
+			outKey.append(count + "~~");
+			
+			for (Integer s : documentIds) {
+				outKey.append(s);
+				outKey.append(',');
 			}
+
+			String outKeyString = outKey.toString();
+			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
+			
+			count++;
+		}
+	}
+	
+	/**
+	 * The third round of mapping takes in:
+	 * 
+	 * group_num~~list,of,docids		contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * doc_id		group~~size_of_group~~contents_of_single_document
+	 * 
+	 * @author breber
+	 */
+	public static class Map_Three extends Mapper<LongWritable, Text, Text, Text> {
+		@Override
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
+			
+			// Get the keys
+			String keys = line.substring(0, line.indexOf('\t'));
+			String docContents = line.substring(line.indexOf('\t') + 1);
+					
+			String clusterId = keys.substring(0, keys.indexOf("~~"));
+			keys = keys.substring(keys.indexOf("~~") + 2);
+			
+			String[] splitKeys = keys.split(",");
+
+			// Get a list of the document ids
+			for (String k : splitKeys) {
+				context.write(new Text(k), new Text(clusterId + "~~" + splitKeys.length + "~~" + docContents));
+			}
+		}
+	}
+	
+	/**
+	 * The third round of reducing takes in:
+	 * 
+	 * doc_id		group~~size_of_group~~contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * group		doc_id~~contents_of_single_document
+	 * 
+	 * @author breber
+	 */
+	public static class Reduce_Three extends Reducer<Text, Text, Text, Text> {
+		@Override
+		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			String documentContents = "";
+			String groupId = "";
+			int maxGroupSize = -1;
+			
+			// Go through the results, and combine the groups of keys
+			for (Text t : values) {
+				String full = t.toString();
+				String group = full.substring(0, full.indexOf("~~"));
+				full = full.substring(full.indexOf("~~") + 2);
+				String groupSize = full.substring(0, full.indexOf("~~"));
+				String docContents = full.substring(full.indexOf("~~") + 2);
+
+				if (Integer.parseInt(groupSize) > maxGroupSize) {
+					documentContents = docContents;
+					maxGroupSize = Integer.parseInt(groupSize);
+					groupId = group;
+				}
+			}
+
+			context.write(new Text(groupId), new Text(key.toString() + "~~" + documentContents));
+		}
+	}
+	
+	/**
+	 * The fourth round of mapping takes in:
+	 * 
+	 * group		doc_id~~contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * group		doc_id~~contents_of_single_document
+	 * 
+	 * @author breber
+	 */
+	public static class Map_Four extends Mapper<LongWritable, Text, Text, Text> {
+		@Override
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			String line = value.toString();
+			
+			// Get the keys
+			String groupId = line.substring(0, line.indexOf('\t'));
+			String docIdAndContents = line.substring(line.indexOf('\t') + 1);
+					
+			context.write(new Text(groupId), new Text(docIdAndContents));
+		}
+	}
+	
+	/**
+	 * The fourth round of reducing takes in:
+	 * 
+	 * group		doc_id~~contents_of_single_document
+	 * 
+	 * And outputs:
+	 * 
+	 * list_of_doc_ids		contents_of_single_document
+	 * 
+	 * @author breber
+	 */
+	public static class Reduce_Four extends Reducer<Text, Text, Text, Text> {
+		private int count = 0;
+		
+		@Override
+		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			Set<Integer> documentIds = new HashSet<Integer>();
+			String documentContents = null;
+			
+			// Go through the results, and combine the groups of keys
+			for (Text t : values) {
+				String full = t.toString();
+				String docId = full.substring(0, full.indexOf("~~"));
+				String docContents = full.substring(full.indexOf("~~") + 2);
+
+				documentIds.add(Integer.parseInt(docId));
+				
+				if (documentContents == null) {
+					documentContents = docContents;
+				}
+			}
+			
+			System.out.println("Group " + count++ + ": " + documentIds.size());
+			
+			StringBuilder outKey = new StringBuilder();
+			
+			for (Integer s : documentIds) {
+				outKey.append(s);
+				outKey.append(',');
+			}
+			
+			String outKeyString = outKey.toString();
+			context.write(new Text(outKeyString.substring(0, outKeyString.length() - 1)), new Text(documentContents));
 		}
 	}
 	
