@@ -36,10 +36,10 @@ public class Experiment1 extends Configured implements Tool {
 
 	@Override
 	public int run ( String[] args ) throws Exception {
-//		String input = "/datasets/Lab4/group-files";
-		String input = "/datasets/Lab4/second-group-files";
-		String temp = "/user/breber/Lab4_secondgroup/temp";
-		String output = "/user/breber/Lab4_secondgroup/exp1/";
+		String input = "/datasets/Lab4/group-files";
+//		String input = "/datasets/Lab4/second-group-files";
+		String temp = "/user/breber/Lab4/temp";
+		String output = "/user/breber/Lab4/exp1/";
 
 		Configuration conf = new Configuration();
 
@@ -367,7 +367,7 @@ public class Experiment1 extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			String documentContents = "";
-			String groupId = "";
+			int groupId = -1;
 			int maxGroupSize = -1;
 			
 			// Go through the results, and combine the groups of keys
@@ -378,14 +378,20 @@ public class Experiment1 extends Configured implements Tool {
 				String groupSize = full.substring(0, full.indexOf("~~"));
 				String docContents = full.substring(full.indexOf("~~") + 2);
 
-				if (Integer.parseInt(groupSize) > maxGroupSize) {
+				int gSize = Integer.parseInt(groupSize);
+				int gId = Integer.parseInt(group);
+				
+				// Choose the bigger group, or the group with the smallest ID
+				// if the groups are the same size
+				if (gSize > maxGroupSize ||
+						(gSize == maxGroupSize && groupId < gId)) {
 					documentContents = docContents;
-					maxGroupSize = Integer.parseInt(groupSize);
-					groupId = group;
+					maxGroupSize = gSize;
+					groupId = gId;
 				}
 			}
 
-			context.write(new Text(groupId), new Text(key.toString() + "~~" + documentContents));
+			context.write(new Text(groupId + ""), new Text(key.toString() + "~~" + documentContents));
 		}
 	}
 	
