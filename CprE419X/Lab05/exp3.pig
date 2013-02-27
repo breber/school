@@ -19,4 +19,13 @@ blocked_important = FOREACH blocked_connections GENERATE ip_trace::time, ip_trac
 STORE blocked_important INTO '/user/breber/Lab5/exp3/firewall';
 
 
---STORE output INTO '/user/breber/Lab5/exp3/output';
+-- Group by the source IP address
+grouped = GROUP blocked_important BY $2;
+
+-- get the number of unique sources
+rslt = FOREACH grouped GENERATE group, COUNT($1);
+
+-- order them by size
+sorted = ORDER rslt by $1 DESC;
+
+STORE sorted INTO '/user/breber/Lab5/exp3/output';
