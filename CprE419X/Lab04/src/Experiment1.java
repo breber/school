@@ -35,7 +35,7 @@ public class Experiment1 extends Configured implements Tool {
 	}
 
 	@Override
-	public int run ( String[] args ) throws Exception {
+	public int run(String[] args) throws Exception {
 		String input = "/datasets/Lab4/group-files";
 //		String input = "/datasets/Lab4/second-group-files";
 		String temp = "/user/breber/Lab4/temp";
@@ -43,7 +43,11 @@ public class Experiment1 extends Configured implements Tool {
 
 		Configuration conf = new Configuration();
 
-		// Create the job
+		/*
+		 * First round of map-reduce
+		 * 
+		 * Compute multiple minhashes, combine two together, and output
+		 */
 		Job job_one = new Job(conf, Experiment1.class.getName() + " Round 1");
 		job_one.setJarByClass(Experiment1.class);
 		job_one.setNumReduceTasks(2);
@@ -63,6 +67,14 @@ public class Experiment1 extends Configured implements Tool {
 		job_one.waitForCompletion(true);
 		
 		
+		/*
+		 * Second round of map-reduce
+		 * 
+		 * Take groups of documents with the same minhash and combine groups
+		 * based on the smallest document id. This makes an assumption similar
+		 * to the minhash assumption - the smallest element in each group is
+		 * likely to be the same if the groups are the same.
+		 */
 		Job job_two = new Job(conf, Experiment1.class.getName() + " Round 2");
 		job_two.setJarByClass(Experiment1.class);
 		job_two.setNumReduceTasks(1);
@@ -82,6 +94,13 @@ public class Experiment1 extends Configured implements Tool {
 		job_two.waitForCompletion(true);
 		
 		
+		/*
+		 * Third round of map-reduce
+		 * 
+		 * Take groups and output every document id, with the associated group
+		 * number, and the document contents. This will ensure that any document
+		 * is only in one cluster.
+		 */		
 		Job job_three = new Job(conf, Experiment1.class.getName() + " Round 3");
 		job_three.setJarByClass(Experiment1.class);
 		job_three.setNumReduceTasks(1);
@@ -101,6 +120,11 @@ public class Experiment1 extends Configured implements Tool {
 		job_three.waitForCompletion(true);
 
 		
+		/*
+		 * Fourth round of map-reduce
+		 * 
+		 * Take each document and output it based on the chosen group.
+		 */
 		Job job_four = new Job(conf, Experiment1.class.getName() + " Round 4");
 		job_four.setJarByClass(Experiment1.class);
 		job_four.setNumReduceTasks(1);
