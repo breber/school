@@ -1,3 +1,4 @@
+-- Part A
 CREATE EXTERNAL TABLE network_trace (
   time STRING,
   ip STRING,
@@ -10,6 +11,8 @@ ROW FORMAT DELIMITED
   FIELDS TERMINATED BY ' '
 LOCATION '/datasets/Lab6/Exp2';
 
+
+-- Part B
 FROM (
   SELECT count(*) count, regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sourceip, regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1') destip
   FROM network_trace
@@ -18,46 +21,20 @@ FROM (
 ORDER BY count DESC
 LIMIT 5;
 
---- RESULTS FROM PART B
-Total MapReduce CPU Time Spent: 21 minutes 37 seconds 430 msec
-OK
-6335124 227.64.161.155  237.83.213.217
-75293   162.142.157.250 3.150.47.225
-74548   3.3.120.126     4.22.194.30
-71051   162.131.175.232 3.196.40.128
-66253   1.37.196.123    237.81.250.217
-Time taken: 199.764 seconds
---- END RESULTS
 
-
--------------------------------
---      TEST
--------------------------------
-
-SELECT count(*), regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1'), regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')
-FROM network_trace_small
-GROUP BY regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1'), regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')
-
+-- Part C
 FROM (
-SELECT count(*), regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1'), regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')
-FROM network_trace_small
-GROUP BY regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1'), regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')
-) tmp SELECT cast(_col0 as int) AS _col0, _col1, _col2
-ORDER BY _col0
-LIMIT 5
-
-
-
-FROM (
-  SELECT count(*) count, regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sourceip, regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1') destip
-  FROM network_trace_small
-  GROUP BY regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1'), regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')
+  SELECT regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sourceip, count(DISTINCT regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')) count
+  FROM network_trace
+  GROUP BY regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1')
 ) tmp SELECT *
 ORDER BY count DESC
-LIMIT 5
+LIMIT 10;
 
 
-
+-------------------------------
+--   TEST (Smaller Dataset)
+-------------------------------
 CREATE EXTERNAL TABLE network_trace_small (
   time STRING,
   ip STRING,
