@@ -1,0 +1,145 @@
+-- Step 1
+CREATE DATABASE breber;
+
+--
+hive> create database breber;
+OK
+Time taken: 0.403 seconds
+--
+
+
+--
+hive> use breber;
+OK
+Time taken: 0.035 seconds
+--
+
+-- Step 2
+CREATE TABLE Census (
+  usps STRING,
+  geoid INT,
+  pop10 INT,
+  hu10 INT,
+  aland INT,
+  awater INT,
+  aland_sqmi INT,
+  awater_sqmi INT,
+  intptlat FLOAT,
+  intptlon FLOAT )
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '\t';
+--
+hive> CREATE TABLE Census (
+    >  usps STRING,
+    >  geoid INT,
+    >  pop10 INT,
+    >  hu10 INT,
+    >  aland INT,
+    >  awater INT,
+    >  aland_sqmi INT,
+    >  awater_sqmi INT,
+    >  intptlat FLOAT,
+    >  intptlon FLOAT )
+	> ROW FORMAT DELIMITED
+    >   FIELDS TERMINATED BY '\t';
+OK
+Time taken: 0.413 seconds
+--
+
+
+-- After this, input file disappears
+-- Appears to be in /biginsights/hive/warehouse/breber.db/census
+LOAD DATA INPATH '/user/breber/Lab6/Exp1/' INTO TABLE Census;
+
+--
+hive> LOAD DATA INPATH '/user/breber/Lab6/Exp1/' INTO TABLE Census;
+Loading data to table breber.census
+OK
+Time taken: 0.443 seconds
+--
+
+
+
+-- Step 4
+CREATE EXTERNAL TABLE Census_External (
+  usps STRING,
+  geoid INT,
+  pop10 INT,
+  hu10 INT,
+  aland INT,
+  awater INT,
+  aland_sqmi INT,
+  awater_sqmi INT,
+  intptlat FLOAT,
+  intptlon FLOAT )
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY '\t'
+LOCATION '/user/breber/Lab6/Exp1/';
+
+--
+hive> CREATE EXTERNAL TABLE Census (
+    >  usps STRING,
+    >  geoid INT,
+    >  pop10 INT,
+    >  hu10 INT,
+    >  aland INT,
+    >  awater INT,
+    >  aland_sqmi INT,
+    >  awater_sqmi INT,
+    >  intptlat FLOAT,
+    >  intptlon FLOAT )
+	> ROW FORMAT DELIMITED
+    >   FIELDS TERMINATED BY '\t'
+	> LOCATION '/user/breber/Lab6/Exp1/';
+OK
+Time taken: 0.14 seconds
+--
+
+
+-- Step 5
+
+--
+hive> SHOW TABLES;
+OK
+census
+census_external
+Time taken: 0.168 seconds
+--
+
+--
+hive> describe Census;
+OK
+usps    string
+geoid   int
+pop10   int
+hu10    int
+aland   int
+awater  int
+aland_sqmi      int
+awater_sqmi     int
+intptlat        float
+intptlon        float
+Time taken: 0.128 seconds
+--
+
+--
+hive> describe Census_External;
+OK
+usps    string
+geoid   int
+pop10   int
+hu10    int
+aland   int
+awater  int
+aland_sqmi      int
+awater_sqmi     int
+intptlat        float
+intptlon        float
+Time taken: 0.128 seconds
+--
+
+-- Step 6
+
+INSERT OVERWRITE LOCAL DIRECTORY '/home/breber/ia_census.txt' SELECT * FROM census WHERE census.usps='IA';
+
+
