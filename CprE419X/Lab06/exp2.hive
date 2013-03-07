@@ -6,7 +6,7 @@ CREATE EXTERNAL TABLE network_trace (
   arrow STRING,
   destip STRING,
   protocol STRING,
-  garbage STRING )
+  protocoldata STRING )
 ROW FORMAT DELIMITED
   FIELDS TERMINATED BY ' '
 LOCATION '/datasets/Lab6/Exp2';
@@ -31,19 +31,3 @@ FROM (
 ) tmp SELECT *
 ORDER BY count DESC
 LIMIT 10;
-
-
--------------------------------
---   TEST (Smaller Dataset)
--------------------------------
-CREATE EXTERNAL TABLE network_trace_small (
-  time STRING,
-  ip STRING,
-  sourceip STRING,
-  arrow STRING,
-  destip STRING,
-  protocol STRING,
-  garbage STRING )
-ROW FORMAT DELIMITED
-  FIELDS TERMINATED BY ' '
-LOCATION '/user/breber/Lab6/small';

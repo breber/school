@@ -44,5 +44,3 @@ DESCRIBE Census_External;
 
 -- Step 6
 INSERT OVERWRITE LOCAL DIRECTORY '/home/breber/ia_census.txt' SELECT * FROM census WHERE census.usps='IA';
-
-
