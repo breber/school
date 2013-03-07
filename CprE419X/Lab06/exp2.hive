@@ -26,6 +26,7 @@ LIMIT 5;
 FROM (
   SELECT regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sourceip, count(DISTINCT regexp_replace(destip, '(.*[.].*[.].*[.].*)[.].*', '$1')) count
   FROM network_trace
+  WHERE protocol='tcp'
   GROUP BY regexp_replace(sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1')
 ) tmp SELECT *
 ORDER BY count DESC

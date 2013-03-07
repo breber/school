@@ -1,0 +1,40 @@
+-- Part A
+CREATE EXTERNAL TABLE ip_trace (
+  time STRING,
+  connid INT,
+  sourceip STRING,
+  arrow STRING,
+  destip STRING,
+  protocol STRING,
+  garbage STRING )
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY ' '
+LOCATION '/datasets/Lab6/Exp3/ip_trace';
+
+CREATE EXTERNAL TABLE raw_block (
+  connid INT,
+  action STRING )
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY ' '
+LOCATION '/datasets/Lab6/Exp3/raw_block';
+
+
+-- Part B
+FROM (
+  SELECT regexp_replace(ip_trace.sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sip, count(*) count
+  FROM ip_trace JOIN raw_block ON (ip_trace.connid = raw_block.connid)
+  WHERE raw_block.action='Blocked'
+  GROUP BY regexp_replace(ip_trace.sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1')
+) tmp SELECT *
+ORDER BY count DESC;
+
+
+-- Part C (In Progress)
+FROM (
+  SELECT regexp_replace(ip_trace.sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1') sip, count(*) count
+  FROM ip_trace JOIN raw_block ON (ip_trace.connid = raw_block.connid)
+  WHERE raw_block.action='Blocked'
+  GROUP BY regexp_replace(ip_trace.sourceip, '(.*[.].*[.].*[.].*)[.].*', '$1')
+) tmp SELECT *
+ORDER BY count DESC
+LIMIT 5;
