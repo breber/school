@@ -1,1 +1,0 @@
-For the JNI part of the project, I do not know how to properly set the LD_LIBRARY_PATH from the makefile (I tried multiple ways, and no matter what, it wouldn't be set after the make command ended).  So for this stuff to work correctly, you will need to manually need to set this variable, such as ' export LD_LIBRARY_PATH=./ '
