@@ -23,6 +23,9 @@ DerivedData
 
 CprE315X/Project2/src/linux.words
 
+CprE275X/Lab01/bin/*
+CprE275X/Lab01/gen/*
+
 CprE530/netdump/netdump
 CprE431/HW2/client
 CprE431/HW2/server
@@ -69,3 +72,17 @@ simulation/
 timing/
 testbench/
 *_sim/
+
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
