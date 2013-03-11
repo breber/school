@@ -6,18 +6,19 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.animation.RotateAnimation;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	private String[] messages; 
+	private String[] messages;
 	private Random random;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		random = new Random();
 		messages = new String[10];
 		messages[0] = "Hello Dave!";
@@ -40,7 +41,12 @@ public class MainActivity extends Activity {
 	}
 
 	public void changeText(View view) {
-		TextView text = (TextView) findViewById(R.id.textView); 
+		final TextView text = (TextView) findViewById(R.id.textView);
 		text.setText(messages[random.nextInt(10)]);
+
+		RotateAnimation animate = new RotateAnimation(0, 360, text.getWidth() / 2, text.getHeight() / 2);
+		animate.setDuration(5000);
+		text.setAnimation(animate);
+		text.animate();
 	}
 }
