@@ -8,8 +8,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 /**
- * @author jamiekujawa
+ * A simple calculator application
  *
+ * @author Brian Reber (breber)
  */
 public class MainActivity extends Activity {
 
@@ -28,7 +29,14 @@ public class MainActivity extends Activity {
 	 */
 	private char oldOperator;
 
+	/**
+	 * Was an operator the last button pressed?
+	 */
 	private boolean operatorLast = true;
+
+	/**
+	 * Was the equal sign the last operator pressed?
+	 */
 	private boolean equalLast = false;
 
 	/* (non-Javadoc)
@@ -36,7 +44,6 @@ public class MainActivity extends Activity {
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -190,14 +197,20 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	/**
+	 * Called when a number (or decimal) key is pressed
+	 *
+	 * @param number a number between 0 and 9, or -1 for '.'
+	 */
 	public void numberPressed(int number) {
-	    // If we are starting over (expecting a new number, set the currentDisplay
+	    // If we are starting over (expecting a new number), set the currentDisplay
 	    // value to whatever the command value is
 	    if (operatorLast) {
 	        expression2 = new StringBuilder();
 	    }
 
 	    if (number == -1) {
+	    	// Only one decimal character allowed
 	    	if (!expression2.toString().contains(".")) {
 	    		expression2.append(".");
 	    	}
@@ -218,6 +231,11 @@ public class MainActivity extends Activity {
 	    updateDisplay();
 	}
 
+	/**
+	 * Called when an operator button is pressed
+	 *
+	 * @param command the string representing the operator
+	 */
 	public void operationPressed(String command) {
 	    // If we are given 'C', clear the previous display, the current display,
 	    // and any stored operation. Essentially clear everything.
@@ -290,6 +308,9 @@ public class MainActivity extends Activity {
 	    return result + "";
 	}
 
+	/**
+	 * Update what is displayed on the screen
+	 */
 	private void updateDisplay() {
 		final TextView main = (TextView) findViewById(R.id.CalculatorText);
 		if (operatorLast) {
