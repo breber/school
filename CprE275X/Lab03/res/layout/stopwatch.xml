@@ -1,0 +1,133 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <FrameLayout
+        android:id="@+id/parentFrameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <ImageView
+            android:id="@+id/backgroundImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/background" >
+        </ImageView>
+
+        <LinearLayout
+            android:id="@+id/linerLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/timerBackground"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/timerbackground"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_weight="1" >
+
+                <TextView
+                    android:id="@+id/timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:text="@string/timer"
+                    android:textColor="#004254"
+                    android:textSize="60sp" />
+
+                <TextView
+                    android:id="@+id/timerMs"
+                    style="@style/timerText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginRight="20dp"
+                    android:paddingTop="30dp"
+                    android:text="@string/timerMs"
+                    android:textSize="40dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/buttonarea"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_weight="1" >
+
+                <Button
+                    android:id="@+id/stopButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/stopbutton"
+                    android:shadowColor="#DF726E"
+                    android:text="@string/stopText"
+                    android:textColor="#7A1100"
+                    android:visibility="gone" >
+                </Button>
+
+                <Button
+                    android:id="@+id/startButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/startbutton"
+                    android:shadowColor="#FBECB3"
+                    android:text="@string/startText"
+                    android:textColor="#5F3A00" >
+                </Button>
+
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/resetbutton"
+                    android:shadowColor="#959550"
+                    android:text="@string/resetText"
+                    android:textColor="#2E2E2E" >
+                </Button>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:layout_weight="1" >
+
+                <ImageView
+                    android:id="@+id/backgroundImageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@drawable/hline" >
+                </ImageView>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/backgroundText"
+                style="@style/backgroundText"
+                android:text="@string/backgroundText" >
+            </TextView>
+        </LinearLayout>
+    </FrameLayout>
+
+</RelativeLayout>
