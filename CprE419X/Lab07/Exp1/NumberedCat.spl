@@ -1,44 +1,43 @@
 composite NumberedCat {
-        graph
-        stream<rstring contents> Lines = FileSource() {
-                param format : line;
-                file : getSubmissionTimeValue("file");
-        }
-        stream<rstring contents> Numbered = Functor(Lines) {
-                logic state : { mutable int32 i = 0; }
-                onTuple Lines : { i++; }
-                output Numbered : contents = (rstring)i + " " + contents;
-        }
-        () as Sink = FileSink(Numbered) {
-                param file : "bigresults.txt";
-                format : line;
-        }
+	graph
+	stream<rstring contents> Lines = FileSource() {
+		param format : line;
+		file : getSubmissionTimeValue("file");
+	}
+	stream<rstring contents> Numbered = Functor(Lines) {
+		logic state : { mutable int32 i = 0; }
+		onTuple Lines : { i++; }
+		output Numbered : contents = (rstring)i + " " + contents;
+	}
+	() as Sink = FileSink(Numbered) {
+		param file : "bigresults.txt";
+		format : line;
+	}
 
-        stream<rstring contents> Counter = Functor(Lines) {
-                logic state : {
-                        mutable int32 histCount = 0;
-                        mutable int32 advCount = 0;
-                }
-                onTuple Lines : {
-                        list<rstring> temp = tokenize(contents, " ", false);
-                        for (rstring text in temp) {
-                                if ("history" == text) {
-                                        histCount++;
-                                } else if ("adventure" == text) {
-                                        advCount++;
-                                }
-                        }
-                }
-                output Counter : contents = (rstring)histCount + " " + (rstring) advCount;
-//              onPunct Lines : {
-//                      if (currentPunct() == Sys.FinalMarker) {
-//                              println("HistCount: " + (rstring)histCount);
-//                              println("AdventureCount: " + (rstring)advCount);
-//                      }
-//              }
-        }
-        () as Sink2 = FileSink(Counter) {
-                param file : "counts.txt";
-                format : line;
-        }
+	stream<rstring contents> Counter = Custom(Lines) {
+		logic state : {
+			mutable int32 histCount = 0;
+			mutable int32 advCount = 0;
+		}
+		onTuple Lines : {
+			list<rstring> temp = tokenize(contents, " ", false);
+			for (rstring text in temp) {
+				if ("history" == text) {
+					histCount++;
+				} else if ("adventure" == text) {
+					advCount++;
+				}
+			}
+		}
+		onPunct Lines : {
+			if (currentPunct() == Sys.FinalMarker) {
+				submit({contents = "HistCount: " + (rstring)histCount + "AdventureCount: " + (rstring)advCount}, Counter);
+			}
+		}
+	}
+
+	() as Sink2 = FileSink(Counter) {
+		param file : "counts.txt";
+		format : line;
+	}
 }
