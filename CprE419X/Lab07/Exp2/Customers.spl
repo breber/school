@@ -1,0 +1,20 @@
+composite Customers {
+        graph
+        stream<rstring acct, rstring lastn, rstring firstn, int32 bal> Lines = FileSource() {
+                param format : csv;
+                hasHeaderLine : true;
+                file : getSubmissionTimeValue("file");
+        }
+        stream<rstring contents> Cust = Functor(Lines) {
+                param filter : (int32)bal >= 10000000;
+                output Cust : contents = firstn + " " + lastn + "," + acct + ",Platinum";
+        }
+        stream<rstring contents> CustPoor = Functor(Lines) {
+                param filter : (int32)bal <= 5000;
+                output CustPoor : contents = firstn + " " + lastn + "," + acct + ",Bronze";
+        }
+        () as Sink = FileSink(Cust, CustPoor) {
+                param file : "CustomerStatus.txt";
+                format : line;
+        }
+}
