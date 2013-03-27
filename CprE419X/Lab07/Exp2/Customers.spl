@@ -1,18 +1,27 @@
 composite Customers {
+	// Parse the input file as a csv file with a header line
 	graph
 	stream<rstring acct, rstring lastn, rstring firstn, int32 bal> Lines = FileSource() {
 		param format : csv;
 		hasHeaderLine : true;
 		file : getSubmissionTimeValue("file");
 	}
+
+	// If the balance if over 10M, print out the user
+	// with the "Platinum" status
 	stream<rstring contents> Cust = Functor(Lines) {
 		param filter : (int32)bal >= 10000000;
 		output Cust : contents = firstn + " " + lastn + "," + acct + ",Platinum";
 	}
+	
+	// If the balance is less than 5000, print out the user
+	// with the "Bronze" status
 	stream<rstring contents> CustPoor = Functor(Lines) {
 		param filter : (int32)bal <= 5000;
 		output CustPoor : contents = firstn + " " + lastn + "," + acct + ",Bronze";
 	}
+
+	// Ouput values from both streams to the "CustomerStatus.txt" file
 	() as Sink = FileSink(Cust, CustPoor) {
 		param file : "CustomerStatus.txt";
 		format : line;

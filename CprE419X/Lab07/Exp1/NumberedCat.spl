@@ -4,16 +4,25 @@ composite NumberedCat {
 		param format : line;
 		file : getSubmissionTimeValue("file");
 	}
+
+	// Take in a string, and output that string with the
+	// line number prepended
 	stream<rstring contents> Numbered = Functor(Lines) {
 		logic state : { mutable int32 i = 0; }
 		onTuple Lines : { i++; }
 		output Numbered : contents = (rstring)i + " " + contents;
 	}
+
+	// Output to the file "bigresults.txt" the output from 
+	// the Numbered functor
 	() as Sink = FileSink(Numbered) {
 		param file : "bigresults.txt";
 		format : line;
 	}
 
+	// Take in each line from the input stream,
+	// and output the total number of uses of
+	// "history" and "adventure"
 	stream<rstring contents> Counter = Custom(Lines) {
 		logic state : {
 			mutable int32 histCount = 0;
@@ -31,11 +40,12 @@ composite NumberedCat {
 		}
 		onPunct Lines : {
 			if (currentPunct() == Sys.FinalMarker) {
-				submit({contents = "HistCount: " + (rstring)histCount + "AdventureCount: " + (rstring)advCount}, Counter);
+				submit({contents = "HistCount: " + (rstring)histCount + " AdventureCount: " + (rstring)advCount}, Counter);
 			}
 		}
 	}
 
+	// Take output from Counter, and output it to the "counts.txt" file
 	() as Sink2 = FileSink(Counter) {
 		param file : "counts.txt";
 		format : line;
