@@ -7,22 +7,36 @@ composite Customers {
 		file : getSubmissionTimeValue("file");
 	}
 
-	// If the balance if over 10M, print out the user
+	// If the balance is over 10M, print out the user
 	// with the "Platinum" status
-	stream<rstring contents> Cust = Functor(Lines) {
+	stream<rstring contents> CustPlatinum = Functor(Lines) {
 		param filter : (int32)bal >= 10000000;
-		output Cust : contents = firstn + " " + lastn + "," + acct + ",Platinum";
+		output CustPlatinum : contents = firstn + " " + lastn + "," + acct + ",Platinum";
 	}
-	
-	// If the balance is less than 5000, print out the user
+
+	// If the balance is over 5M, print out the user
+	// with the "Platinum" status
+	stream<rstring contents> CustGold = Functor(Lines) {
+		param filter : (int32)bal < 10000000 && (int32)bal >= 5000000;
+		output CustGold : contents = firstn + " " + lastn + "," + acct + ",Gold";
+	}
+
+	// If the balance is less over 1M, print out the user
 	// with the "Bronze" status
-	stream<rstring contents> CustPoor = Functor(Lines) {
-		param filter : (int32)bal <= 5000;
-		output CustPoor : contents = firstn + " " + lastn + "," + acct + ",Bronze";
+	stream<rstring contents> CustSilver = Functor(Lines) {
+		param filter : (int32)bal < 5000000 && (int32)bal >= 1000000;
+		output CustSilver : contents = firstn + " " + lastn + "," + acct + ",Silver";
+	}
+
+	// If the balance is less than 1M, print out the user
+	// with the "Bronze" status
+	stream<rstring contents> CustBronze = Functor(Lines) {
+		param filter : (int32)bal < 1000000;
+		output CustBronze : contents = firstn + " " + lastn + "," + acct + ",Bronze";
 	}
 
 	// Ouput values from both streams to the "CustomerStatus.txt" file
-	() as Sink = FileSink(Cust, CustPoor) {
+	() as Sink = FileSink(CustPlatinum, CustGold, CustSilver, CustBronze) {
 		param file : "CustomerStatus.txt";
 		format : line;
 	}

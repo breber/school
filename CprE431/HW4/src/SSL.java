@@ -20,9 +20,10 @@ public class SSL {
 
 	public static void main(String[] args) throws UnknownHostException,
 			IOException, NoSuchAlgorithmException, KeyManagementException {
-		// if (args.length != 2) {
-		// System.err.println("Usage: " + args[0] + " www.site.com");
-		// }
+		 if (args.length != 1) {
+			 System.err.println("Usage: java SSL https://www.site.com");
+			 return;
+		 }
 
 		HostnameVerifier hv = new HostnameVerifier() {
 			@Override
@@ -37,7 +38,7 @@ public class SSL {
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);
 
 		SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-		URL url = new URL("https://webct.its.iastate.edu");
+		URL url = new URL(args[0]);
 		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		conn.setSSLSocketFactory(sslsocketfactory);
 
