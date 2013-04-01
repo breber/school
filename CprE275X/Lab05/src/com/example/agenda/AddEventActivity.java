@@ -30,7 +30,7 @@ public class AddEventActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_event);
-		
+
 		datasource = AgendaDataSource.getInstance(this);
 		datasource.open();
 	}
@@ -41,7 +41,7 @@ public class AddEventActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_add_event, menu);
 		return true;
 	}
-	
+
 	/**
 	 * This is called when the Cancel button is pressed and closes
 	 * this activity, redirecting the user to the main activity
@@ -51,7 +51,7 @@ public class AddEventActivity extends Activity {
 		Intent homeIntent = new Intent(this, EventListActivity.class);
 		startActivity(homeIntent);
 	}
-	
+
 	/**
 	 * This is called when the Add button is pressed. It takes the data that
 	 * the user entered from the views and sends it to the data source to store
@@ -59,7 +59,7 @@ public class AddEventActivity extends Activity {
 	 * @param view
 	 */
 	public void addEvent(View view) {
-		
+
 		// Collecting user-entered data from views
 		EditText titleText = (EditText) findViewById(R.id.titleInput);
 		EditText locText = (EditText) findViewById(R.id.locationInput);
@@ -68,20 +68,19 @@ public class AddEventActivity extends Activity {
 		DatePicker endDate = (DatePicker) findViewById(R.id.endDateInput);
 		TimePicker endTime = (TimePicker) findViewById(R.id.endTimeInput);
 		EditText detailText = (EditText) findViewById(R.id.detailsInput);
-		
+
 		// Creates Event object and stores its fields in database
 		datasource.createEvent(titleText.getText().toString(), locText.getText().toString(),
-				formatDateTime(startDate.getMonth(), startDate.getDayOfMonth(), 
+				formatDateTime(startDate.getMonth(), startDate.getDayOfMonth(),
 				startDate.getYear(), startTime.getCurrentHour(), startTime.getCurrentMinute()),
 				formatDateTime(endDate.getMonth(), endDate.getDayOfMonth(), endDate.getYear(),
 				endTime.getCurrentHour(), endTime.getCurrentMinute()),
 				detailText.getText().toString());
-		
+
 		// Redirect to main activity
-		Intent homeIntent = new Intent(this, EventListActivity.class);
-		startActivity(homeIntent);
+		finish();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		datasource.open();
@@ -93,7 +92,7 @@ public class AddEventActivity extends Activity {
 		datasource.close();
 		super.onPause();
 	}
-	
+
 	/*
 	 * Helper method to format the user input into a readable date and time
 	 */

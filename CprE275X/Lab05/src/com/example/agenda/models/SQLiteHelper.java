@@ -10,14 +10,14 @@ import android.util.Log;
  * should be called directly.
  */
 public class SQLiteHelper extends SQLiteOpenHelper {
-	
+
 	/*
 	 * Constants
 	 */
-	
+
 	// Table name
 	public static final String TABLE_EVENTS = "events";
-	
+
 	// Table columns
 	public static final String COLUMN_ID = "_id";
 	public static final String COLUMN_TITLE = "title";
@@ -25,10 +25,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	public static final String COLUMN_START = "start";
 	public static final String COLUMN_END = "end";
 	public static final String COLUMN_DETAILS = "details";
-	
+
 	// Database name
 	private static final String DATABASE_NAME = "agenda.db";
-	
+
 	// Increment this number to clear everything in database
 	private static final int DATABASE_VERSION = 3;
 
@@ -41,10 +41,17 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		/*
-		 * TODO: Create database table "events"
 		 * COLUMN_ID should be of type "integer primary key autoincrement"
 		 * All other columns should be of type "text not null"
 		 */
+		db.execSQL("CREATE TABLE " + TABLE_EVENTS + "(" +
+				COLUMN_ID + " INTEGER PRIMARY KEY autoincrement, " +
+				COLUMN_TITLE + " TEXT, " +
+				COLUMN_LOCATION + " TEXT, " +
+				COLUMN_START + " TEXT," +
+				COLUMN_END + " TEXT," +
+				COLUMN_DETAILS + " TEXT" +
+				");");
 	}
 
 	@Override
