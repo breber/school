@@ -2,73 +2,7 @@
 *~
 *.o
 Thumbs.db
-.DS_STORE
-.svn/
 .DS_Store
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-*.xcworkspace
-!default.xcworkspace
-xcuserdata
-profile
-*.moved-aside
-DerivedData
-
-CprE315X/Project2/src/linux.words
-
-CprE530/netdump/netdump
-CprE431/HW2/client
-CprE431/HW2/server
-
-# ignore hdl source files in top level directory
-*.vhd
-*.v
-
-# ignore Quartus II generated files
-*sopc_*
-*.jdi
-*.ptf.*
-*.sof
-*.pof
-*.qws
-*.smsg
-*_inst.vhd
-*_generation_script*
-*.done
-*.txt
-*.qarlog
-*.rpt
-*.summary
-*.qws
-*.cmp
-*.eqn
-*.html
-*.jpg
-*.bak
-*.qar
-*.sopc_builder
-*example*
-*~
-*.sdc
-*.tcl
-*.pin
-*.mif
-*.hex
-
-# ignore Quartus II generated folders
-db/
-incremental_db/
-simulation/
-timing/
-testbench/
-*_sim/
 
 # built application files
 *.apk
@@ -76,10 +10,3 @@ testbench/
 
 # files for the dex VM
 *.dex
-
-# Java class files
-*.class
-
-# generated files
-bin/
-gen/
