@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TwitterAdapter extends ArrayAdapter<TwitterRecord>{
@@ -36,7 +37,9 @@ public class TwitterAdapter extends ArrayAdapter<TwitterRecord>{
 
 			holder = new TwitterHolder();
 			
-			//TODO set the holder view id's
+			holder.twitterDate = (TextView) row.findViewById(R.id.date);
+			holder.twitterTweet = (TextView) row.findViewById(R.id.tweet);
+			holder.twitterImage = (ImageView) row.findViewById(R.id.image);
 
 			row.setTag(holder);
 		} else {
@@ -44,14 +47,16 @@ public class TwitterAdapter extends ArrayAdapter<TwitterRecord>{
 		}
 		
 		TwitterRecord tweet = data.get(position);
-
-		//TODO set the text for the row
-
+		holder.twitterDate.setText(tweet.getDate());
+		holder.twitterTweet.setText(tweet.getTweet());
+		holder.twitterImage.setImageBitmap(tweet.getImage());
+		
 		return row;
 	}
-
+	
 	static class TwitterHolder
 	{
+		ImageView twitterImage;
 		TextView twitterDate;
 		TextView twitterTweet;
 	}

@@ -15,14 +15,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ListActivity;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,16 +42,10 @@ public class MainActivity extends ListActivity {
 			 * @see android.view.View.OnClickListener#onClick(android.view.View)
 			 */
 			public void onClick(View v) {
-
-				//TODO get the username to search for from the activity_main.xml view
-				String username = null;
-				
-				Log.e("Username Searched", username);
+				String username = ((EditText)findViewById(R.id.username)).getText().toString();
 				
 				JSONRequest request = new JSONRequest();
-				
-				//TODO execute the request
-
+				request.execute("https://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=20".replace("%s", username));
 			}
 		});
 		
@@ -69,7 +62,7 @@ public class MainActivity extends ListActivity {
 	 * @author jamiekujawa
 	 * 
 	 */
-	class JSONRequest extends AsyncTask<String, Integer, String> {
+	class JSONRequest extends AsyncTask<String, Integer, List<TwitterRecord>> {
 
 		/*
 		 * (non-Javadoc)
@@ -85,35 +78,10 @@ public class MainActivity extends ListActivity {
 		 * 
 		 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
 		 */
-		protected void onPostExecute(String r) {
+		protected void onPostExecute(List<TwitterRecord> r) {
 			Log.e("result:", r.toString());
 
-			JSONArray result = null;
-
-			// TODO Convert r to JSON Array
-			
-			try {
-				
-				List<TwitterRecord> data = new ArrayList<TwitterRecord>();
-
-				for (int i = 0; i < result.length(); i++) {
-					JSONObject row = result.getJSONObject(i);
-
-					String date = null; // TODO get the field "created_at"
-					String tweet = null; // TODO get the field "text"
-					
-					TwitterRecord record = new TwitterRecord(date, tweet);
-					
-					data.add(record);
-				}
-				
-				//TODO set the the list adapter with the data
-				setListAdapter(null);
-
-			} catch (JSONException ex) {
-				Log.e("Exception:", "Request not completed");
-			}
-
+			setListAdapter(new TwitterAdapter(MainActivity.this, R.layout.rowlayout, r));
 		}
 
 		/*
@@ -122,7 +90,7 @@ public class MainActivity extends ListActivity {
 		 * @see android.os.AsyncTask#doInBackground(Params[])
 		 */
 		@Override
-		protected String doInBackground(String... params) {
+		protected List<TwitterRecord> doInBackground(String... params) {
 			Log.e("", "---doInBackground---");
 			StringBuilder builder = new StringBuilder();
 			HttpClient client = new DefaultHttpClient();
@@ -138,8 +106,7 @@ public class MainActivity extends ListActivity {
 					Log.e("", "---Status Code 200---");
 					HttpEntity entity = response.getEntity();
 					InputStream content = entity.getContent();
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(content));
+					BufferedReader reader = new BufferedReader(new InputStreamReader(content));
 					String line;
 
 					while ((line = reader.readLine()) != null) {
@@ -155,8 +122,30 @@ public class MainActivity extends ListActivity {
 				e.printStackTrace();
 			}
 
+			List<TwitterRecord> data = new ArrayList<TwitterRecord>();
+			try {
+				JSONArray result = new JSONArray(builder.toString());
+
+				for (int i = 0; i < result.length(); i++) {
+					JSONObject row = result.getJSONObject(i);
+
+					String date = row.getString("created_at");
+					String tweet = row.getString("text");
+					JSONObject user = row.getJSONObject("user");
+					String imageUrl = user.getString("profile_image_url");
+					
+					InputStream in = new java.net.URL(imageUrl).openStream();
+					TwitterRecord record = new TwitterRecord(date, tweet, BitmapFactory.decodeStream(in));
+					
+					data.add(record);
+					Log.e("---Result---:", builder.toString());
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			
 			Log.e("---Result---:", builder.toString());
-			return builder.toString();
+			return data;
 		}
 	}
 
