@@ -1,0 +1,59 @@
+composite CallMonitor {
+	// Parse the input file as a csv file with a header line
+	graph
+	stream<rstring ts, rstring caller, rstring callee, int32 duration> LinesX = FileSource() {
+		param format : csv;
+		file : "/datasets/recordX.csv";
+	}
+
+	stream<rstring ts, rstring caller, rstring callee, int32 duration> LinesY = FileSource() {
+		param format : csv;
+		file : "/datasets/recordY.csv";
+	}
+
+	// Join the two streams together for ease of use later
+	stream<rstring ts, rstring caller, rstring callee, int32 duration> UnionStr = Union (LinesX; LinesY) {}
+
+	// TODO: 
+//	stream<rstring contents> Calls = Custom(UnionStr) {
+//		param filter : (int32)bal >= 10000000;
+//		output CustPlatinum : contents = firstn + " " + lastn + "," + acct + ",Platinum";
+//	}
+
+	stream<rstring contents> Durations = Custom(UnionStr) {
+		logic state : {
+			mutable map<rstring, int32> callersDurations;
+		}
+		onTuple UnionStr : {
+			if (duration <= 10) {
+				// Tokenize the timestamp by ":" so we can get the hour
+				list<rstring> temp = tokenize(ts, ":", false);
+				mutable int32 currentVal = 0;
+
+				// Try and get the element in the form "hh-phonenum"			
+				if (has(callersDurations, (rstring)temp[0] + "--" + caller)) {
+					currentVal = callersDurations[(rstring)temp[0] + "--" + caller];
+				}
+
+				callersDurations[(rstring)temp[0] + "--" + caller] = currentVal + 1;
+			}
+		}
+		onPunct UnionStr : {
+			if (currentPunct() == Sys.FinalMarker) {
+				for (rstring key in callersDurations) {
+					if (callersDurations[key] > 10) {
+						list<rstring> temp = tokenize(key, "--", false);
+						submit({contents = temp[1] + ",C"}, Durations);
+					}
+				}
+			}
+		}
+	}
+
+	// TODO: combine from all "callerid, all types"
+
+	() as Sink = FileSink(Durations) {
+		param file : "suspects.txt";
+		format : line;
+	}
+}
