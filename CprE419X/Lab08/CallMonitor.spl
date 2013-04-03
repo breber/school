@@ -1,11 +1,12 @@
 composite CallMonitor {
-	// Parse the input file as a csv file with a header line
+	// Parse the input file as a csv file
 	graph
 	stream<rstring ts, rstring caller, rstring callee, int32 duration> LinesX = FileSource() {
 		param format : csv;
 		file : "/datasets/recordX.csv";
 	}
 
+	// Parse the input file as a csv file
 	stream<rstring ts, rstring caller, rstring callee, int32 duration> LinesY = FileSource() {
 		param format : csv;
 		file : "/datasets/recordY.csv";
@@ -14,17 +15,40 @@ composite CallMonitor {
 	// Join the two streams together for ease of use later
 	stream<rstring ts, rstring caller, rstring callee, int32 duration> UnionStr = Union (LinesX; LinesY) {}
 
-	// TODO: 
-//	stream<rstring contents> Calls = Custom(UnionStr) {
-//		param filter : (int32)bal >= 10000000;
-//		output CustPlatinum : contents = firstn + " " + lastn + "," + acct + ",Platinum";
-//	}
-
-	stream<rstring contents> Durations = Custom(UnionStr) {
+	// Perform parts A, B and C in the same Custom
+	stream<rstring name, rstring offense> PartABC = Custom(UnionStr) {
 		logic state : {
+			mutable map<rstring, int32> totalCalls;
+			mutable map<rstring, list<rstring> > uniqueCalls;
 			mutable map<rstring, int32> callersDurations;
 		}
 		onTuple UnionStr : {
+			// Part A
+			mutable int32 currentVal = 0;
+
+			// Try and get the element in the form "caller"			
+			if (has(totalCalls, caller)) {
+				currentVal = totalCalls[caller];
+			}
+
+			totalCalls[caller] = currentVal + 1;
+
+			// Part B
+			mutable list<rstring> uniqueNums;
+
+			// Try and get the element in the form "caller"			
+			if (has(uniqueCalls, caller)) {
+				uniqueNums = uniqueCalls[caller];
+
+				appendM(uniqueNums, callee);
+			} else {
+				uniqueNums = [callee];
+			}
+			
+			// Store the updated set back into the state
+			uniqueCalls[caller] = uniqueNums;
+
+			// Part C
 			if (duration <= 10) {
 				// Tokenize the timestamp by ":" so we can get the hour
 				list<rstring> temp = tokenize(ts, ":", false);
@@ -40,19 +64,65 @@ composite CallMonitor {
 		}
 		onPunct UnionStr : {
 			if (currentPunct() == Sys.FinalMarker) {
+				// At the end of the stream, output the offending
+				// callers with the given offense label
+				for (rstring key in totalCalls) {
+					if (totalCalls[key] >= 35) {
+						submit({name = key, offense = "A"}, PartABC);
+					}
+				}
+
+				for (rstring key in uniqueCalls) {
+					set<rstring> unique = toSet(uniqueCalls[key]);
+					if (size(unique) >= 30) {
+						submit({name = key, offense = "B"}, PartABC);
+					}
+				}
+
 				for (rstring key in callersDurations) {
 					if (callersDurations[key] > 10) {
 						list<rstring> temp = tokenize(key, "--", false);
-						submit({contents = temp[1] + ",C"}, Durations);
+						submit({name = temp[1], offense = "C"}, PartABC);
 					}
 				}
 			}
 		}
 	}
 
-	// TODO: combine from all "callerid, all types"
+	// Take the input from the preceding stream of individual callers
+	// with a single offense, and combine the offenses to a single list
+	// for each caller.
+	stream<rstring contents> Combine = Custom(PartABC) {
+		logic state : {
+			mutable map<rstring, list<rstring> > callers;
+		}
+		onTuple PartABC : {
+			mutable list<rstring> offenses;
 
-	() as Sink = FileSink(Durations) {
+			// Try and get the element in the form "caller"			
+			if (has(callers, name)) {
+				offenses = callers[name];
+
+				appendM(offenses, offense);
+			} else {
+				// If it doesn't exist, create a new list with the one offense
+				offenses = [offense];
+			}
+			
+			// Store the updated set back into the state
+			callers[name] = offenses;
+		}
+		onPunct PartABC : {
+			if (currentPunct() == Sys.FinalMarker) {
+				for (rstring key in callers) {
+					submit({contents = key + "," + (rstring)callers[key]}, Combine);
+				}
+			}
+		}
+	}
+
+	// Finally output each caller with their offenses to the file
+	() as Sink = FileSink(Combine) {
 		param file : "suspects.txt";
 		format : line;
 	}
