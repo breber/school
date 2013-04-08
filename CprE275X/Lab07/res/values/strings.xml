@@ -5,5 +5,12 @@
     <string name="preferences">Preferences</string>
     <string name="choose_song">Choose a Song</string>
     <string name="mp_shuffle_pref">mp_shuffle_preference</string>
+    <string name="mp_theme_pref">mp_theme_pref</string>
+    <string name="mp_image_pref">mp_image_pref</string>
 
+    
+    <string-array name="themes">
+        <item name="dark">dark</item>
+        <item name="light">light</item>
+    </string-array>
 </resources>

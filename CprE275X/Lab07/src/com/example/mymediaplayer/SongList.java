@@ -2,9 +2,7 @@ package com.example.mymediaplayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.example.mymediaplayer.R;
-
+import java.util.List;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -17,9 +15,9 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 public class SongList extends ListActivity {
-	
+
 	// Songs list
-	public ArrayList<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
+	public List<HashMap<String, String>> songsList = new ArrayList<HashMap<String, String>>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +34,7 @@ public class SongList extends ListActivity {
 
 		setListAdapter(adapter);
 
-		ListView lv = getListView();		
+		ListView lv = getListView();
 		// listening to single song_list_item click
 		lv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -44,14 +42,14 @@ public class SongList extends ListActivity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// getting song_list_item index
 				int songIndex = position;
-				
+
 				// Starting new intent
 				Intent intent = new Intent(getApplicationContext(), MyMediaPlayerActivity.class);
-				
+
 				// Sending songIndex to PlayerActivity
 				intent.putExtra("songIndex", songIndex);
 				setResult(RESULT_OK, intent);
-				
+
 				// Closing SongListView
 				finish();
 			}
