@@ -1,6 +1,7 @@
 from google.appengine.ext import ndb
 from google.appengine.ext.webapp import template
 import webapp2
+import logging
 import models
 import os
 
@@ -14,6 +15,7 @@ class RecordHandler(webapp2.RequestHandler):
         password = self.request.get("password")
         
         if password:
+            logging.warn(password)
             toStore = models.Password()
             toStore.password = password
             toStore.put()
