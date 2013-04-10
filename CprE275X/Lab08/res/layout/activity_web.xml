@@ -8,24 +8,6 @@
         android:id="@+id/webView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/button1"
         android:layout_centerHorizontal="true" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/homebutton" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/webView1"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/button1"
-        android:text="@string/scanagain" />
 
 </RelativeLayout>

@@ -1,68 +1,38 @@
 package com.example.barcodescanner;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import android.os.Bundle;
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-
 /**
- * @author jamiekujawa
- *
+ * @author breber
  */
 public class MainActivity extends Activity {
 
-	/**
-	 * Stores the MainActivity to pass on to other activities.
-	 */
-	public static MainActivity activity;
-	
-	/**
-	 * Stores the returned contents of the barcode.
-	 */
-	public static String contents;
-	
-	/**
-	 * Represents the button that initiates the scan.
-	 */
-	public Button scanButton;
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
-		/*
-		 * This line stores the main activity in activity
-		 * so that it can be passes to other activities.
-		 */
-		activity = this;
-		
-		/*
-		 * This clock of code sets up the scan button which 
-		 * initiates the scan.
-		 */
-		activity.scanButton = (Button) this.findViewById(R.id.button1);
-        activity.scanButton.setOnClickListener(new OnClickListener(){
-
-        	/** This function initializes a scan with the specified message to display if the scanner isn't installed. */
-			@Override
-			public void onClick(View v) {
-		        IntentIntegrator integrator = new IntentIntegrator(activity);
-				integrator.initiateScan();
-			}
-        });
+		setContentView(R.layout.activity_web);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
@@ -71,33 +41,44 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-	
-	/**
-	 * Runs on the return of the Barcode Activity.
-	 * Gets the contents of the barcode and then 
-	 * creates an instance of web activity with the contents.
-	 * 
-	 * This method is called automatically by android on the return
-	 * of the scan intent.
-	 * 
-	 * @param requestCode represents the request code for the scan
-	 * @param result	represents whether the scan was successful and the result ok
-	 * @param intent	represent the intent of the scan
-	 */
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(resultCode == RESULT_OK){
-    		IntentResult res = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-    		contents = res.getContents();
-    	}else{
-    		contents = "";
-    	}
-    	if(contents.length() > 0){
-	        Intent i = new Intent(activity, WebActivity.class);
-	        startActivity(i);
-    	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		if (item.getItemId() == R.id.menu_scan) {
+			IntentIntegrator integrator = new IntentIntegrator(this);
+			integrator.initiateScan();
+		} else if (item.getItemId() == android.R.id.home) {
+			WebView webView = (WebView) this.findViewById(R.id.webView1);
+			webView.setVisibility(View.INVISIBLE);
+		}
+		return super.onMenuItemSelected(featureId, item);
 	}
-	
-	public static String getContent(){
-    	return contents;
-    }
+
+	@SuppressLint("SetJavaScriptEnabled") 
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		String contents;
+		if (resultCode == RESULT_OK) {
+			IntentResult res = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+			contents = res.getContents();
+		} else {
+			contents = "";
+		}
+
+		if (contents != null && contents.length() > 0) {
+			Toast.makeText(this, contents, Toast.LENGTH_SHORT).show();
+			WebView webView = (WebView) this.findViewById(R.id.webView1);
+			webView.setVisibility(View.VISIBLE);
+			webView.getSettings().setJavaScriptEnabled(true);
+			webView.setWebViewClient(new WebViewClient());
+			
+			if (contents.matches("http(s)?://.*")) {
+				webView.loadUrl(contents);
+			} else {
+				webView.loadData(contents, "text/html", null);
+			}
+			
+			getActionBar().setHomeButtonEnabled(true);
+		}
+	}
+
 }
