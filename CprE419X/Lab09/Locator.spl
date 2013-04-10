@@ -57,10 +57,7 @@ composite Locator {
 					if (size(regexMatch(newTs, "\\..{3}")) == 0) {
 						newTs = newTs + "0";
 					}
-					println(err);
-					println(line);
-					println(tokens);
-					println("");
+
 					mutable Child child = {};
 					child.entered = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false);
 					child.id = tokens[1];
@@ -83,25 +80,34 @@ composite Locator {
 			if (diffAsSecs(ts, lastPart1) > 30.0) {
 				for (rstring key in children) {
 					Child c = children[key];
-					submit({ts = ts, cid = key, loc = c.loc }, LocationUpdate1);
+					if (c.loc != "E" &&
+						c.loc != "1000") {
+						submit({ ts = ts, cid = key, loc = c.loc }, LocationUpdate1);
+					}
 				}
 			}
 			
 			// Do part 2 (If it has been over 15 minutes since the
 			// we last heard from the child, report them as missing)
 			for (rstring key in children) {
-				Child c = children[key];
-				// TODO: do some checking to see if they are here (before or after leaving)
-				// TODO: check to see if the current user is the missing user
-				if (diffAsSecs(ts, c.lastts) > 900.0) {
-					submit({ts = ts, cid = key, lastts = c.lastts, lastseen = c.loc, phone = c.phone }, MissingChild);
-					// TODO: tag them as missing sent
+				Child c1 = children[key];
+				if (c1.id != childid &&
+					c1.loc != "E" &&
+					c1.loc != "1000" &&
+					diffAsSecs(ts, c1.lastts) > 900.0) {
+					submit({ ts = ts, cid = key, lastts = c1.lastts, lastseen = c1.loc, phone = c1.phone }, MissingChild);
 				}
 			}
 			
-			// Do part 3
-			// TODO: do this
-			
+			// Do part 3 (If a child has been in room 26 for
+			// more than 3 minutes, send them to the unsafe room)
+			for (rstring key in children) {
+				Child c1 = children[key];
+				if (c1.loc == "26" &&
+					diffAsSecs(ts, c1.lastts) > 180.0) {
+					submit({ ts = ts, cid = key, phone = c1.phone }, UnsafeRoom);
+				}
+			}
 
 			// Update the child for this record
 			mutable Child child = {};
