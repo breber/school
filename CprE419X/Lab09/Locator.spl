@@ -77,7 +77,7 @@ composite Locator {
 			
 			// Do part 1 (If it has been at least 30 seconds since
 			// we last reported, send an update for every child)
-			if (diffAsSecs(ts, lastPart1) > 30.0) {
+			if (diffAsSecs(ts, lastPart1) > 300.0) {
 				for (rstring key in children) {
 					Child c = children[key];
 					if (c.loc != "E" &&
@@ -104,7 +104,7 @@ composite Locator {
 			for (rstring key in children) {
 				Child c1 = children[key];
 				if (c1.loc == "26" &&
-					diffAsSecs(ts, c1.lastts) > 180.0) {
+					diffAsSecs(ts, c1.lastts) > 300.0) {
 					submit({ ts = ts, cid = key, phone = c1.phone }, UnsafeRoom);
 				}
 			}
