@@ -13,7 +13,7 @@ composite NumberedCat {
 		output Numbered : contents = (rstring)i + " " + contents;
 	}
 
-	// Output to the file "bigresults.txt" the output from 
+	// Output to the file "bigresults.txt" the output from
 	// the Numbered functor
 	() as Sink = FileSink(Numbered) {
 		param file : "bigresults.txt";

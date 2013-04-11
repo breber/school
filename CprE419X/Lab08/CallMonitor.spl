@@ -26,7 +26,7 @@ composite CallMonitor {
 			// Part A
 			mutable int32 currentVal = 0;
 
-			// Try and get the element in the form "caller"			
+			// Try and get the element in the form "caller"
 			if (has(totalCalls, caller)) {
 				currentVal = totalCalls[caller];
 			}
@@ -36,7 +36,7 @@ composite CallMonitor {
 			// Part B
 			mutable list<rstring> uniqueNums;
 
-			// Try and get the element in the form "caller"			
+			// Try and get the element in the form "caller"
 			if (has(uniqueCalls, caller)) {
 				uniqueNums = uniqueCalls[caller];
 
@@ -44,7 +44,7 @@ composite CallMonitor {
 			} else {
 				uniqueNums = [callee];
 			}
-			
+
 			// Store the updated set back into the state
 			uniqueCalls[caller] = uniqueNums;
 
@@ -54,7 +54,7 @@ composite CallMonitor {
 				list<rstring> temp = tokenize(ts, ":", false);
 				mutable int32 currentVal = 0;
 
-				// Try and get the element in the form "hh-phonenum"			
+				// Try and get the element in the form "hh-phonenum"
 				if (has(callersDurations, (rstring)temp[0] + "--" + caller)) {
 					currentVal = callersDurations[(rstring)temp[0] + "--" + caller];
 				}
@@ -99,7 +99,7 @@ composite CallMonitor {
 		onTuple PartABC : {
 			mutable list<rstring> offenses;
 
-			// Try and get the element in the form "caller"			
+			// Try and get the element in the form "caller"
 			if (has(callers, name)) {
 				offenses = callers[name];
 
@@ -108,7 +108,7 @@ composite CallMonitor {
 				// If it doesn't exist, create a new list with the one offense
 				offenses = [offense];
 			}
-			
+
 			// Store the updated set back into the state
 			callers[name] = offenses;
 		}

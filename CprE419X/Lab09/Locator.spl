@@ -1,7 +1,7 @@
 use spl.file::*;
 
 composite Locator {
-	type Child = tuple<timestamp entered, rstring id, rstring parent, rstring name, rstring phone, rstring loc, timestamp lastts>;
+	type Child = tuple<timestamp entered, rstring id, rstring parent, rstring name, rstring phone, rstring loc, timestamp lastts, rstring tsstr>;
 
 	// Parse the input file as a csv file
 	graph
@@ -10,32 +10,39 @@ composite Locator {
 		file : "/datasets/Lab9/SensorData.csv";
 	}
 
-	stream<timestamp ts, rstring sensorid, rstring childid, rstring fromroom, rstring toroom> SensorPost = Custom(SensorData) {
-		logic 
+	// Convert the timestamp from a string to an actual timestamp
+	stream<timestamp ts, rstring tsstr, rstring sensorid, rstring childid, rstring fromroom, rstring toroom> SensorPost = Custom(SensorData) {
+		logic
 		onTuple SensorData : {
 			mutable rstring newTs = ts;
-			
-			if (size(regexMatch(newTs, "\\..{3}")) == 0) {
-				newTs = newTs + "0";
-			}
 
 			if (size(regexMatch(newTs, "\\..{3}")) == 0) {
 				newTs = newTs + "0";
 			}
 
-			submit({ts = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false), sensorid = sensorid, childid = childid, fromroom = fromroom, toroom = toroom }, SensorPost);
+			if (size(regexMatch(newTs, "\\..{3}")) == 0) {
+				newTs = newTs + "0";
+			}
+
+			submit({ts = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false), tsstr = newTs, sensorid = sensorid, childid = childid, fromroom = fromroom, toroom = toroom }, SensorPost);
 		}
 	}
 
-	(stream<timestamp ts, rstring cid, rstring loc> LocationUpdate1;
-	stream<timestamp ts, rstring cid, timestamp lastts, rstring lastseen, rstring phone> MissingChild;
-	stream<timestamp ts, rstring cid, rstring phone> UnsafeRoom) = Custom(SensorPost) {
+	// Perform processing on the input stream
+	// Parts 1-3 all in same Custom operator so we only need to read the
+	// ChildDetails.csv file once.
+	(stream<rstring ts, rstring cid, rstring loc> LocationUpdate1;
+	stream<rstring ts, rstring cid, timestamp lastts, rstring lastseen, rstring phone> MissingChild;
+	stream<rstring ts, rstring cid, rstring phone> UnsafeRoom) = Custom(SensorPost) {
 		logic state : {
+			mutable set<rstring> missingChildren;
+			mutable set<rstring> unsafeChildren;
 			mutable map<rstring, Child> children;
 			mutable timestamp lastts;
 			mutable timestamp lastPart1;
 		}
 		onTuple SensorPost : {
+			// If we don't have any children, read in the ChildDetails file
 			if (size(children) == 0) {
 				mutable int32 err = 0;
 				uint64 childFile = fopen("/datasets/Lab9/ChildDetails.csv", "r", err);
@@ -46,10 +53,11 @@ composite Locator {
 						break;
 					}
 
+					// Tokenize by commas
 					list<rstring> tokens = tokenize(line, ",", false);
-					
 					mutable rstring newTs = tokens[0];
-					
+
+					// Fix bad timestamp strings (need 3 millisecond digits)
 					if (size(regexMatch(newTs, "\\..{3}")) == 0) {
 						newTs = newTs + "0";
 					}
@@ -58,6 +66,7 @@ composite Locator {
 						newTs = newTs + "0";
 					}
 
+					// Make the Child, and add it to our list of children
 					mutable Child child = {};
 					child.entered = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false);
 					child.id = tokens[1];
@@ -66,15 +75,21 @@ composite Locator {
 					child.phone = tokens[4];
 					child.loc = "1000";
 					child.lastts = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false);
+					child.tsstr = newTs;
 
 					insertM(children, tokens[1], child);
 				}
-				
+
+				// Initialize the lastPart1 to the starting timestamp
 				lastPart1 = ts;
 			}
-			
+
+			// Get the child associated with the current record
 			Child c = children[childid];
 			
+			// Remove the child from the missing lists
+			removeM(missingChildren, childid);
+
 			// Do part 1 (If it has been at least 30 seconds since
 			// we last reported, send an update for every child)
 			if (diffAsSecs(ts, lastPart1) > 300.0) {
@@ -82,32 +97,43 @@ composite Locator {
 					Child c = children[key];
 					if (c.loc != "E" &&
 						c.loc != "1000") {
-						submit({ ts = ts, cid = key, loc = c.loc }, LocationUpdate1);
+						submit({ ts = tsstr, cid = key, loc = c.loc }, LocationUpdate1);
 					}
 				}
+
+				lastPart1 = ts;
 			}
-			
+
 			// Do part 2 (If it has been over 15 minutes since the
 			// we last heard from the child, report them as missing)
 			for (rstring key in children) {
 				Child c1 = children[key];
-				if (c1.id != childid &&
+				if (!has(missingChildren, key) &&
+					c1.id != childid &&
 					c1.loc != "E" &&
 					c1.loc != "1000" &&
 					diffAsSecs(ts, c1.lastts) > 900.0) {
-					submit({ ts = ts, cid = key, lastts = c1.lastts, lastseen = c1.loc, phone = c1.phone }, MissingChild);
+					submit({ ts = c1.tsstr, cid = key, lastts = c1.lastts, lastseen = c1.loc, phone = c1.phone }, MissingChild);
+
+					insertM(missingChildren, key);
 				}
 			}
-			
+
 			// Do part 3 (If a child has been in room 26 for
 			// more than 3 minutes, send them to the unsafe room)
 			for (rstring key in children) {
 				Child c1 = children[key];
-				if (c1.loc == "26" &&
+				if (!has(unsafeChildren, key) &&
+					c1.loc == "26" &&
 					diffAsSecs(ts, c1.lastts) > 300.0) {
-					submit({ ts = ts, cid = key, phone = c1.phone }, UnsafeRoom);
+					submit({ ts = c1.tsstr, cid = key, phone = c1.phone }, UnsafeRoom);
+					
+					insertM(unsafeChildren, key);
 				}
 			}
+
+			// Remove child from unsafe list if they are on it
+			removeM(unsafeChildren, childid);
 
 			// Update the child for this record
 			mutable Child child = {};
@@ -118,26 +144,28 @@ composite Locator {
 			child.phone = c.phone;
 			child.loc = toroom;
 			child.lastts = ts;
+			child.tsstr = tsstr;
 
 			insertM(children, child.id, child);
-			
+
+			// Store the last timestamp
 			lastts = ts;
 		}
 	}
-	
-	// Finally output each caller with their offenses to the file
+
+	// Output the location data (every 5 minute update)
 	() as LocationUpdate1Sink = FileSink(LocationUpdate1) {
 		param file : "LocationLog.txt";
 		format : csv;
 	}
-	
-	// Finally output each caller with their offenses to the file
+
+	// Output the missing child stream
 	() as MissingChildSink = FileSink(MissingChild) {
 		param file : "MissingChildAlert.txt";
 		format : csv;
 	}
 
-	// Finally output each caller with their offenses to the file
+	// Output the unsafe children stream
 	() as UnsafeRoomSink = FileSink(UnsafeRoom) {
 		param file : "UnsafeRoomAlert.txt";
 		format : csv;
