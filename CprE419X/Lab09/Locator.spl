@@ -31,7 +31,7 @@ composite Locator {
 	// Perform processing on the input stream
 	// Parts 1-3 all in same Custom operator so we only need to read the
 	// ChildDetails.csv file once.
-	(stream<rstring ts, rstring cid, rstring loc> LocationUpdate1;
+	(stream<rstring ts, rstring cid, rstring loc> LocationUpdate;
 	stream<rstring ts, rstring cid, timestamp lastts, rstring lastseen, rstring phone> MissingChild;
 	stream<rstring ts, rstring cid, rstring phone> UnsafeRoom) = Custom(SensorPost) {
 		logic state : {
@@ -97,7 +97,7 @@ composite Locator {
 					Child c = children[key];
 					if (c.loc != "E" &&
 						c.loc != "1000") {
-						submit({ ts = tsstr, cid = key, loc = c.loc }, LocationUpdate1);
+						submit({ ts = tsstr, cid = key, loc = c.loc }, LocationUpdate);
 					}
 				}
 
@@ -154,7 +154,7 @@ composite Locator {
 	}
 
 	// Output the location data (every 5 minute update)
-	() as LocationUpdate1Sink = FileSink(LocationUpdate1) {
+	() as LocationUpdateSink = FileSink(LocationUpdate) {
 		param file : "LocationLog.txt";
 		format : csv;
 	}
@@ -168,6 +168,32 @@ composite Locator {
 	// Output the unsafe children stream
 	() as UnsafeRoomSink = FileSink(UnsafeRoom) {
 		param file : "UnsafeRoomAlert.txt";
+		format : csv;
+	}
+
+	// Part 4a
+	stream<rstring ts, rstring roomnum, int32 children> RoomStats = Aggregate(SensorPost) {
+		window SensorPost : tumbling, delta(ts, 3600.0);
+		param groupBy : toroom;
+		output RoomStats : ts = Last(tsstr), roomnum = toroom, children = CountDistinct(childid);
+	}
+
+	// Output the room stats data (every 60 minute update)
+	() as RoomStatsSink = FileSink(RoomStats) {
+		param file : "RoomStats.txt";
+		format : csv;
+	}
+
+	// Part 4b
+	stream<rstring ts, rstring cid, int32 rooms> ChildStats = Aggregate(SensorPost) {
+		window SensorPost : tumbling, delta(ts, 3600.0);
+		param groupBy : childid;
+		output ChildStats : ts = Last(tsstr), cid = childid, rooms = CountDistinct(toroom);
+	}
+
+	// Output the child stats data (every 60 minute update)
+	() as ChildStatsSink = FileSink(ChildStats) {
+		param file : "ChildStats.txt";
 		format : csv;
 	}
 }
