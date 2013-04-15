@@ -1,6 +1,7 @@
 package com.brianreber.lab09;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -10,17 +11,18 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.net.Uri;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NfcA;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -84,20 +86,16 @@ public class MainActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		mAdapter.enableForegroundDispatch(this, pendingIntent,
-				intentFiltersArray, techListsArray);
+		mAdapter.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
 	}
 
 	@Override
 	public void onNewIntent(Intent intent) {
-		Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+		final Tag tagFromIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+		Log.d("LST", Arrays.toString(tagFromIntent.getTechList()));
+		Log.d("TAG", tagFromIntent.toString());
 		final Ndef ndef = Ndef.get(tagFromIntent);
-		try {
-			ndef.connect();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		Log.d("NDF", ndef + "");
 		if (isWriting) {
 			final String contents = editText.getText().toString();
 
@@ -105,14 +103,16 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					try {
-						ndef.writeNdefMessage(new NdefMessage(contents.getBytes()));
+						ndef.connect();
+						
+						ndef.writeNdefMessage(new NdefMessage(NdefRecord.createUri(contents)));
+
+						ndef.close();
 					} catch (IOException e) {
 						e.printStackTrace();
 					} catch (FormatException e) {
 						e.printStackTrace();
 					}
-
-					Toast.makeText(MainActivity.this, "Done writing", Toast.LENGTH_LONG).show();
 				}
 			}).start();
 
@@ -120,7 +120,8 @@ public class MainActivity extends Activity {
 			isWriting = false;
 		} else {
 			NdefMessage msg = ndef.getCachedNdefMessage();
-			editText.setText(new String(msg.toByteArray()));
+			NdefRecord record = msg.getRecords()[0];
+			editText.setText("http://" + new String(record.getPayload()).trim());
 		}
 	}
 
