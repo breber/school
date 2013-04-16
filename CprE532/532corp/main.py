@@ -16,13 +16,17 @@ class RecordHandler(webapp2.RequestHandler):
         
         if password:
             logging.warn(password)
-            toStore = models.Password()
-            toStore.password = password
-            toStore.put()
+            
+            try:
+                toStore = models.Password()
+                toStore.password = password
+                toStore.put()
+            except:
+                print "Error..."
         
         self.redirect("/")
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/record', RecordHandler)
-], debug=True)
+], debug=False)
