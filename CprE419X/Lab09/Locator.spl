@@ -126,7 +126,7 @@ composite Locator {
 				if (!has(unsafeChildren, key) &&
 					c1.loc == "26" &&
 					diffAsSecs(ts, c1.lastts) > 300.0) {
-					submit({ ts = c1.tsstr, cid = key, phone = c1.phone }, UnsafeRoom);
+					submit({ ts = tsstr, cid = key, phone = c1.phone }, UnsafeRoom);
 					
 					insertM(unsafeChildren, key);
 				}
