@@ -11,7 +11,8 @@ composite Locator {
 	}
 
 	// Convert the timestamp from a string to an actual timestamp
-	stream<timestamp ts, rstring tsstr, rstring sensorid, rstring childid, rstring fromroom, rstring toroom> SensorPost = Custom(SensorData) {
+	(stream<timestamp ts, rstring tsstr, rstring sensorid, rstring childid, rstring fromroom, rstring toroom> SensorPost;
+	stream<timestamp ts, rstring tsstr, rstring sensorid, rstring childid, rstring fromroom, rstring toroom> SensorPostNoE) = Custom(SensorData) {
 		logic
 		onTuple SensorData : {
 			mutable rstring newTs = ts;
@@ -25,6 +26,11 @@ composite Locator {
 			}
 
 			submit({ts = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false), tsstr = newTs, sensorid = sensorid, childid = childid, fromroom = fromroom, toroom = toroom }, SensorPost);
+
+			// Output all but "E" records
+			if (toroom != "E") {
+				submit({ts = timeStringToTimestamp("04-APR-2013", newTs, "UTC", false), tsstr = newTs, sensorid = sensorid, childid = childid, fromroom = fromroom, toroom = toroom }, SensorPostNoE);
+			}
 		}
 	}
 
@@ -172,8 +178,8 @@ composite Locator {
 	}
 
 	// Part 4a
-	stream<rstring ts, rstring roomnum, int32 children> RoomStats = Aggregate(SensorPost) {
-		window SensorPost : tumbling, delta(ts, 3600.0);
+	stream<rstring ts, rstring roomnum, int32 children> RoomStats = Aggregate(SensorPostNoE) {
+		window SensorPostNoE : tumbling, delta(ts, 3600.0);
 		param groupBy : toroom;
 		output RoomStats : ts = Last(tsstr), roomnum = toroom, children = CountDistinct(childid);
 	}
@@ -185,8 +191,8 @@ composite Locator {
 	}
 
 	// Part 4b
-	stream<rstring ts, rstring cid, int32 rooms> ChildStats = Aggregate(SensorPost) {
-		window SensorPost : tumbling, delta(ts, 3600.0);
+	stream<rstring ts, rstring cid, int32 rooms> ChildStats = Aggregate(SensorPostNoE) {
+		window SensorPostNoE : tumbling, delta(ts, 3600.0);
 		param groupBy : childid;
 		output ChildStats : ts = Last(tsstr), cid = childid, rooms = CountDistinct(toroom);
 	}
