@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HeartMonitor" >
+
+    <TextView
+        android:id="@+id/labelInstantSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        android:ems="10"
+        android:text="Instant Speed"
+        android:textAppearance="?android:attr/textAppearanceLarge" >
+
+        <requestFocus />
+    </TextView>
+
+    <TextView
+        android:id="@+id/labelStatusMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/ButtonConnect"
+        android:layout_below="@+id/ButtonConnect"
+        android:layout_marginTop="34dp"
+        android:ems="10"
+        android:text="Status"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/labelHeartRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/labelInstantSpeed"
+        android:layout_below="@+id/labelInstantSpeed"
+        android:layout_marginTop="18dp"
+        android:ems="10"
+        android:text="Heart Rate"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/ButtonConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/labelHeartRate"
+        android:layout_below="@+id/labelHeartRate"
+        android:layout_marginTop="30dp"
+        android:text="Connect" />
+
+    <Button
+        android:id="@+id/ButtonDisconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/labelStatusMsg"
+        android:layout_alignRight="@+id/labelStatusMsg"
+        android:text="Disconnect" />
+
+</RelativeLayout>
