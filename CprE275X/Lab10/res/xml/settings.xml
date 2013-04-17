@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Song Order Preferences" >
+        <EditTextPreference
+            android:defaultValue="120"
+            android:key="@string/low"
+            android:summary="Lower bound"
+            android:title="Lower bound" />
+        <EditTextPreference
+            android:defaultValue="150"
+            android:key="@string/high"
+            android:summary="Upper bound"
+            android:title="Upper bound" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
