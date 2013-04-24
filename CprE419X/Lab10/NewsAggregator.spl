@@ -1,0 +1,20 @@
+use my.op::*;
+
+composite NewsAggregator {
+
+	// Parse the input file as a csv file
+	graph
+	stream<rstring ts, rstring filename> Filenames = FileSource() {
+		param format : csv;
+		file : "/datasets/Lab10/Filenames.csv";
+	}
+
+	stream<rstring ts, rstring filename> Clustered = DeSimilarDocs(Filenames) {
+		
+	}
+
+	() as Sink = FileSink(Clustered) {
+		param file : "documents.txt";
+		format : csv;
+	}
+}
