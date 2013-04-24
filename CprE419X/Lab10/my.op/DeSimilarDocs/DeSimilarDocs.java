@@ -28,9 +28,16 @@ public class DeSimilarDocs extends AbstractOperator {
 		files.put(fileName, timestamp);
 	}
 
+	public void processPunctuation(StreamingInput<Tuple> stream, StreamingData.Punctuation mark) throws Exception {
+		if (mark == StreamingData.Punctuation.FINAL_MARKER) {
+			processDocuments();
+			files.clear();
+		}
+	}
+
 	private void processDocuments() throws Exception {
 		final StreamingOutput<OutputTuple> output = getOutput(0);
-		final int[] seeds = new int[] { 100, 54351, 2416, 3426 };//, 983, 7582, 1305, 54325, 83021, 4332, 9476, 4328 };
+		final int[] seeds = new int[] { 100, 54351 };//, 2416, 3426, 983, 7582, 1305, 54325, 83021, 4332, 9476, 4328 };
 
 		Map<String, List<String>> hashGroup = new HashMap<String, List<String>>();
 
@@ -60,13 +67,13 @@ public class DeSimilarDocs extends AbstractOperator {
 			for (int i : minHash) {
 				keyName += i;
 			}
-			
+
 			if (hashGroup.containsKey(keyName)) {
 				group = hashGroup.get(keyName);
 			} else {
 				group = new ArrayList<String>();
 			}
-			
+
 			group.add(name);
 			hashGroup.put(keyName, group);
 		}
@@ -77,7 +84,7 @@ public class DeSimilarDocs extends AbstractOperator {
 			List<String> docs = hashGroup.get(s);
 
 			outputTuple.setString("ts", files.get(docs.get(0)));
-			outputTuple.setString("filename", docs.get(0));
+			outputTuple.setString("filename", docs.get(0) + " ~~ " + docs.size() + "!!~~!!" + hashGroup.size());
 			output.submit(outputTuple);
 		}
 	}
