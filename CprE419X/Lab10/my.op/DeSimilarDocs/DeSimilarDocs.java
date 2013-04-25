@@ -84,7 +84,7 @@ public class DeSimilarDocs extends AbstractOperator {
 			String document = iter.next();
 
 			outputTuple.setString("ts", files.get(document));
-			outputTuple.setString("filename", document + " ~~ " + s.documents.size() + "!!~~!!" + hashGroup.size());
+			outputTuple.setString("filename", document);
 			output.submit(outputTuple);
 		}
 
@@ -182,7 +182,7 @@ public class DeSimilarDocs extends AbstractOperator {
 	 * A group of hashes for a given document
 	 */
 	private static class HashGroup {
-		private static final int[] seeds = new int[] { 100, 54351, 2416, 3426, 983, 7582 };//, 1305, 54325, 83021, 4332, 9476, 4328 };
+		private static final int[] seeds = new int[] { 100, 54351, 2416, 3426, 983, 7582 };
 		private int[] minHash = new int[seeds.length];
 
 		public HashGroup(String docContents) {
