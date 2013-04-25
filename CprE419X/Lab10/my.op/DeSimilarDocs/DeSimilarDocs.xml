@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <operatorModel
-  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator" 
-  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common" 
+  xmlns="http://www.ibm.com/xmlns/prod/streams/spl/operator"
+  xmlns:cmn="http://www.ibm.com/xmlns/prod/streams/spl/common"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.ibm.com/xmlns/prod/streams/spl/operator operatorModel.xsd">
   <javaOperatorModel>
-    <context> 
+    <context>
       <!-- some optional elements
       <description>Brief description of the operator</description>
       <metrics>
@@ -32,7 +32,7 @@
           </cmn:managedLibrary>
         </library>
       </libraryDependencies>
-    </context>  
+    </context>
     <parameters>
       <!-- some optional elements
       <parameter>
@@ -42,7 +42,7 @@
         <type>rstring</type>
         <cardinality>1</cardinality>
       </parameter>
-      -->    
+      -->
     </parameters>
     <inputPorts>
       <!-- some optional elements
@@ -51,7 +51,7 @@
         <windowPunctuationInputMode>Oblivious</windowPunctuationInputMode>
         <cardinality>2</cardinality>
         <optional>false</optional>
-      </inputPortSet>      
+      </inputPortSet>
       -->
       <inputPortOpenSet>
         <windowingMode>NonWindowed</windowingMode>
@@ -64,11 +64,11 @@
         <windowPunctuationOutputMode>Free</windowPunctuationOutputMode>
         <cardinality>1</cardinality>
         <optional>false</optional>
-      </outputPortSet>          
+      </outputPortSet>
       -->
       <outputPortOpenSet>
         <windowPunctuationOutputMode>Generating</windowPunctuationOutputMode>
-      </outputPortOpenSet>    
+      </outputPortOpenSet>
     </outputPorts>
   </javaOperatorModel>
 </operatorModel>

@@ -10,7 +10,7 @@ composite NewsAggregator {
 	}
 
 	stream<rstring ts, rstring filename> Clustered = DeSimilarDocs(Filenames) {
-		
+
 	}
 
 	() as Sink = FileSink(Clustered) {

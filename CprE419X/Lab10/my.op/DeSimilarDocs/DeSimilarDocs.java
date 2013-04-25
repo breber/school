@@ -10,7 +10,7 @@ public class DeSimilarDocs extends AbstractOperator {
 
 	@Override
 	public void initialize(OperatorContext context) throws Exception {
-		super.initialize(context); 
+		super.initialize(context);
 	}
 
 	public void process(StreamingInput stream, Tuple tuple) throws Exception {
@@ -37,66 +37,68 @@ public class DeSimilarDocs extends AbstractOperator {
 
 	private void processDocuments() throws Exception {
 		final StreamingOutput<OutputTuple> output = getOutput(0);
-		final int[] seeds = new int[] { 100, 54351 };//, 2416, 3426, 983, 7582, 1305, 54325, 83021, 4332, 9476, 4328 };
+		List<DocumentList> hashGroup = new ArrayList<DocumentList>();
+		DocumentList baseDocList = new DocumentList();
 
-		Map<String, List<String>> hashGroup = new HashMap<String, List<String>>();
-
+		// For each document in the current hour
 		for (String name : files.keySet()) {
-			int[] minHash = new int[seeds.length];
-
-			// Set all the minhash values to the maximum int value to start with
-			for (int i = 0; i < minHash.length; i++) {
-				minHash[i] = Integer.MAX_VALUE;
-			}
-
 			// Read the file
 			String documentContents = readFile("/datasets/Lab10/Documents/" + name);
 
-			// Get a list of the shingles (9-shingles in this case)
-			List<String> shingles = getKShingles(documentContents, 9);
+			// Calculate the min-hashes of this document
+			HashGroup curDoc = new HashGroup(documentContents);
 
-			// Go through and calculate the minhashes of the document
-			for (String shingle : shingles) {
-				for (int i = 0; i < minHash.length; i++) {
-					minHash[i] = Math.min(minHash[i], hash(shingle.getBytes(), seeds[i]));
-				}
-			}
+			// Store it in the base document for searching the list
+			baseDocList.group = curDoc;
 
-			List<String> group;
-			String keyName = "";
-			for (int i : minHash) {
-				keyName += i;
-			}
+			// Find the DocumentList with above a threshold of
+			// matching min-hashes
+			int index = hashGroup.indexOf(baseDocList);
+			DocumentList found;
 
-			if (hashGroup.containsKey(keyName)) {
-				group = hashGroup.get(keyName);
+			// If one is found, store it
+			if (hashGroup.contains(baseDocList)) {
+				found = hashGroup.get(index);
 			} else {
-				group = new ArrayList<String>();
+				// Otherwise, create a new DocumentList and set
+				// the min-hashes
+				found = new DocumentList();
+				found.group = curDoc;
 			}
 
-			group.add(name);
-			hashGroup.put(keyName, group);
+			// Add the current document to the found DocumentList
+			found.documents.add(name);
+
+			// Update the DocumentList with the updated item
+			if (index != -1) {
+				hashGroup.set(index, found);
+			} else {
+				hashGroup.add(found);
+			}
 		}
 
 		// Output one document per group
-		for (String s : hashGroup.keySet()) {
+		for (DocumentList s : hashGroup) {
 			OutputTuple outputTuple = output.newTuple();
-			List<String> docs = hashGroup.get(s);
+			Iterator<String> iter = s.documents.iterator();
+			String document = iter.next();
 
-			outputTuple.setString("ts", files.get(docs.get(0)));
-			outputTuple.setString("filename", docs.get(0) + " ~~ " + docs.size() + "!!~~!!" + hashGroup.size());
+			outputTuple.setString("ts", files.get(document));
+			outputTuple.setString("filename", document + " ~~ " + s.documents.size() + "!!~~!!" + hashGroup.size());
 			output.submit(outputTuple);
 		}
+
+		System.out.println("Done hour: " + currentHour);
 	}
 
 	/**
 	 * Calculate the k-shingles of the given string
-	 * 
+	 *
 	 * @param s the string to calculate the shingles for
 	 * @param k how many characters in each shingle
 	 * @return a list of the k-shingles
 	 */
-	private List<String> getKShingles(String s, int k) {
+	private static List<String> getKShingles(String s, int k) {
 		List<String> shingles = new ArrayList<String>();
 
 		for (int i = 0; i <= s.length() - k; i++) {
@@ -167,12 +169,71 @@ public class DeSimilarDocs extends AbstractOperator {
 		String lineSeparator = System.getProperty("line.separator");
 
 		try {
-			while (scanner.hasNextLine()) {        
+			while (scanner.hasNextLine()) {
 				fileContents.append(scanner.nextLine() + lineSeparator);
 			}
 			return fileContents.toString();
 		} finally {
 			scanner.close();
+		}
+	}
+
+	/**
+	 * A group of hashes for a given document
+	 */
+	private static class HashGroup {
+		private static final int[] seeds = new int[] { 100, 54351, 2416, 3426, 983, 7582 };//, 1305, 54325, 83021, 4332, 9476, 4328 };
+		private int[] minHash = new int[seeds.length];
+
+		public HashGroup(String docContents) {
+			// Set all the minhash values to the maximum int value to start with
+			for (int i = 0; i < minHash.length; i++) {
+				minHash[i] = Integer.MAX_VALUE;
+			}
+
+			// Get a list of the shingles (9-shingles in this case)
+			List<String> shingles = getKShingles(docContents, 9);
+
+			// Go through and calculate the minhashes of the document
+			for (String shingle : shingles) {
+				for (int i = 0; i < minHash.length; i++) {
+					minHash[i] = Math.min(minHash[i], hash(shingle.getBytes(), seeds[i]));
+				}
+			}
+		}
+
+		/**
+		 * Override equals to ensure at least half of the
+		 * hashes match.
+		 */
+		public boolean equals(Object obj) {
+			HashGroup oth = (HashGroup) obj;
+			int numSame = 0;
+
+			for (int i = 0; i < minHash.length; i++) {
+				if (minHash[i] == oth.minHash[i]) {
+					numSame++;
+				}
+			}
+
+			return numSame >= Math.floor(seeds.length * .5);
+		}
+	}
+
+	/**
+	 * A list of documents with "matching" min-hashes
+	 */
+	private static class DocumentList {
+		HashGroup group = new HashGroup("");
+		Set<String> documents = new HashSet<String>();
+
+		/**
+		 * Override equals to just compare the group for each
+		 */
+		public boolean equals(Object obj) {
+			DocumentList oth = (DocumentList) obj;
+
+			return group.equals(oth.group);
 		}
 	}
 }
