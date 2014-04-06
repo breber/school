@@ -1,0 +1,150 @@
+a:link, a:visited, a:active
+{
+    text-decoration:none;
+    color: Blue;
+}
+
+a:hover
+{
+    text-decoration:underline;
+}
+
+body
+{
+    font-family:"Arial",Veranda,Sans-Serif;
+}
+
+.logo
+{
+    margin-left:0;
+    border:none;
+}
+
+.img:hover
+{
+    -moz-box-shadow: 0 0 20px gray;
+    -webkit-box-shadow: 0 0 20px gray;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+
+.Title
+{
+    width:75%;
+    padding-top:35px;
+    padding-left:10px;
+    margin-bottom:15px;
+    float:left;
+    font-size:1.5em;
+    height:112px;
+}
+
+.navbar
+{
+    border: 2px solid DarkGray;
+    background: #ebebeb;
+    padding:20px;
+    margin-left:0
+}
+
+.navbar ul 
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar li
+{
+    border-bottom: 1px solid DarkGray;
+}
+
+.navbar li a:link, .navbar li a:visited  
+{ 
+    font-size: 90%; 
+    display: block; 
+    padding: 0.4em 0 0.4em 0.5em; 
+    text-decoration: none; 
+}
+
+.navbar li a:hover
+{
+    -moz-transform: scale(1.05);
+    -webkit-transform: scale(1.05); 
+
+    -moz-box-shadow: 0 0 20px gray;
+    -webkit-box-shadow: 0 0 20px gray;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+
+div
+{
+    /*border: 1px solid Red;*/
+    -moz-border-radius: 10px;    
+    -webkit-border-radius: 10px;
+    margin-bottom:0;
+}
+
+.textarea
+{
+    padding:5px;
+    border: 2px solid DarkGray;
+    background: #ebebeb;
+    float:left; 
+    width:700px;
+    -moz-border-radius: 10px;    
+
+}
+
+.image
+{
+    margin:15px;
+    float:right;
+}
+
+.bot
+{
+    width:100%;  
+    margin-bottom:30px;
+    float:left
+}
+
+/*The gallery idea and code is used in accordance to the copyright by CSSplay 
+            http://www.cssplay.co.uk/menu/gallery3l */
+#gallery {
+  padding:0; 
+  margin:0; 
+  list-style-type:none; 
+  overflow:hidden; 
+  width:665px; 
+  height:320px; 
+  border:1px solid #888; 
+  background:#fff url(../images/back.png);
+  }
+#gallery li {
+  float:left;
+  }
+#gallery li a {
+  display:block; 
+  height:320px;
+  width:30px; 
+  float:left; 
+  text-decoration:none; 
+  border-bottom:1px solid #fff; 
+  cursor:default;
+  }
+#gallery li a img {
+  width:30px; 
+  height:320px; 
+  border:0;
+  }
+#gallery li a:hover {
+  background:#eee; 
+  width:425px;
+  }
+#gallery li a:hover img {
+  width:425px;
+  }
