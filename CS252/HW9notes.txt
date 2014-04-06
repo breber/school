@@ -1,0 +1,40 @@
+Enabling httpd service at boot
+
+systemctl enable httpd.service
+
+Home Directories:
+
+/etc/httpd/conf/httpd.conf
+
+Permissons
+
+711  ~/user
+755  ~/user/public_html
+
+Home Directories w/ CGI:
+
+<Directory /home/*/public_html/cgi-bin/>
+  Options ExecCGI
+  SetHandler cgi-script
+</Directory>
+
+User needs to make sure the permissions are right on the directory and files.
+
+
+Securing Directory:
+Create htpassword file
+htpasswd -b passwordfileloc username password
+
+create .htaccess file in directory
+AuthUserFile /usr/local/apache/htdocs/admin/.htpasswd
+AuthName "Authorization Required"
+AuthType Basic
+require valid-user
+
+Apache Configuration:
+<Directory "/usr/local/apache/htdocs/admin">
+    AllowOverride AuthConfig
+    Options Indexes FollowSymLinks Includes
+    Order allow,deny
+    Allow from all
+</Directory>

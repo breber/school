@@ -1,0 +1,17 @@
+Question 1:
+The partition table is msdos, as I installed Windows first. Windows created the original partition table and the Linux install just modified the partitions so that it had room.
+
+Partitions:
+Size: 10.24 GiB, File System Type: ntfs, Windows Mount Point: C:
+Size: 500 MiB, File System Type: ext4, Linux Mount Point: /boot
+Size: 8.52 GiB, File System Type: lvm2 pv, Linux Mount Point: vg_homework1
+
+Question 2:
+
+Windows:
+Administrator -- winAdmin!
+Brian Reber   -- reber123
+
+Fedora:
+root   -- fedoraAdmin!
+brian  -- brian123

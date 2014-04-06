@@ -1,0 +1,25 @@
+Mount NFS:
+
+mount 192.168.1.1:/path /path
+
+Set up NIS:
+
+vi /etc/sysconfig/network
+
+NISDOMAIN=[domain]
+
+vi /etc/sysconfig/authconfig
+
+USENIS=yes
+
+vi /etc/ypconf
+
+domain [cs252] server [192.168.1.1]
+
+vi /etc/nsswitch.conf
+
+passwd: nis files
+shadow: nis files
+group: nis files
+hosts: nis files
+

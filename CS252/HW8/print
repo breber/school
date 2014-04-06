@@ -1,0 +1,66 @@
+#! /bin/bash
+
+#
+# Brian Reber (breber)
+# Homework #8
+#
+
+# Check to see if we have enough arguments
+if [ $# != 1 ]; then
+	echo "Error: $0 expects 1 parameter"
+	exit
+fi
+
+# Bash's printf function can do this automatically,
+# but I have provided an implementation for doing
+# it manually.
+#printf "%'d\n" $1
+
+# Record whether the number is negative
+isnegative=$[ $1 < 0 ]
+
+# If the input is negative, make it positive
+# for now, to make math easier
+if [ $isnegative == "1" ]; then
+	result=$[ 0 - $1 ]
+else
+	result=$1
+fi
+
+# While our value is not 0
+while [ $result != 0 ];
+do
+	# Mod it by 1000, then divide it by 1000
+	resultMod1000=$[ $result % 1000 ]
+	result=$[ $result / 1000 ]
+	
+	# If this isn't the last multiple, format
+	# it into 3 characters, padding with 0's if necessary
+	if [ "$result" '>' "0" ]; then
+		formattedString=$(printf "%03d" $resultMod1000)
+	else
+		# This is the last multiple, so just
+		# use the number as-is, without any formatting
+		formattedString=$(printf "%d" $resultMod1000)
+	fi
+	
+	# If we have a string built already,
+	# append a comma and add the newly
+	# formatted string to the front
+	if [ -n "$string" ]; then
+		string="$formattedString,$string"
+	else
+		# otherwise, start a new string with
+		# the value of the formatted string
+		string="$formattedString"
+	fi
+done
+
+# If the original input was negative,
+# add a negative sign in front. Otherwise
+# just print out the resulting string
+if [ $isnegative == "1" ]; then
+	echo -$string
+else
+	echo $string
+fi

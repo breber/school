@@ -1,0 +1,14 @@
+Package: cNibbles
+Dependencies: ncurses
+
+Package: Enlightenment
+Dependencies: eina, eet, evas, ecore, efreet, embryo, edje, e_dbus
+
+Package: tgif
+Dependencies: Nothing at the time of this install
+
+Package: xearth
+Dependencies: Nothing at the time of this install
+
+Package: Eterm
+Dependencies: imlib, libast

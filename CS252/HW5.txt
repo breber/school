@@ -1,0 +1,48 @@
+For a number of the responses, I showed the process I went through to get to the result. The commands starting with $ are on the main terminal. The commands starting with # are on a secondary terminal.
+
+1. I used the name Brian Reber.
+
+$ name2ud Brian Reber | ud2abc | abc2code
+
+	Name: Brian Reber
+	Code: 6a761aec
+
+2. I used the name Brian Reber
+
+$ question2
+Brian
+CTRL-Z
+$ bg
+$ question2b
+Reber
+$ fg
+
+	Name: Brian Reber
+	Code: 2b6f395c
+
+3. I used the name Brian Reber
+
+$ question3 Brian Reber
+# ps -el | grep "question3"
+# kill -1 1077
+
+	Name: Brian Reber
+	Code: 341a9d9a
+
+4. I used the name Brian Reber
+
+$ question4 Brian Reber
+# kill -STOP 1018
+# kill -CONT 1018
+
+	Name: Brian Reber
+	Code: 4ae1e58f
+
+5. I used the name Brian Reber
+
+(As root)
+$ service q5serviced start
+$ question5 Brian Reber
+
+	Name: Brian Reber
+	Code: f0b310d

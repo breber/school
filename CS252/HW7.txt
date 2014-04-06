@@ -1,0 +1,9 @@
+Question 1:
+
+I downloaded and installed the 3.5.5 Linux kernel.
+
+Question 2:
+
+I ran wc -l *.c */*.c */*/*.c */*/*/*.c in order to count the number of lines of C.  This covers all C files from the root to 4 levels of folder nesting, which should cover the majority of the C files in the Kernel, if not all of them.  It is a count of the number of lines in the files, which contains comment lines, blank lines, and lines with C code.
+
+The number of lines is about 8.5 million.

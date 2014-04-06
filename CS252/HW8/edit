@@ -1,0 +1,48 @@
+#! /bin/bash
+
+#
+# Brian Reber (breber)
+# Homework #8
+#
+
+# Check to see if we have enough arguments
+if [ $# != 2 ]; then
+	echo "Error: $0 expects 2 parameters"
+	exit
+fi
+
+# Get the proper line number
+count=$[ $1 - 1 ]
+
+i=0
+noneleft=0
+
+# Loop for count lines
+while [ $i -lt $count ]; do
+	# If we successfully read a line, print it out
+	if read tmp; then
+		echo $tmp
+	else
+		# We didn't read a line successfully, so indicate
+		# that there are none left, and print an empty line
+		noneleft=1
+		echo
+	fi
+	
+	# Increment our loop counter
+	i=$[i + 1]
+done
+
+# If we haven't finished reading the input, 
+# read the line we are supposed to replace
+if [ $noneleft -ne "1" ]; then
+	read
+fi
+
+# Print out the replacement line
+printf "$2\n"
+
+# Finish off writing the rest of the input
+while read tmp; do
+	echo $tmp
+done

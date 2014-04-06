@@ -1,0 +1,13 @@
+Question 1:
+
+There isn't a very big difference between LibreOffice for Windows and LibreOffice for Linux.  They look a little different in each install, because they are styled to look natural in the OS they are running on. In a basic install of the Windows version (LibreOffice 3.6), there is an extra program called LibreOffice Math that is not installed by default when installing the LibreOffice package in the Fedora install provided to us (installed LibreOffice on Fedora by running 'yum install libreoffice'). Also, by default, the Fedora yum tool installs LibreOffice 3.5.6.2, so it is not exactly the same version you can download from their website.
+
+So other than the version numbers, and the styling per OS, the functionality appears to be the same for Windows and Linux.
+
+Question 2:
+
+In order to install nethack in part 3.2 (Install LibreOffice and nethack), I used the yum command.
+
+yum install nethack
+
+This command figured out the dependencies nethack has on other packages, and automatically installed them.  The packages that were installed as a part of this process were nethack, libXaw, nethac-bitmap-fonts, nethack-bitmap-fonts-core.

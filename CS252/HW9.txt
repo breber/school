@@ -1,0 +1,7 @@
+Question 1:
+
+When the server is executing one of the scripts from the DocumentRoot cgi-bin folder, it is the apache user who is running it. The apache user is the one that is also running the whole web server (Apache).
+
+Question 2:
+
+When the server runs one of the scripts from Alice's cgi-bin directory, it is running as the user alice.

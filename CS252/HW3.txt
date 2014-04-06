@@ -1,0 +1,19 @@
+Question 1:
+
+In order to get the hexadecimal encoding for the characters in my name, I ran the command:
+
+echo "Brian Reber" | hexdump -C
+
+The result is:
+
+00000000  42 72 69 61 6e 20 52 65  62 65 72 0a              |Brian Reber.|
+0000000c
+
+
+Question 2:
+
+The escape sequence in Ascii is "^[32m" which in hex is represented by 0x1b5b313b33326d.
+
+Question 3:
+
+The difference between DOS text files and UNIX text files is how they do perform newlines.  On DOS, a newline is represented by 0x0d followed by a 0x0a (ascii representation of a carriage return followed by a new line, aka line feed).  In UNIX, a newline is only represented by 0x0a (a new line character, aka line feed).

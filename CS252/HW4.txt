@@ -1,0 +1,18 @@
+1. Started the application parted (parted /dev/sdb)
+2. From inside parted, ran (mklabel msdos) to label the drive
+3. Still inside parted, ran (mkpart primary ext4 0MB -1s)
+4. Exited parted
+5. Ran mkfs -t ext4 /dev/sdb1
+6. Mounted new drive (mount /dev/sdb1 /mnt/hd2)
+7. Copied all files from /home to /mnt/hd2
+  a. Maintained permissions by using (cp -af /home/* /mnt/hd2)
+8. Unmounted /home (umount /home)
+9. Turned off use of swap (swapoff /dev/sda3)
+10. Entered parted again (parted /dev/sda)
+11. Removed partitions 2 and 3
+  a. (rm 2) followed by (rm 3)
+12. Created a new swap partition (mkpart primary linux-swap(v1) 3222MB -1s)
+13. Quit parted
+14. Run mkswap to initialize the swap partition (mkswap -v 1 /dev/sda2)
+15. Update /etc/fstab to point to right partitions
+16. Run swapon /dev/sda2 
