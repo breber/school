@@ -11,7 +11,26 @@ a:hover
 
 body
 {
-    font-family:"Arial",Veranda,Sans-Serif;
+    font-family:"Helvetica",Veranda,Sans-Serif;
+    background:#25ADDF;
+}
+
+.excerpt
+{
+    margin:5px;
+    margin-left:0;
+    width:40em;
+    border:1px solid #FEB800;
+    padding:5px;
+    float:left;
+    display:inline;
+    font-family:"Calibri";    
+}
+
+.posterpics
+{
+    width:23em;
+    height:18em;
 }
 
 .logo
@@ -32,9 +51,9 @@ body
 .Title
 {
     width:75%;
-    padding-top:35px;
+    padding-top:20px;
     padding-left:10px;
-    margin-bottom:15px;
+    margin-bottom:26px;
     float:left;
     font-size:1.5em;
     height:112px;
@@ -42,8 +61,11 @@ body
 
 .navbar
 {
-    border: 2px solid DarkGray;
-    background: #ebebeb;
+    /*border: 2px solid DarkGray;
+    background: #ebebeb;*/
+    
+    border:2px solid #FEB800;
+    background: #98D8F4;
     padding:20px;
     margin-left:0
 }
@@ -58,6 +80,7 @@ body
 .navbar li
 {
     border-bottom: 1px solid DarkGray;
+    list-style: none;
 }
 
 .navbar li a:link, .navbar li a:visited  
@@ -90,11 +113,16 @@ div
 
 .textarea
 {
-    padding:5px;
-    border: 2px solid DarkGray;
-    background: #ebebeb;
+    padding-left:15px;
+    padding-top:-5px;
+    padding-bottom:15px;
+    /*border: 2px solid DarkGray;*/
+    border:2px solid #FEB800;
+    background: #98D8F4;
+    
+    /*background: #ebebeb;*/
     float:left; 
-    width:700px;
+    width:75%;
     -moz-border-radius: 10px;    
 
 }
@@ -112,9 +140,9 @@ div
     float:left
 }
 
-/*The gallery idea and code is used in accordance to the copyright by CSSplay 
-            http://www.cssplay.co.uk/menu/gallery3l */
-#gallery {
+/*The gallery idea and was done following a tutorial online */
+ 
+#pictures {
   padding:0; 
   margin:0; 
   list-style-type:none; 
@@ -124,10 +152,10 @@ div
   border:1px solid #888; 
   background:#fff url(../images/back.png);
   }
-#gallery li {
+#pictures li {
   float:left;
   }
-#gallery li a {
+#pictures li a {
   display:block; 
   height:320px;
   width:30px; 
@@ -136,15 +164,15 @@ div
   border-bottom:1px solid #fff; 
   cursor:default;
   }
-#gallery li a img {
+#pictures li a img {
   width:30px; 
   height:320px; 
   border:0;
   }
-#gallery li a:hover {
+#pictures li a:hover {
   background:#eee; 
   width:425px;
   }
-#gallery li a:hover img {
+#pictures li a:hover img {
   width:425px;
   }
