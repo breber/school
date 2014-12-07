@@ -86,7 +86,7 @@ public class Project03 {
         }
         writer.println(")");
         writer.println("png(filename=\"images/" + fileName + ".png\")");
-        writer.println("hist(" + fileName + ", breaks=seq(0, 256, by=16))");
+        writer.println("hist(" + fileName + ", breaks=seq(0, 256, by=16), freq=FALSE)");
         writer.println("dev.off()");
         writer.close();
     }
