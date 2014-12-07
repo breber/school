@@ -1,6 +1,9 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,11 +56,7 @@ public class Project03 {
                     System.out.println("Contents Length: " + contents.length);
                 }
 
-                System.out.print(f.getName() + " ");
-                for (int i = 0; i < 3; ++i) {
-                    System.out.printf("0x%02x ", contents[i]);
-                }
-                System.out.println();
+                generateRscript(f.getName(), contents);
 
                 if (isText(contents)) {
                     addToMap(Type.WORD, f);
@@ -71,6 +70,25 @@ public class Project03 {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void generateRscript(String fileName, byte[] contents) throws FileNotFoundException,
+            UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter("/Users/breber/Desktop/out/" + fileName + ".R", "UTF-8");
+        writer.print(fileName + " <- c(");
+        boolean first = true;
+        for (byte b : contents) {
+            if (!first) {
+                writer.print(", ");
+            }
+            writer.print(b & 0xff);
+            first = false;
+        }
+        writer.println(")");
+        writer.println("png(filename=\"images/" + fileName + ".png\")");
+        writer.println("hist(" + fileName + ", breaks=seq(0, 256, by=16))");
+        writer.println("dev.off()");
+        writer.close();
     }
 
     private boolean isText(byte[] contents) {
