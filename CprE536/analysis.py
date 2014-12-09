@@ -20,7 +20,7 @@ def process_files(file_list, avg_file_name):
 
         print(filename)
         print("\tText Likelihood : %f" % text_likelihood(s))
-        print("\tImage Likelihood: %f" % jpeg_likelihood(s))
+        print("\tImage Likelihood: %f (%d)" % jpeg_likelihood(s))
         print("\tPDF Likelihood  : %d" % -1)
 
     if avg_file_name:
@@ -112,22 +112,23 @@ def jpeg_likelihood(s):
         if s.iget(i) == 0xFF and s.iget(i + 1) == 0x00:
             consecutive += 1
 
-    if consecutive > 512:
+    # Given the block size for the assignment is 512, these
+    # numbers make sense. For different block sizes (or full files),
+    # these will likely need to be updated
+    if consecutive >= 5:
         likelihood += 5
-    elif consecutive > 256:
+    elif consecutive >= 4:
         likelihood += 4
-    elif consecutive > 128:
+    elif consecutive >= 3:
         likelihood += 3
-    elif consecutive > 64:
+    elif consecutive >= 2:
         likelihood += 2
-    elif consecutive > 32:
-        likelihood += 2
-    elif consecutive > 1:
+    elif consecutive >= 1:
         likelihood += 1
 
-    num_tests += 5
+    num_tests += 3
 
-    return likelihood / float(num_tests)
+    return (likelihood / float(num_tests), consecutive)
 
 def read_file(filename):
     import struct
