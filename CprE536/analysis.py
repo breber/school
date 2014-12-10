@@ -20,8 +20,8 @@ def process_files(file_list, avg_file_name):
 
         print(filename)
         print("\tText Likelihood : %f" % text_likelihood(s))
-        print("\tImage Likelihood: %f (%d)" % jpeg_likelihood(s))
-        print("\tPDF Likelihood  : %d" % pdf_likelihood(s))
+        print("\tImage Likelihood: %f" % jpeg_likelihood(s))
+        print("\tPDF Likelihood  : %f" % pdf_likelihood(s))
 
     if avg_file_name:
         return gen_hist(all_data, avg_file_name)
@@ -93,6 +93,11 @@ def text_likelihood(s):
     text_likelihood += 1 if (lowest_ascii <= median <= highest_ascii) else 0
     num_tests += 1
 
+    # Check if all the values are 0. This could be an empty text file, so we'll
+    # give it a point for likelihood, but it probably isn't text
+    if s.min() == 0 and s.max() == 0:
+        text_likelihood += 1
+
     return text_likelihood / float(num_tests)
 
 def jpeg_likelihood(s):
@@ -132,16 +137,20 @@ def jpeg_likelihood(s):
 
     # As far as histograms go, the histogram for JPEG is generally pretty
     # uniform. There aren't really any large spikes at any specific locations
-    counts = s.value_counts(normalize=True, bins=8)
-    hist_mean = counts.mean()
-    # print("\t\thist_mean: %f" % hist_mean)
-    for val in counts.tolist():
-        # print("\t\t\t%f <= %f <= %f" % (hist_mean - .25 * hist_mean, val, hist_mean + .25 * hist_mean))
-        if hist_mean - .25 * hist_mean <= val <= hist_mean + .25 * hist_mean:
-            likelihood += 1
-        num_tests += 1
+    try:
+        counts = s.value_counts(normalize=True, bins=8)
+        hist_mean = counts.mean()
+        for val in counts.tolist():
+            if .75 * hist_mean <= val <= 1.25 * hist_mean:
+                likelihood += 1
+            num_tests += 1
+    except:
+        # we only get here if all the values are the same, in which case
+        # it isn't likely this is a JPEG
+        num_tests += 8
+        pass
 
-    return (likelihood / float(num_tests), consecutive)
+    return likelihood / float(num_tests)
 
 def pdf_likelihood(s):
     likelihood = 0
@@ -153,11 +162,29 @@ def pdf_likelihood(s):
     second = s.iget(1)
     third = s.iget(2)
     fourth = s.iget(3)
-    likelihood += 5 if (first == 0x25 and second == 0x50 and third == 0x44 and fourth == 0x46) else 0
+    likelihood += 10 if (first == 0x25 and second == 0x50 and third == 0x44 and fourth == 0x46) else 0
     num_tests += 5
 
     # For histograms, PDF tends to have a spike around the ascii character range,
     # with relatively uniform for the rest of the range
+    # [ normal, spike, normal + a bit, spike, normal, normal, normal, normal]
+    try:
+        counts = s.value_counts(normalize=True, bins=8)
+        normal_sections = pd.Series([counts.iget(0), counts.iget(4), counts.iget(5), counts.iget(6), counts.iget(7)])
+        avg = normal_sections.mean()
+        print("\t\tavg: %f, %f (%f, %s) (%f, %s)" % (avg, 1.1 * avg, counts.iget(1), counts.iget(1) > 1.1 * avg, counts.iget(3), counts.iget(3) > 1.1 * avg))
+
+        if counts.iget(1) > 1.1 * avg:
+            likelihood += 3
+        if counts.iget(3) > 1.1 * avg:
+            likelihood += 3
+
+        num_tests += 6
+    except:
+        # we only get here if all the values are the same, in which case
+        # it could be a PDF, but it is hard to say for sure
+        likelihood += 1
+        num_tests += 1
 
 
     return likelihood / float(num_tests)
