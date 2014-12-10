@@ -21,7 +21,7 @@ def process_files(file_list, avg_file_name):
         print(filename)
         print("\tText Likelihood : %f" % text_likelihood(s))
         print("\tImage Likelihood: %f (%d)" % jpeg_likelihood(s))
-        print("\tPDF Likelihood  : %d" % -1)
+        print("\tPDF Likelihood  : %d" % pdf_likelihood(s))
 
     if avg_file_name:
         return gen_hist(all_data, avg_file_name)
@@ -33,14 +33,16 @@ def gen_hist(contents, out_file_name):
     # http://matplotlib.org/users/pyplot_tutorial.html
     # http://pandas.pydata.org/pandas-docs/dev/generated/pandas.Series.html
     # http://pandas.pydata.org/pandas-docs/stable/10min.html
+    # http://digitalcorpora.org/corp/nps/files/govdocs1/
 
     # Generate a series given the contents of the file,
     # and use that to create a histogram with relevant
     # statistical information
     s = pd.Series(contents)
-    hist = s.hist(bins=16, normed=True, histtype='bar', range=(0, 256), stacked=False, color=['crimson'])
+    hist = s.hist(bins=8, normed=True, histtype='bar', range=(0, 256), stacked=False, color=['crimson'])
     fig = hist.get_figure()
     plt.xlim(0, 256)
+    plt.ylim(0, .01)
 
     quantiles = s.quantile([.25, .5, .75])
     first = quantiles.iget(0)
@@ -128,7 +130,37 @@ def jpeg_likelihood(s):
 
     num_tests += 3
 
+    # As far as histograms go, the histogram for JPEG is generally pretty
+    # uniform. There aren't really any large spikes at any specific locations
+    counts = s.value_counts(normalize=True, bins=8)
+    hist_mean = counts.mean()
+    # print("\t\thist_mean: %f" % hist_mean)
+    for val in counts.tolist():
+        # print("\t\t\t%f <= %f <= %f" % (hist_mean - .25 * hist_mean, val, hist_mean + .25 * hist_mean))
+        if hist_mean - .25 * hist_mean <= val <= hist_mean + .25 * hist_mean:
+            likelihood += 1
+        num_tests += 1
+
     return (likelihood / float(num_tests), consecutive)
+
+def pdf_likelihood(s):
+    likelihood = 0
+    num_tests = 0
+
+    # check if it starts with the PDF file signature
+    # http://www.garykessler.net/library/file_sigs.html
+    first = s.iget(0)
+    second = s.iget(1)
+    third = s.iget(2)
+    fourth = s.iget(3)
+    likelihood += 5 if (first == 0x25 and second == 0x50 and third == 0x44 and fourth == 0x46) else 0
+    num_tests += 5
+
+    # For histograms, PDF tends to have a spike around the ascii character range,
+    # with relatively uniform for the rest of the range
+
+
+    return likelihood / float(num_tests)
 
 def read_file(filename):
     import struct
@@ -165,6 +197,26 @@ def main():
             "input": "input/Assignment/",
             "hist": None,
             "known": False
+        },
+        {
+            "input": "/Users/breber/Downloads/000/JPEG/",
+            "hist": None,
+            "known": True
+        },
+        {
+            "input": "/Users/breber/Downloads/000/PDF/",
+            "hist": None,
+            "known": True
+        },
+        {
+            "input": "/Users/breber/Downloads/000/TXT/",
+            "hist": None,
+            "known": True
+        },
+        {
+            "input": "/Users/breber/Downloads/000/WORD/",
+            "hist": None,
+            "known": True
         }
     ]
 
