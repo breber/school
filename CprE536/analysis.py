@@ -172,7 +172,6 @@ def pdf_likelihood(s):
         counts = s.value_counts(normalize=True, bins=8)
         normal_sections = pd.Series([counts.iget(0), counts.iget(4), counts.iget(5), counts.iget(6), counts.iget(7)])
         avg = normal_sections.mean()
-        print("\t\tavg: %f, %f (%f, %s) (%f, %s)" % (avg, 1.1 * avg, counts.iget(1), counts.iget(1) > 1.1 * avg, counts.iget(3), counts.iget(3) > 1.1 * avg))
 
         if counts.iget(1) > 1.1 * avg:
             likelihood += 3
@@ -224,26 +223,6 @@ def main():
             "input": "input/Assignment/",
             "hist": None,
             "known": False
-        },
-        {
-            "input": "/Users/breber/Downloads/000/JPEG/",
-            "hist": None,
-            "known": True
-        },
-        {
-            "input": "/Users/breber/Downloads/000/PDF/",
-            "hist": None,
-            "known": True
-        },
-        {
-            "input": "/Users/breber/Downloads/000/TXT/",
-            "hist": None,
-            "known": True
-        },
-        {
-            "input": "/Users/breber/Downloads/000/WORD/",
-            "hist": None,
-            "known": True
         }
     ]
 
