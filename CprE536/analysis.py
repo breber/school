@@ -9,6 +9,8 @@ def process_files(file_list, avg_file_name):
     histograms = []
     all_data = []
 
+    text_files = []
+
     for filename in file_list:
         contents = read_file(filename)
         if avg_file_name:
@@ -19,12 +21,20 @@ def process_files(file_list, avg_file_name):
         s = gen_hist(contents, "%s_hist.png" % filename)
 
         print(filename)
-        print("\tText Likelihood : %f" % text_likelihood(s))
+        text_prob = text_likelihood(s)
+        print("\tText Likelihood : %f" % text_prob)
         print("\tImage Likelihood: %f" % jpeg_likelihood(s))
         print("\tPDF Likelihood  : %f" % pdf_likelihood(s))
 
+        if text_prob > .75:
+            text_files.append((filename, contents))
+
     if avg_file_name:
-        return gen_hist(all_data, avg_file_name)
+        full_hist = gen_hist(all_data, avg_file_name)
+    else:
+        full_hist = None
+
+    return (full_hist, text_files)
 
 def gen_hist(contents, out_file_name):
     import matplotlib.pyplot as plt
@@ -202,27 +212,73 @@ def read_file(filename):
 
     return contents
 
+def stitch_text(data):
+    # Read in the dictionary - this should work on Unix-based machines
+    # Change th path to a plaintext dictionary if that file doesn't exist
+    dictionary = []
+    with open('/usr/share/dict/words', 'r') as f:
+        word = f.readline()
+        while word:
+            dictionary.append(word[0:-1])
+            word = f.readline()
+
+    # Go through the files listed as text
+    text_files = []
+    for item in data:
+        for item2 in item['text']:
+            text_files.append({ 'filename': item2[0], 'contents': item2[1] })
+
+    # find the first and last partial words in each block
+    for file in text_files:
+        file['char_contents'] = [chr(x) for x in file['contents']]
+        contents = file['char_contents']
+
+        # Only check if we have at least one ' ' character
+        if ' ' in contents:
+            file['first'] = contents[0:contents.index(' ')]
+            file['first'] = filter(lambda x: x in string.printable, file['first'])
+            contents.reverse()
+
+            file['last'] = contents[0:contents.index(' ')]
+            contents.reverse()
+            file['last'].reverse()
+            file['last'] = filter(lambda x: x in string.printable, file['last'])
+
+    for i in range(0, len(text_files)):
+        for j in range(i + 1, len(text_files)):
+            test1 = "%s%s" % (text_files[i]['last'], text_files[j]['first'])
+            test2 = "%s%s" % (text_files[j]['last'], text_files[i]['first'])
+            if test1 in dictionary:
+                print("\tfound word1: [%d][%d] %s" % (test1, i, j))
+            if test2 in dictionary:
+                print("\tfound word2: [%d][%d] %s" % (test2, j, i))
+
+
 def main():
     data = [
         {
             "input": "input/JPEG/",
             "hist": None,
-            "known": True
+            "known": True,
+            "text": None
         },
         {
             "input": "input/PDF/",
             "hist": None,
-            "known": True
+            "known": True,
+            "text": None
         },
         {
             "input": "input/WORD/",
             "hist": None,
-            "known": True
+            "known": True,
+            "text": None
         },
         {
             "input": "input/Assignment/",
             "hist": None,
-            "known": False
+            "known": False,
+            "text": None
         }
     ]
 
@@ -240,7 +296,11 @@ def main():
         else:
             avg_file_name = None
 
-        item['hist'] = process_files(file_list, avg_file_name)
+        item['hist'], item['text'] = process_files(file_list, avg_file_name)
+
+    # Do some post processing to try and stich some files back together
+    # For a first shot, try just looking at text files
+    stitch_text(data)
 
 if __name__ == "__main__":
     main()
