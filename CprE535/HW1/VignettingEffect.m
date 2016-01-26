@@ -12,7 +12,22 @@ function [ vignetteImg ] = VignettingEffect(inputImage, scaleLevel)
     % image with the size being number of color channels
     vignetteImg = zeros(imageInfo.Height, imageInfo.Width, imageInfo.NumberOfSamples, 'uint8');
     
-    maxRadius = sqrt(centerY ^ 2 + centerX ^ 2);
+    % Handle finding max radius when the 'center' isn't actually the center
+    % of the image. If it's greater than the center point, subtract the
+    % value from the width (height), otherwise use the point as is
+    if centerX > imageInfo.Width / 2
+        offsetX = imageInfo.Width - centerX;
+    else
+        offsetX = centerX;
+    end
+    
+    if centerY > imageInfo.Height / 2
+        offsetY = imageInfo.Height - centerY;
+    else
+        offsetY = centerY;
+    end
+    
+    maxRadius = sqrt(offsetX ^ 2 + offsetY ^ 2);
     for x = 1:imageInfo.Width
         for y = 1:imageInfo.Height
             radius = sqrt((x - centerX) ^ 2 + (y - centerY) ^ 2);
