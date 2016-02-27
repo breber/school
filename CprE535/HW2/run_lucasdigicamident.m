@@ -80,15 +80,15 @@ case 'reference'
 
 % ------- User configurable parameters for 'reference' mode ----------
 
-%pmode = 'singlePRNU';      % 'averagePRNU': compute the PRNU by averaging over all noise residuals
+pmode = 'singlePRNU';      % 'averagePRNU': compute the PRNU by averaging over all noise residuals
                             % 'singlePRNU' : compute an individual PRNU pattern (noise residual) for each image
-pmode = 'averagePRNU';
+%pmode = 'averagePRNU';
 
-inPath = 'ReferenceImages';      % folder containing input images
+inPath = 'C:\images\prnu\source';      % folder containing input images
 
-outPath = 'ReferenceImagesOut';      % This is where the prnu reference data are saved (.mat file)
+outPath = 'C:\images\prnu\reference';      % This is where the prnu reference data are saved (.mat file)
 
-cameraID = 'Nexus6';  % Identifier for camera make/model
+cameraID = 'Kodak-V550-S';  % Identifier for camera make/model
 
 imageType = 'FF';         % Specify argument as FF for flat-field and NI for natural image
 
@@ -103,7 +103,7 @@ overwrite = 0;          % (0) use existing denoised images; (1) Overwrite existi
 %    images in the folder inPath are used.
 %    2) If iList is defined then only the images listed in iList are used.
 %
-%iList = {'IMG_0001.JPG' 'IMG_0002.JPG' 'IMG_0003.JPG'};  % Specify image names. If iList is commented out then all images in folder inPath are used
+iList = {'IMG_0001.JPG' 'IMG_0002.JPG' 'IMG_0003.JPG'};  % Specify image names. If iList is commented out then all images in folder inPath are used
 
 % --------- end of user configurable parameters ------
 
@@ -224,9 +224,9 @@ case 'correlate'
 
 % ------- User configurable parameters for 'correlate' mode ----------
     
-inPath = 'ReferenceImagesOut';
+inPath = 'c:\images\prnu\reference';
 
-outPath = 'CorrelationResults';      % This is where the correlation results file is written
+outPath = 'c:\images\prnu\results';      % This is where the correlation results file is written
 
 % If correlating a reference frame with a SINGLE noise residual:
 %    1) Comment out rListFile
@@ -245,10 +245,9 @@ outPath = 'CorrelationResults';      % This is where the correlation results fil
 % file in the folder specified by outPath.
 % 
 
-%rListFile = 'c:\images\prnu\correlation-list.txt';   % Comment out if individual prnu reference filenames in refFileNames, below, are to be used instead.
+rListFile = 'c:\images\prnu\correlation-list.txt';   % Comment out if individual prnu reference filenames in refFileNames, below, are to be used instead.
 
-refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20160221_105504_S_L.mat'}; % This is ignored if rListFile above is defined
-%refFileNames = {'Kodak-V550-S_FF_AVE_S_L.mat', 'Kodak-V550-B_NI_100_1697_S_L.mat'}; % This is ignored if rListFile above is defined
+refFileNames = {'Kodak-V550-S_FF_AVE_S_L.mat', 'Kodak-V550-B_NI_100_1697_S_L.mat'}; % This is ignored if rListFile above is defined
 
 % --------- end of user configurable parameters ------
 
