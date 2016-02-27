@@ -1,8 +1,6 @@
-function [ status ] = ReferenceMode( pmode, inPath, cameraID, imageType, denoiseFilter, overwrite )
+function [ status ] = ReferenceMode( pmode, inPath, outPath, cameraID, imageType, denoiseFilter, overwrite )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-
-    outPath = [inPath '_out'];
 
     % Search for jpeg and png files
     if (~exist('iList') == 1)
