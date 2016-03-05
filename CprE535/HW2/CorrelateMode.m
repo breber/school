@@ -6,11 +6,14 @@ function [ status ] = CorrelateMode( inPath, inAvg )
         iList = {fileData.name};
     end
 
-    nList = size(iList, 1);
+    nList = size(iList, 2);
     for i = 1:nList
         if 0 == strcmp(inAvg, iList{i})
+            fprintf('Correlating: %s --> %s\n', inAvg, iList{i});
             prnuName = {inAvg, iList{i}};
-            [status, ref1, ref2, colrNames, corr] = lucasdigicamident('correlate', inPath, '', prnuName);            
+            [status, ref1, ref2, colrNames, corr] = lucasdigicamident('correlate', inPath, '', prnuName);
+            corr
+            %fprintf('    Results: %f, %f, %f\n', corr{1}, corr{2}, corr{3});
         end
     end
 end
