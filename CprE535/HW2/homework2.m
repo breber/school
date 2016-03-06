@@ -28,13 +28,15 @@ if wavInst
     end
 end
 
-
 % Build reference PRNU for the list of FF images
-%ReferenceMode('averagePRNU', 'FF', 'out', 'Nexus6', 'FF', 'sigma', 0);
+ReferenceMode('averagePRNU', 'FF', 'out', 'Nexus6', 'FF', 'sigma', 0);
+ReferenceMode('averagePRNU', 'FF2', 'out2', 'Nexus6', 'FF', 'sigma', 0);
 
 % Build single PRNU for each FF and NI image
-%ReferenceMode('singlePRNU', 'FF', 'out', 'Nexus6', 'FF', 'sigma', 0);
-%ReferenceMode('singlePRNU', 'NI', 'out', 'Nexus6', 'NI', 'sigma', 0);
+ReferenceMode('singlePRNU', 'FF', 'out', 'Nexus6', 'FF', 'sigma', 0);
+ReferenceMode('singlePRNU', 'NI', 'out', 'Nexus6', 'NI', 'sigma', 0);
+ReferenceMode('singlePRNU', 'NI_other', 'out', 'Nexus6Other', 'NI', 'sigma', 0);
 
 % Correlate PRNU for each FF and NI image with the average PRNU from FF
 CorrelateMode('out', 'Nexus6_FF_AVE_S_L.mat');
+%CorrelateMode('out2', 'Nexus6_FF_AVE_S_L.mat');
