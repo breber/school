@@ -245,9 +245,14 @@ outPath = 'c:\images\prnu\results';      % This is where the correlation results
 % file in the folder specified by outPath.
 % 
 
-rListFile = 'c:\images\prnu\correlation-list.txt';   % Comment out if individual prnu reference filenames in refFileNames, below, are to be used instead.
+%rListFile = 'c:\images\prnu\correlation-list.txt';   % Comment out if individual prnu reference filenames in refFileNames, below, are to be used instead.
 
-refFileNames = {'Kodak-V550-S_FF_AVE_S_L.mat', 'Kodak-V550-B_NI_100_1697_S_L.mat'}; % This is ignored if rListFile above is defined
+% Uncomment out whichever line you want to run the correlation for
+refFileNames = {'PRNU.mat', 'Nexus6_NI_IMG_20151011_120510_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_IMG_20151031_113544_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_IMG_20151114_155523_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_IMG_20151120_195028_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_IMG_20160206_095230_S_L.mat'}; % This is ignored if rListFile above is defined
 
 % --------- end of user configurable parameters ------
 

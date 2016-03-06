@@ -1,3 +1,6 @@
 NI/denoise
 FF/denoise
 out/*.mat
+NI_other/denoise
+FF2/denoise
+out2/*.mat
