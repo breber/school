@@ -248,11 +248,11 @@ outPath = 'results';      % This is where the correlation results file is writte
 %rListFile = 'c:\images\prnu\correlation-list.txt';   % Comment out if individual prnu reference filenames in refFileNames, below, are to be used instead.
 
 % Uncomment out whichever line you want to run the correlation for
-refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20151011_120510_S_L.mat'}; % This is ignored if rListFile above is defined
-%refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20151031_113544_S_L.mat'}; % This is ignored if rListFile above is defined
-%refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20151114_155523_S_L.mat'}; % This is ignored if rListFile above is defined
-%refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20151120_195028_S_L.mat'}; % This is ignored if rListFile above is defined
-%refFileNames = {'Nexus6_FF_AVE_S_L.mat', 'Nexus6_NI_IMG_20160206_095230_S_L.mat'}; % This is ignored if rListFile above is defined
+refFileNames = {'PRNU.mat', 'Nexus6_NI_simage1_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_simage2_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_simage3_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_simage4_S_L.mat'}; % This is ignored if rListFile above is defined
+%refFileNames = {'PRNU.mat', 'Nexus6_NI_simage5_S_L.mat'}; % This is ignored if rListFile above is defined
 
 % --------- end of user configurable parameters ------
 

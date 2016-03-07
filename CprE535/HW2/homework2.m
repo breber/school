@@ -38,5 +38,8 @@ ReferenceMode('singlePRNU', 'NI', 'out', 'Nexus6', 'NI', 'sigma', 0);
 ReferenceMode('singlePRNU', 'NI_other', 'out', 'Nexus6Other', 'NI', 'sigma', 0);
 
 % Correlate PRNU for each FF and NI image with the average PRNU from FF
-CorrelateMode('out', 'Nexus6_FF_AVE_S_L.mat');
-%CorrelateMode('out2', 'Nexus6_FF_AVE_S_L.mat');
+% TODO: rename Nexus6_FF_AVE_S_L.mat to PRNU.mat
+CorrelateMode('out', 'PRNU.mat');
+% TODO: copy PRNU.mat from out to out2 to correlate against the second set
+% of images
+CorrelateMode('out2', 'PRNU.mat');
