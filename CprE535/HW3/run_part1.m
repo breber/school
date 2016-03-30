@@ -19,15 +19,23 @@ percents = [0, 15, 25, 75, 100];
 figure_index = 1;
 for percent = percents
     image = imread(covername);
-    embed_percent_length = uint16(ceil(length(image) * percent / 100));
+    embed_percent_length = uint32(ceil(length(image) * percent / 100));
     
-    % now zero out imbed bits in cover image
+    % now embed the message
     for x = 1:embed_percent_length
         for y = 1:embed_percent_length
             if use_replacement == 1
                 image(x, y) = bitset(image(x, y), 1, message(x, y));
             else
-                % TODO
+                % LSB matching algorithm:
+                % - if the message bit == cover image bit, do nothing
+                % - if the message bit != cover image bit:
+                %   - pick random value (r) between [-1, 1]
+                %   - stego(x, y) = cover(x, y) + r
+                if message(x, y) ~= bitget(image(x, y), 1)
+                    r = randi([-1 1], 1, 1);
+                    image(x, y) = image(x, y) + r;
+                end
             end
         end
     end
@@ -38,7 +46,7 @@ for percent = percents
     
     % For each percentage, calculate the p value
     p_vals = zeros(101, 3);
-    for factor = 2:101
+    for factor = 3:101
         actual_factor = (factor - 1);
         sublength = uint16(ceil(length(image) * actual_factor / 100));
         sub_cover = image(1:sublength, 1:sublength);
