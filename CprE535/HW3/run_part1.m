@@ -11,8 +11,8 @@ rng(0, 'twister');
 message = randi([0 1], 512, 512);
 
 % Read in the cover image
-%covername = input('Enter image file name with extension (like jennifer.bmp): ', 's');
-covername = 'input\Agfa_DC-504_0_1_512.bmp';
+covername = input('Enter image file name with extension (like jennifer.bmp): ', 's');
+%covername = 'input\Agfa_DC-504_0_1_512.bmp';
 
 % Embed certain percentages
 percents = [0, 15, 25, 75, 100];
@@ -55,9 +55,6 @@ for percent = percents
         p_vals(factor, 1) = chisq(sub_cover);
         p_vals(factor, 2) = factor / 100;
     end
-    
-    % Write the p-value structures out to a csv
-    csvwrite(strcat('pvals_', int2str(percent), '.csv'), p_vals);
 
     % Draw the p-value graph
     figure(figure_index), plot(p_vals(:, 2), p_vals(:, 1)); title(['P-Values (Embed ', int2str(percent), '%)']);

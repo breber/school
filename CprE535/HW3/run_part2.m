@@ -16,7 +16,9 @@ image_files = dir(fullfile(directory, '*.bmp'));
 % Embed certain percentages
 percents = [0, 15, 25, 75, 100];
 figure_index = 1;
-cover_rates = zeros(100, 4); % FP, TP, TN, FN
+p_values = zeros(length(image_files) * length(percents), 101);
+p_value_index = 1;
+cover_rates = zeros(101, 4); % FP, TP, TN, FN
 for percent = percents
     rates = cover_rates;
     is_stego = (percent ~= 0);
@@ -56,19 +58,29 @@ for percent = percents
             p_vals(factor, 2) = factor / 100;
         end
         
+        % Update the p_values table with this image data for this embed
+        % percent
+        p_values(p_value_index, 1) = index;
+        for pval_index = 1:length(p_vals)
+            p_values(p_value_index, pval_index + 1) = p_vals(pval_index, 1);
+        end
+        p_value_index = p_value_index + 1;
+        
         % Determine ROC data
-        for threshold = 1:100
-            if p_vals(threshold, 1) >= threshold / 100 && is_stego
-                % Over the threshold, and is stego --> TP
+        for threshold = 1:101
+            test_stego = any(p_vals(:, 1) >= (threshold - 1) / 100);
+
+            if test_stego && is_stego
+                % Test says stego, and is stego --> TP
                 rates(threshold, 2) = rates(threshold, 2) + 1;
-            elseif p_vals(threshold, 1) >= threshold / 100 && ~is_stego
-                % Over the threshold, and is NOT stego --> FP
+            elseif test_stego && ~is_stego
+                % Test says stego, and is NOT stego --> FP
                 rates(threshold, 1) = rates(threshold, 1) + 1;
-            elseif p_vals(threshold, 1) < threshold / 100 && is_stego
-                % Under the threshold, and is stego --> FN
+            elseif ~test_stego && is_stego
+                % Test says NOT stego, and is stego --> FN
                 rates(threshold, 4) = rates(threshold, 4) + 1;
-            elseif p_vals(threshold, 1) < threshold / 100 && ~is_stego
-                % Under the threshold, and is NOT stego --> TN
+            elseif ~test_stego && ~is_stego
+                % Test says NOT stego, and is NOT stego --> TN
                 rates(threshold, 3) = rates(threshold, 3) + 1;
             end
         end
@@ -88,3 +100,6 @@ for percent = percents
         cover_rates = rates;
     end
 end
+
+% Write the pvalues for all images for all embedding percentages out to a csv
+csvwrite('all_pvals.csv', p_values);
