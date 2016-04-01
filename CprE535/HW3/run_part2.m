@@ -94,7 +94,7 @@ for percent = percents
         true_positive_rate = rates(:, 2) ./ length(image_files);
         true_negative_rate = rates(:, 3) ./ length(image_files);
         false_positive_rate = 1 - true_negative_rate;
-        figure(figure_index), plot(true_positive_rate, false_positive_rate); title(['ROC (Embed ', int2str(percent), '%)']);
+        figure(figure_index), plot(false_positive_rate, true_positive_rate); title(['ROC (Embed ', int2str(percent), '%)']);
         figure_index = figure_index + 1;
     else
         cover_rates = rates;
