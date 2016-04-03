@@ -50,7 +50,7 @@ for percent = percents
     p_vals = zeros(100, 2);
     for factor = 1:100
         sublength = uint32(ceil(length(image) * length(image) * factor / 100));
-        reshaped_image = reshape(image, length(image) * length(image), 1, 3);
+        reshaped_image = reshape(image, length(image) * length(image), 1);
         sub_cover = reshaped_image(1:sublength, 1, 1);
         p_vals(factor, 1) = chisq(sub_cover);
         p_vals(factor, 2) = factor / 100;
@@ -59,4 +59,11 @@ for percent = percents
     % Draw the p-value graph
     figure(figure_index), plot(p_vals(:, 2), p_vals(:, 1)); title(['P-Values (Embed ', int2str(percent), '%)']);
     figure_index = figure_index + 1;
+    
+    % Draw a combined graph/image figure for easier attachment to
+    % the main writeup
+%     figure(figure_index)
+%     subplot(1, 2, 1), imshow(image); title(['Image (Embed ', int2str(percent), '%)']);
+%     subplot(1, 2, 2), plot(p_vals(:, 2), p_vals(:, 1)); title(['P-Values (Embed ', int2str(percent), '%)']);
+%     figure_index = figure_index + 1;
 end
