@@ -3,15 +3,103 @@ import sys
 
 # https://en.wikipedia.org/wiki/JPEG
 # https://en.wikipedia.org/wiki/JPEG_File_Interchange_Format
+# https://en.wikibooks.org/wiki/JPEG_-_Idea_and_Practice/The_header_part
+# http://www.xbdev.net/image_formats/jpeg/050_dec_enc_demo/index.php
 
 class JPEG:
+    def parse_dqt(self, byte_data):
+        # Length (2 bytes)
+        # Table:
+        #   Precision (4 bits)
+        #   Index (4 bits)
+        #   TableData (64 bytes)
+        index = 0
+        length = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        tables = {}
+
+        while length - index > 0:
+            precision = byte_data[index] >> 4
+            table_index = byte_data[index] & 0xF
+            index = index + 1
+
+            tables[table_index] = {
+                'precision': precision,
+                'table': byte_data[index:index + 64]
+            }
+            index = index + 64
+
+        # print('parse_dqt: num_tables: %d' % len(tables))
+        # for table in tables:
+        #     print('parse_dqt: table[%d]: precision: %d data: %s' % \
+        #         (table, tables[table]['precision'], tables[table]['table']))
+
+        return tables
+
+    def parse_dht(self, byte_data):
+        # Length (2 bytes)
+        # Table:
+        #   AC/DC (4 bits)
+        #   Destination Identifier (4 bits)
+        #   Block Lengths (16 bytes)
+        #   HuffEncodedValues (sum(block lengths) bytes)
+        index = 0
+        length = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        tables = {}
+
+        while length - index > 0:
+            ac_dc = byte_data[index] >> 4
+            dest_id = byte_data[index] & 0xF
+            index = index + 1
+
+            table = {
+                'num_blocks': 0,
+                'lengths': [0],
+                'blocks': []
+            }
+
+            # Build the basic information for the tables (including counts)
+            for i in range(0, 16):
+                table['lengths'].append(byte_data[index + i])
+                for j in range(0, table['lengths'][i + 1]):
+                    table['blocks'].append({
+                        'length': i + 1
+                    })
+                table['num_blocks'] = table['num_blocks'] + table['lengths'][i + 1]
+            index = index + 16
+
+            # Generate the huffman codes
+            length_count = 1
+            code = 0
+            for i in range(0, table['num_blocks']):
+                while length_count < table['blocks'][i]['length']:
+                    code = code << 1
+                    length_count = length_count + 1
+
+                table['blocks'][i]['code'] = code
+                table['blocks'][i]['value'] = byte_data[index + i]
+                code = code + 1
+
+            index = index + table['num_blocks']
+
+            tables[dest_id] = {
+                'type': ac_dc,
+                'dest_id': dest_id,
+                'table': table
+            }
+
+            #print('parse_dht: table: %s' % (tables[dest_id]))
+
     markers = {
         0xFFD8 : { "name": "SOI" },
         0xFFE0 : { "name": "APP0" },
         0xFFDA : { "name": "SOS" },
         0xFFD9 : { "name": "EOI" },
-        0xFFDB : { "name": "DQT" },
-        0xFFC4 : { "name": "DHT" },
+        0xFFDB : { "name": "DQT", "parse": parse_dqt },
+        0xFFC4 : { "name": "DHT", "parse": parse_dht },
         0xFFC0 : { "name": "SOF0" }
     }
 
@@ -27,6 +115,9 @@ class JPEG:
         elif marker in self.markers:
             marker_str = self.markers[marker]['name']
             self.current_scan[marker_str] = byte_data
+
+            if "parse" in self.markers[marker]:
+                self.markers[marker]["parse"](self, byte_data)
 
         # print 'handle_marker: %04x --> %02x (%d bytes)' \
         #     % (marker, byte_data[len(byte_data) - 1], len(byte_data))
