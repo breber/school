@@ -92,11 +92,48 @@ class JPEG:
             }
 
             #print('parse_dht: table: %s' % (tables[dest_id]))
+        return tables
+
+    def parse_sos(self, byte_data):
+        # Length (2 bytes)
+        # Num Components (1 byte)
+        # Component:
+        #   ID (1 byte)
+        #   DC Selector (4 bits)
+        #   AC Selector (4 bits)
+        index = 0
+        length = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        num_components = byte_data[index]
+        index = index + 1
+
+        components = {}
+        for i in range(0, num_components):
+            component_id = byte_data[index]
+            index = index + 1
+
+            ac_selector = byte_data[index] >> 4
+            dc_selector = byte_data[index] & 0xF
+            index = index + 1
+
+            components[component_id] = {
+                'ac_selector': ac_selector,
+                'dc_selector': dc_selector
+            }
+
+        # print('parse_sos: len: %d, index: %d' % (length, index))
+        # print('parse_sos: num_components: %d' % num_components)
+        # for c in components:
+        #     print('parse_sos: components[%d]: %s' % \
+        #         (c, components[c]))
+
+        return components
 
     markers = {
         0xFFD8 : { "name": "SOI" },
         0xFFE0 : { "name": "APP0" },
-        0xFFDA : { "name": "SOS" },
+        0xFFDA : { "name": "SOS", "parse": parse_sos },
         0xFFD9 : { "name": "EOI" },
         0xFFDB : { "name": "DQT", "parse": parse_dqt },
         0xFFC4 : { "name": "DHT", "parse": parse_dht },
