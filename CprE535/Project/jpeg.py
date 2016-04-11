@@ -127,6 +127,8 @@ class JPEG:
         #     print('parse_sos: components[%d]: %s' % \
         #         (c, components[c]))
 
+        self.parse_image_data(byte_data[index:])
+
         return components
 
     def parse_sof(self, byte_data):
@@ -180,7 +182,70 @@ class JPEG:
         #     print('parse_sof: components[%d]: %s' % \
         #         (c, components[c]))
 
-        return components
+        return {
+            'width': samples_per_line,
+            'height': num_lines,
+            'components': components
+        }
+
+    def process_huffman_unit(self, byte_data, index, component):
+        # TODO
+        pass
+        return index
+
+    def decode_block(self, component, stride):
+        # TODO
+        pass
+
+    def parse_image_data(self, byte_data):
+        sof_parsed = self.current_scan['SOF0_parsed']
+        y_component = sof_parsed['components'][1]
+        cb_component = sof_parsed['components'][2]
+        cr_component = sof_parsed['components'][3]
+
+        width = sof_parsed['width']
+        height = sof_parsed['height']
+
+        x_stride = 8 * y_component['horiz_sample_factor']
+        y_stride = 8 * y_component['vert_sample_factor']
+
+        index = 0
+        rgb = [[0 for x in range(height)] for x in range(width)]
+        for y in range(0, height, y_stride):
+            for x in range(0, width, x_stride):
+                y_com = []
+
+                # Decode MCU
+                for y1 in range(0, y_stride / 8):
+                    for x1 in range(0, x_stride / 8):
+                        # Process Huffman unit (y_component)
+                        index = self.process_huffman_unit(byte_data, index, y_component)
+                        y_com.append(self.decode_block(y_component, x_stride))
+
+                # Process Huffman unit (cb_component)
+                index = self.process_huffman_unit(byte_data, index, cb_component)
+                cb = self.decode_block(y_component, x_stride)
+
+                # Process Huffman unit (cr_component)
+                index = self.process_huffman_unit(byte_data, index, cr_component)
+                cr = self.decode_block(y_component, x_stride)
+
+                # Convert YCbCr to RGB
+                for y1 in range(0, y_stride):
+                    for x1 in range(0, x_stride):
+                        if x + x1 >= width:
+                            continue
+                        if y + y1 >= height:
+                            continue
+
+                        offset = x1 / x_stride + y1 / y_stride * 8
+                        y_offset = x1 + y1 * y_stride * 8
+                        r = y + 1.402 * (cb[offset] - 128)
+                        g = y - 0.34414 * (cr[offset] - 128) - 0.71414 * (cb[offset] - 128)
+                        b = y + 1.772 * (cr[offset] - 128)
+
+                        rgb[x][y] = (r, g, b)
+
 
     markers = {
         0xFFD8 : { "name": "SOI" },
@@ -206,7 +271,8 @@ class JPEG:
             self.current_scan[marker_str] = byte_data
 
             if "parse" in self.markers[marker]:
-                self.markers[marker]["parse"](self, byte_data)
+                self.current_scan['%s_parsed' % marker_str] = \
+                    self.markers[marker]["parse"](self, byte_data)
 
         # print 'handle_marker: %04x --> %02x (%d bytes)' \
         #     % (marker, byte_data[len(byte_data) - 1], len(byte_data))
