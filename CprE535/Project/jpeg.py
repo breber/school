@@ -122,10 +122,62 @@ class JPEG:
                 'dc_selector': dc_selector
             }
 
-        # print('parse_sos: len: %d, index: %d' % (length, index))
         # print('parse_sos: num_components: %d' % num_components)
         # for c in components:
         #     print('parse_sos: components[%d]: %s' % \
+        #         (c, components[c]))
+
+        return components
+
+    def parse_sof(self, byte_data):
+        # Length (2 bytes)
+        # Sample Precision (1 byte)
+        # Num Lines (2 bytes)
+        # Samples per line (2 bytes)
+        # Num Components (1 byte)
+        # Component:
+        #   ID (1 byte)
+        #   Horizontal Sample Factor (4 bits)
+        #   Vertical Sample Factor (4 bits)
+        #   Quanization Table Selector (1 byte)
+        index = 0
+        length = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        sample_precision = byte_data[index]
+        index = index + 1
+
+        num_lines = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        samples_per_line = byte_data[index] << 8 | byte_data[index + 1]
+        index = index + 2
+
+        num_components = byte_data[index]
+        index = index + 1
+
+        components = {}
+
+        for i in range(0, num_components):
+            component_id = byte_data[index]
+            index = index + 1
+
+            horiz_sample_factor = byte_data[index] >> 4
+            vert_sample_factor = byte_data[index] & 0xF
+            index = index + 1
+
+            quant_table_selector = byte_data[index]
+            index = index + 1
+
+            components[component_id] = {
+                'horiz_sample_factor': horiz_sample_factor,
+                'vert_sample_factor': vert_sample_factor,
+                'quant_table_selector': quant_table_selector
+            }
+
+        # print('parse_sof: num_components: %d' % num_components)
+        # for c in components:
+        #     print('parse_sof: components[%d]: %s' % \
         #         (c, components[c]))
 
         return components
@@ -137,7 +189,7 @@ class JPEG:
         0xFFD9 : { "name": "EOI" },
         0xFFDB : { "name": "DQT", "parse": parse_dqt },
         0xFFC4 : { "name": "DHT", "parse": parse_dht },
-        0xFFC0 : { "name": "SOF0" }
+        0xFFC0 : { "name": "SOF0", "parse": parse_sof }
     }
 
     app_data = {}
