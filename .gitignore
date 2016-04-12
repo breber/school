@@ -10,3 +10,5 @@ Thumbs.db
 
 # files for the dex VM
 *.dex
+
+*.pyc

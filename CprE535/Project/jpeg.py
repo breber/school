@@ -56,25 +56,25 @@ class JPEG:
             index = index + 1
 
             table = {
-                'num_blocks': 0,
                 'lengths': [0],
                 'blocks': []
             }
 
             # Build the basic information for the tables (including counts)
+            num_blocks = 0
             for i in range(0, 16):
                 table['lengths'].append(byte_data[index + i])
                 for j in range(0, table['lengths'][i + 1]):
                     table['blocks'].append({
                         'length': i + 1
                     })
-                table['num_blocks'] = table['num_blocks'] + table['lengths'][i + 1]
+                num_blocks = num_blocks + table['lengths'][i + 1]
             index = index + 16
 
             # Generate the huffman codes
             length_count = 1
             code = 0
-            for i in range(0, table['num_blocks']):
+            for i in range(0, num_blocks):
                 while length_count < table['blocks'][i]['length']:
                     code = code << 1
                     length_count = length_count + 1
@@ -83,15 +83,14 @@ class JPEG:
                 table['blocks'][i]['value'] = byte_data[index + i]
                 code = code + 1
 
-            index = index + table['num_blocks']
+            index = index + num_blocks
 
-            tables[dest_id] = {
-                'type': ac_dc,
-                'dest_id': dest_id,
-                'table': table
-            }
+            tables[(ac_dc, dest_id)] = table
 
-            #print('parse_dht: table: %s' % (tables[dest_id]))
+            # print('parse_dht: table[(%d, %d)]:' % (ac_dc, dest_id))
+            # for j in range(0, len(tables[(ac_dc, dest_id)]['blocks'])):
+            #     print('    %s' % tables[(ac_dc, dest_id)]['blocks'][j])
+
         return tables
 
     def parse_sos(self, byte_data):
@@ -101,6 +100,10 @@ class JPEG:
         #   ID (1 byte)
         #   DC Selector (4 bits)
         #   AC Selector (4 bits)
+        #   Start of spectral selection (1 byte)
+        #   End of spectral selection (1 byte)
+        #   Successive Approximation Bit High (4 bits)
+        #   Successive Approximation Bit Low (4 bits)
         index = 0
         length = byte_data[index] << 8 | byte_data[index + 1]
         index = index + 2
@@ -127,7 +130,7 @@ class JPEG:
         #     print('parse_sos: components[%d]: %s' % \
         #         (c, components[c]))
 
-        self.parse_image_data(byte_data[index:])
+        self.parse_image_data(byte_data[index + 3:], components)
 
         return components
 
@@ -188,20 +191,140 @@ class JPEG:
             'components': components
         }
 
-    def process_huffman_unit(self, byte_data, index, component):
-        # TODO
-        pass
-        return index
+    def get_n_bits(self, byte_data, offset_bits, bits):
+        offset_bytes = int(offset_bits / 8)
+        offset_bits = int(offset_bits % 8)
+        num_bytes = int(bits / 8)
+        num_bits = int(bits % 8)
 
-    def decode_block(self, component, stride):
-        # TODO
-        pass
+        result = byte_data[offset_bytes] >> (8 - offset_bits)
+        start_byte = result
+        for b in range(0, num_bytes):
+            result = result << 8 | byte_data[offset_bytes + b]
 
-    def parse_image_data(self, byte_data):
+        result = result << num_bits
+        end_byte = byte_data[offset_bytes + num_bytes]
+        end_byte = end_byte >> (8 - num_bits)
+        result = result | end_byte
+
+        print('get_n_bits: %d, %d --> %s' % (offset_bits, bits, bin(result)))
+        print('get_n_bits: bytes: %d, %d --> %s' % (offset_bytes, num_bytes, bin(start_byte)))
+
+        return result
+
+    def is_huffman_code(self, blocks, code, code_bits):
+        for j in range(0, len(blocks)):
+            if code == blocks[j]['code'] and code_bits == blocks[j]['length']:
+                return (True, blocks[j]['value']);
+
+        return (False, None);
+
+    def process_huffman_unit(self, byte_data, index, component, sos_component):
+        dct = [0 for i in range(0, 64)]
+        # print('process_huffman_unit: %s' % byte_data[index:index + 16])
+        # print('process_huffman_unit: %d' % byte_data[index])
+        # print('process_huffman_unit: %s' % component)
+
+        print('byte_data: %s' % [hex(l) for l in byte_data[0:10]])
+        print('byte_data: %s' % [bin(l) for l in byte_data[0:10]])
+
+        blocks = self.current_scan['DHT_parsed'][(0, sos_component['ac_selector'])]['blocks']
+
+        print('blocks:')
+        for j in range(0, len(blocks)):
+            print('    %s' % blocks[j])
+
+        offset_bits = 0
+        found = False
+        for k in range(1, 16):
+            code = self.get_n_bits(byte_data, offset_bits, k)
+
+            (is_code, result) = self.is_huffman_code(blocks, code, k)
+
+            print('code: %d --> %s' % (code, is_code))
+            if is_code:
+                offset_bits = k
+                found = True
+
+                if result == 0:
+                    dct[0] = component['previous_val']
+                else:
+                    data = self.get_n_bits(byte_data, offset_bits, result)
+                    print('data: %d' % data)
+                    offset_bits = offset_bits + result
+
+                    dct[0] = data + component['previous_val']
+                    component['previous_val'] = dct[0]
+
+                break
+
+        print('DCT[0]: %d' % dct[0])
+
+        return index, dct
+
+    def decode_block(self, component, dct, stride):
+        return []
+        zig_zag_array = [
+            0,   1,   5,  6,   14,  15,  27,  28,
+            2,   4,   7,  13,  16,  26,  29,  42,
+            3,   8,  12,  17,  25,  30,  41,  43,
+            9,   11, 18,  24,  31,  40,  44,  53,
+            10,  19, 23,  32,  39,  45,  52,  54,
+            20,  22, 33,  38,  46,  51,  55,  60,
+            21,  34, 37,  47,  50,  56,  59,  61,
+            35,  36, 48,  49,  57,  58,  62,  63
+        ]
+
+        quant_table_selector = component['quant_table_selector']
+        dqt_table = self.current_scan['DQT_parsed'][quant_table_selector]['table']
+
+        print dct
+        print dqt_table
+        # Copy quantization table locally
+        data = [i for i in dct]
+
+        # De-quantize the block
+    	for i in range(0, 64):
+            data[i] = data[i] * dqt_table[i]
+
+        # De-zig-zag the block
+        de_zig_zagged = []
+       	for i in range(0, 64):
+            de_zig_zagged.append(data[zig_zag_array[i]])
+
+        # Transform to 8x8
+        # TODO
+
+        # Inverse the DCT (idct)
+        import math
+        idct_res = math.idct(de_zig_zagged)
+
+        # Level Shift each element (i.e. add 128)
+        print('Decoded 8x8 Block')
+        print('stride: %d' % stride)
+        for y in range(0, 8):
+            for x in range(0, 8):
+                index = x + y * stride / 2
+                # print('x: %d, y: %d, index: %d' % (x, y, index))
+                # idct_res[index] = idct_res[index] + 128
+
+            print('%s' % idct_res[y * stride / 2:y * stride / 2 + stride / 2])
+
+        return idct_res
+
+    def parse_image_data(self, byte_data, sos):
         sof_parsed = self.current_scan['SOF0_parsed']
         y_component = sof_parsed['components'][1]
         cb_component = sof_parsed['components'][2]
         cr_component = sof_parsed['components'][3]
+
+        y_component['previous_val'] = 0
+        cb_component['previous_val'] = 0
+        cr_component['previous_val'] = 0
+
+        sos_y = sos[1]
+        sos_cb = sos[2]
+        sos_cr = sos[3]
 
         width = sof_parsed['width']
         height = sof_parsed['height']
@@ -219,16 +342,18 @@ class JPEG:
                 for y1 in range(0, y_stride / 8):
                     for x1 in range(0, x_stride / 8):
                         # Process Huffman unit (y_component)
-                        index = self.process_huffman_unit(byte_data, index, y_component)
-                        y_com.append(self.decode_block(y_component, x_stride))
+                        (index, dct) = self.process_huffman_unit(byte_data, index, y_component, sos_y)
+                        y_com.append(self.decode_block(y_component, dct, x_stride))
+
+                break
 
                 # Process Huffman unit (cb_component)
-                index = self.process_huffman_unit(byte_data, index, cb_component)
-                cb = self.decode_block(y_component, x_stride)
+                (index, dct) = self.process_huffman_unit(byte_data, index, cb_component, sos_cb)
+                cb = self.decode_block(y_component, dct, x_stride)
 
                 # Process Huffman unit (cr_component)
-                index = self.process_huffman_unit(byte_data, index, cr_component)
-                cr = self.decode_block(y_component, x_stride)
+                (index, dct) = self.process_huffman_unit(byte_data, index, cr_component, sos_cr)
+                cr = self.decode_block(y_component, dct, x_stride)
 
                 # Convert YCbCr to RGB
                 for y1 in range(0, y_stride):
@@ -245,6 +370,7 @@ class JPEG:
                         b = y + 1.772 * (cr[offset] - 128)
 
                         rgb[x][y] = (r, g, b)
+            break
 
 
     markers = {
