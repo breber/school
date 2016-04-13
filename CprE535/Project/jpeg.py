@@ -227,6 +227,8 @@ class JPEG:
         # for t in self.current_scan['DHT_parsed']:
         #     print t
 
+        # print('byte_data: %s' % byte_data)
+
         dc_blocks = self.current_scan['DHT_parsed'][(0, sos_component['dc_selector'])]['blocks']
         ac_blocks = self.current_scan['DHT_parsed'][(1, sos_component['ac_selector'])]['blocks']
 
@@ -238,7 +240,7 @@ class JPEG:
         # for j in range(0, len(ac_blocks)):
         #     print('    %s' % ac_blocks[j])
 
-        offset_bits = 0
+        offset_bits = index * 8
         found = False
         for k in range(1, 16):
             code = self.get_n_bits(byte_data, offset_bits, k)
@@ -269,10 +271,10 @@ class JPEG:
                 break
 
         # print('part2: %d' % offset_bits)
-        index = 1
+        row_index = 1
         found_eob = False
-        while index < 64 and not found_eob:
-            # print('index[%d]: %d' % (index, offset_bits))
+        while row_index < 64 and not found_eob:
+            # print('row_index[%d]: %d' % (row_index, offset_bits))
             max_k = 0
             for k in range(1, 17):
                 max_k = k
@@ -291,28 +293,29 @@ class JPEG:
                         if num_zeros == 0:
                             found_eob = True
                         elif num_zeros == 0xF:
-                            index = index + 16
+                            row_index = row_index + 16
                     else:
                         data = self.get_n_bits(byte_data, offset_bits, num_bits)
                         # print('data: %d (%d)' % (data, result))
                         offset_bits = offset_bits + num_bits
-                        index = index + num_zeros
+                        row_index = row_index + num_zeros
 
                         if data < (1 << (num_bits - 1)):
                             data = data + (-1 << num_bits) + 1
 
                         # print('signed data: %d (%d)' % (data, result))
 
-                        dct[index] = data
-                        # print('dct[%d]: %d' % (index, data))
-                        index = index + 1
+                        dct[row_index] = data
+                        # print('dct[%d]: %d' % (row_index, data))
+                        row_index = row_index + 1
 
                     break
 
             if max_k > 16:
-                index = index + 1
+                row_index = row_index + 1
 
-        return index, dct
+        print('offset_bits: %d' % offset_bits)
+        return offset_bits / 8, dct
 
     def decode_block(self, component, dct, stride):
         zig_zag_array = [
@@ -325,6 +328,8 @@ class JPEG:
             21,  34, 37,  47,  50,  56,  59,  61,
             35,  36, 48,  49,  57,  58,  62,  63
         ]
+
+        print('dct: %s' % dct)
 
         quant_table_selector = component['quant_table_selector']
         dqt_table = self.current_scan['DQT_parsed'][quant_table_selector]['table']
@@ -371,6 +376,8 @@ class JPEG:
                 inversed[y * 8 + x] = int(res / 4.0) + 128
             # print('inversed: %s' % inversed[y])
 
+        print('inversed: %s' % inversed)
+
         return inversed
 
     def parse_image_data(self, byte_data, sos):
@@ -403,16 +410,23 @@ class JPEG:
                 for y1 in range(0, y_stride / 8):
                     for x1 in range(0, x_stride / 8):
                         # Process Huffman unit (y_component)
+                        print('y_index: %d' % index)
                         (index, dct) = self.process_huffman_unit(byte_data, index, y_component, sos_y)
-                        y_com.append(self.decode_block(y_component, dct, x_stride))
+                        decoded = self.decode_block(y_component, dct, x_stride)
+                        print('y: %s' % [hex(val) for val in decoded])
+                        y_com = y_com + decoded
 
                 # Process Huffman unit (cb_component)
                 (index, dct) = self.process_huffman_unit(byte_data, index, cb_component, sos_cb)
                 cb = self.decode_block(y_component, dct, x_stride)
 
+                print('cb: %s' % [hex(val) for val in cb])
+
                 # Process Huffman unit (cr_component)
                 (index, dct) = self.process_huffman_unit(byte_data, index, cr_component, sos_cr)
                 cr = self.decode_block(y_component, dct, x_stride)
+
+                print('cr: %s' % [hex(val) for val in cr])
 
                 # Convert YCbCr to RGB
                 for y1 in range(0, y_stride):
@@ -422,13 +436,18 @@ class JPEG:
                         if y + y1 >= height:
                             continue
 
-                        offset = x1 / x_stride + y1 / y_stride * 8
-                        y_offset = x1 + y1 * y_stride * 8
-                        r = y + 1.402 * (cb[offset] - 128)
-                        g = y - 0.34414 * (cr[offset] - 128) - 0.71414 * (cb[offset] - 128)
-                        b = y + 1.772 * (cr[offset] - 128)
+                        h_factor = y_component['horiz_sample_factor']
+                        v_factor = y_component['horiz_sample_factor']
+                        offset = x1 / h_factor + y1 / v_factor * 8
+                        y_offset = x1 + y1 * v_factor * 8
 
-                        rgb[y][x] = (r, g, b)
+                        r = y_com[y_offset] + 1.402 * (cb[offset] - 128)
+                        g = y_com[y_offset] - 0.34414 * (cr[offset] - 128) - 0.71414 * (cb[offset] - 128)
+                        b = y_com[y_offset] + 1.772 * (cr[offset] - 128)
+
+                        print('offset: %d, y_offset: %d, rgb: %d, %d, %d' \
+                            % (offset, y_offset, r, g, b))
+                        rgb[y + y1][x + x1] = (r, g, b)
 
         with open('test_out.ppm', 'w') as out_file:
             out_file.write('P3\n')
