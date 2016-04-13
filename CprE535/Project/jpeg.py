@@ -197,20 +197,23 @@ class JPEG:
         num_bytes = int(bits / 8)
         num_bits = int(bits % 8)
 
-        result = byte_data[offset_bytes] >> (8 - offset_bits)
-        start_byte = result
-        for b in range(0, num_bytes):
-            result = result << 8 | byte_data[offset_bytes + b]
+        byte_data_str = ['{:08b}'.format(l) for l in byte_data[offset_bytes:offset_bytes + num_bytes + 2]]
+        byte_data_str = ''.join(byte_data_str)
+        # result_int = 0
+        # for b in range(offset_bytes, offset_bytes + num_bytes + 2):
+        #     result_int = result_int << 8 | byte_data[b]
+        #
+        # format_str = '{:0%db}' % ((num_bytes + 1) * 8)
 
-        result = result << num_bits
-        end_byte = byte_data[offset_bytes + num_bytes]
-        end_byte = end_byte >> (8 - num_bits)
-        result = result | end_byte
+        # result_str = format_str.format(result_int)
+        # print('get_n_bits: %s' % result_str)
+        print('get_n_bits: %s' % byte_data_str)
+        result_sub = byte_data_str[offset_bits:offset_bits + bits]
+        print('get_n_bits: sub: %s' % result_sub)
+        result_int = int(result_sub, 2)
+        # print('get_n_bits: res: %d' % result_int)
 
-        print('get_n_bits: %d, %d --> %s' % (offset_bits, bits, bin(result)))
-        print('get_n_bits: bytes: %d, %d --> %s' % (offset_bytes, num_bytes, bin(start_byte)))
-
-        return result
+        return result_int
 
     def is_huffman_code(self, blocks, code, code_bits):
         for j in range(0, len(blocks)):
@@ -226,44 +229,97 @@ class JPEG:
         # print('process_huffman_unit: %s' % component)
 
         print('byte_data: %s' % [hex(l) for l in byte_data[0:10]])
-        print('byte_data: %s' % [bin(l) for l in byte_data[0:10]])
+        print('byte_data: %s' % ['{:08b}'.format(l) for l in byte_data[0:10]])
 
-        blocks = self.current_scan['DHT_parsed'][(0, sos_component['ac_selector'])]['blocks']
+        dc_blocks = self.current_scan['DHT_parsed'][(0, sos_component['dc_selector'])]['blocks']
+        ac_blocks = self.current_scan['DHT_parsed'][(1, sos_component['ac_selector'])]['blocks']
 
-        print('blocks:')
-        for j in range(0, len(blocks)):
-            print('    %s' % blocks[j])
+        # print('dc_blocks:')
+        # for j in range(0, len(dc_blocks)):
+        #     print('    %s' % dc_blocks[j])
+        #
+        # print('ac_blocks:')
+        # for j in range(0, len(ac_blocks)):
+        #     print('    %s' % ac_blocks[j])
 
         offset_bits = 0
         found = False
         for k in range(1, 16):
             code = self.get_n_bits(byte_data, offset_bits, k)
 
-            (is_code, result) = self.is_huffman_code(blocks, code, k)
+            (is_code, result) = self.is_huffman_code(dc_blocks, code, k)
 
-            print('code: %d --> %s' % (code, is_code))
+            print('code: %d --> %s (%d)' % (code, is_code, k))
             if is_code:
-                offset_bits = k
+                offset_bits = offset_bits + k
                 found = True
 
                 if result == 0:
                     dct[0] = component['previous_val']
                 else:
                     data = self.get_n_bits(byte_data, offset_bits, result)
-                    print('data: %d' % data)
                     offset_bits = offset_bits + result
+                    print('data: %d (%d)' % (data, result))
+
+                    if data < (1 << (result - 1)):
+                        data = data + (-1 << result) + 1
+
+                    print('signed data: %d (%d)' % (data, result))
 
                     dct[0] = data + component['previous_val']
+                    print('dct[0]: %d (%d)' % (dct[0], component['previous_val']))
                     component['previous_val'] = dct[0]
 
                 break
 
-        print('DCT[0]: %d' % dct[0])
+        print('part2: %d' % offset_bits)
+        index = 1
+        found_eob = False
+        while index < 64 and not found_eob:
+            print('index[%d]: %d' % (index, offset_bits))
+            max_k = 0
+            for k in range(1, 17):
+                max_k = k
+                code = self.get_n_bits(byte_data, offset_bits, k)
 
+                (is_code, result) = self.is_huffman_code(ac_blocks, code, k)
+                print('code: %d, %s (%d) --> %s (%d)' % (code, result, k, is_code, k))
+
+                if is_code:
+                    offset_bits = offset_bits + k
+
+                    num_bits  = result & 0xF
+                    num_zeros = result >> 4
+
+                    if num_bits == 0:
+                        if num_zeros == 0:
+                            found_eob = True
+                        elif num_zeros == 0xF:
+                            index = index + 16
+                    else:
+                        data = self.get_n_bits(byte_data, offset_bits, num_bits)
+                        print('data: %d (%d)' % (data, result))
+                        offset_bits = offset_bits + num_bits
+                        index = index + num_zeros
+
+                        if data < (1 << (result - 1)):
+                            data = data + (-1 << result) + 1
+
+                        print('signed data: %d (%d)' % (data, result))
+
+                        dct[index] = data
+                        print('dct[%d]: %d' % (index, data))
+                        index = index + 1
+
+                    break
+
+            if max_k > 16:
+                index = index + 1
+
+        print('rdct: %s' % dct)
         return index, dct
 
     def decode_block(self, component, dct, stride):
-        return []
         zig_zag_array = [
             0,   1,   5,  6,   14,  15,  27,  28,
             2,   4,   7,  13,  16,  26,  29,  42,
@@ -278,8 +334,8 @@ class JPEG:
         quant_table_selector = component['quant_table_selector']
         dqt_table = self.current_scan['DQT_parsed'][quant_table_selector]['table']
 
-        print dct
-        print dqt_table
+        print('dct: %s' % dct)
+        # print dqt_table
         # Copy quantization table locally
         data = [i for i in dct]
 
@@ -298,6 +354,7 @@ class JPEG:
         # Inverse the DCT (idct)
         import math
         idct_res = math.idct(de_zig_zagged)
+        idct_res = [int(x) for x in idct_res]
 
         # Level Shift each element (i.e. add 128)
         print('Decoded 8x8 Block')
