@@ -22,10 +22,9 @@ function [ rgb_data ] = load_jpeg( image_path )
                     func(file_id);
                 else
                     fprintf('Unknown marker: 0x%02x\n', next_byte);
-                    skip_marker(file_id)
+                    skip_marker(file_id);
                 end
             end
         end
     end
-
 end

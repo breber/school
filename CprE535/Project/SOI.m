@@ -1,4 +1,4 @@
-function [] = SOI(file_id)
+function [] = SOI(~)
 %SOI Handle the SOI marker
 %   No special handling is needed
 
