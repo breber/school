@@ -1,5 +1,5 @@
-function [ tables ] = DQT( file_id )
-%DQT Handle the DQT marker
+function [ tables ] = ParseDQT( file_id )
+%ParseDQT Handle the DQT marker
 %  Length (2 bytes)
 %  Table:
 %    Precision (4 bits)

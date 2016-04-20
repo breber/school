@@ -20,7 +20,7 @@ function [ rgb_data, scan_data ] = load_jpeg( image_path )
                 if isKey(markers_str, next_byte)
                     marker_str = values(markers_str, num2cell(next_byte));
                     fprintf('0x%02x --> %s\n', next_byte, marker_str{1});
-                    func = str2func(marker_str{1});
+                    func = str2func(strcat('Parse', marker_str{1}));
                     func_result = func(file_id);
                     if isstruct(func_result)
                         scan_data.(marker_str{1}) = func_result;

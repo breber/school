@@ -1,5 +1,5 @@
-function [ tables ] = DHT( file_id )
-%DHT Handle the DHT marker
+function [ tables ] = ParseDHT( file_id )
+%ParseDHT Handle the DHT marker
 %  Length (2 bytes)
 %  Table:
 %    AC/DC (4 bits)
