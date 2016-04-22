@@ -2,7 +2,7 @@ function [ rgb_data, scan_data ] = load_jpeg( image_path )
 %LOAD_JPEG Load a JPEG image
 %   Load a JPEG image into the corresponding RGB data, and JPEG parameters.
 %   The JPEG parameters are the Huffman Tables, and Discrete Quantization
-%   Tables. 
+%   Tables.
     markers_str = containers.Map( { hex2dec('D8'), hex2dec('E0'), hex2dec('DA'), hex2dec('D9'), hex2dec('DB'), hex2dec('C4'), hex2dec('C0') }, { 'SOI', 'APP0', 'SOS', 'EOI', 'DQT', 'DHT', 'SOF0' } );
 
     % Read in the raw image data
@@ -34,4 +34,7 @@ function [ rgb_data, scan_data ] = load_jpeg( image_path )
             end
         end
     end
+
+    % Close the image file
+    fclose(file_id);
 end
