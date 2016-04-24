@@ -451,6 +451,7 @@ class JPEG:
                         print("[%d][%d] offset: %d, y_offset: %d, ycbcr: %d, %d, %d" % \
                             (y1, x1, offset, y_offset, y_com[y_offset], cb[offset], cr[offset]))
 
+                        # Section 7 of Rec. ITU-T T.871
                         r = y_com[y_offset] + 1.402 * (cr[offset] - 128)
                         g = y_com[y_offset] - 0.34414 * (cb[offset] - 128) - 0.71414 * (cr[offset] - 128)
                         b = y_com[y_offset] + 1.772 * (cb[offset] - 128)
