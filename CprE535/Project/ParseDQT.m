@@ -7,7 +7,7 @@ function [ tables ] = ParseDQT( file_id )
 %    TableData (64 bytes)
 
     remaining_length = fread(file_id, 1, 'uint16', 'b');
-    num_tables = remaining_length / 66;
+    num_tables = (remaining_length - 2) / 65;
     tables(num_tables, 1) = struct('precision', 0, 'table', []);
     for idx = 1:num_tables
         precision = fread(file_id, 1, 'ubit4', 'b');

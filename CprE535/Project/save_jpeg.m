@@ -9,9 +9,7 @@ function [] = save_jpeg( output_path, rgb_data, scan_data )
     fwrite(file_id, hex2dec('D8'), 'uint8');
 
     % Write DQT
-    fwrite(file_id, hex2dec('FF'), 'uint8');
-    fwrite(file_id, hex2dec('DB'), 'uint8');
-    % TODO
+    SaveDQT(file_id, scan_data.DQT);
 
     % Write DHT
     fwrite(file_id, hex2dec('FF'), 'uint8');
