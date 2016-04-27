@@ -18,9 +18,7 @@ function [] = save_jpeg( output_path, rgb_data, scan_data )
     SaveSOF0(file_id, rgb_data);
 
     % Write Scan Data
-    fwrite(file_id, hex2dec('FF'), 'uint8');
-    fwrite(file_id, hex2dec('DA'), 'uint8');
-    % TODO
+    SaveSOS(file_id, rgb_data, scan_data);
 
     % Write the EOI
     fwrite(file_id, hex2dec('FF'), 'uint8');
