@@ -43,5 +43,6 @@ function [ tables ] = ParseDHT( file_id )
 
         table.blocks = blocks;
         tables = cat(1, tables, table);
+        clearvars blocks;
     end
 end
