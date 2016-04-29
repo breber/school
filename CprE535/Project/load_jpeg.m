@@ -25,7 +25,11 @@ function [ rgb_data, scan_data ] = load_jpeg( image_path )
                     func = str2func(strcat('Parse', marker_str{1}));
                     func_result = func(file_id);
                     if isstruct(func_result)
-                        scan_data.(marker_str{1}) = func_result;
+                        if isfield(scan_data, marker_str{1})
+                            scan_data.(marker_str{1}) = cat(1, scan_data.(marker_str{1}), func_result);
+                        else
+                            scan_data.(marker_str{1}) = func_result;
+                        end
                     end
                 else
                     fprintf('Unknown marker: 0x%02x\n', next_byte);

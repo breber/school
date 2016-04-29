@@ -22,7 +22,7 @@ function [] = SaveDQT( file_id, quant_data )
         fwrite(file_id, uint8(table_row.precision), 'ubit4', 'b');
 
         % Index
-        fwrite(file_id, uint8(i - 1), 'ubit4', 'b');
+        fwrite(file_id, uint8(table_row.index), 'ubit4', 'b');
 
         % Table Values
         fwrite(file_id, table_row.table, 'uint8');
