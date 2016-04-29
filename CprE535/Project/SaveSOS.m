@@ -6,10 +6,10 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
 %    ID (1 byte)
 %    DC Selector (4 bits)
 %    AC Selector (4 bits)
-%    Start of spectral selection (1 byte)
-%    End of spectral selection (1 byte)
-%    Successive Approximation Bit High (4 bits)
-%    Successive Approximation Bit Low (4 bits)
+%  Start of spectral selection (1 byte)
+%  End of spectral selection (1 byte)
+%  Successive Approximation Bit High (4 bits)
+%  Successive Approximation Bit Low (4 bits)
 %  Image Data
 
     % Write the marker
@@ -41,17 +41,25 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
 
         % AC Selector
         fwrite(file_id, components(component_index).ac, 'ubit4');
-
-        % Start of spectral selection (1 byte)
-        fwrite(file_id, 0, 'uint8');
-        % End of spectral selection (1 byte)
-        fwrite(file_id, 0, 'uint8');
-        % Successive Approximation Bit High (4 bits)
-        fwrite(file_id, 0, 'ubit4');
-        % Successive Approximation Bit Low (4 bits)
-        fwrite(file_id, 0, 'ubit4');
     end
+    
+    % Start of spectral selection (1 byte)
+    fwrite(file_id, 0, 'uint8');
+    % End of spectral selection (1 byte)
+    fwrite(file_id, 0, 'uint8');
+    % Successive Approximation Bit High (4 bits)
+    fwrite(file_id, 0, 'ubit4');
+    % Successive Approximation Bit Low (4 bits)
+    fwrite(file_id, 0, 'ubit4');
 
+    % Seek to the starting index of the SOS component, and write the length
+    length = ftell(file_id) - start_index;
+    fseek(file_id, start_index, 'bof');
+    fwrite(file_id, length, 'uint16', 'b');
+    
+    % Seek back to the end of the file
+    fseek(file_id, 0, 'eof');
+    
     % Start writing image data
     image_size = size(rgb_data);
 
@@ -185,12 +193,4 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
             end
         end
     end
-
-    % Seek to the starting index of the SOS component, and write the length
-    length = ftell(file_id) - start_index;
-    fseek(file_id, start_index, 'bof');
-    fwrite(file_id, length, 'uint16', 'b');
-
-    % Seek back to the end of the file
-    fseek(file_id, 0, 'eof');
 end
