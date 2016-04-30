@@ -1,4 +1,4 @@
-function [] = SaveSOS( file_id, rgb_data, scan_data )
+function [ start_index, end_index ] = SaveSOS( file_id, rgb_data, scan_data )
 %SaveSOS Write the SOS marker and the scan data
 %  Length (2 bytes)
 %  Num Components (1 byte)
@@ -30,36 +30,36 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
     components(1) = struct('ac', 0, 'dc', 0, 'quant', 1);
     components(2) = struct('ac', 1, 'dc', 1, 'quant', 2);
     components(3) = struct('ac', 1, 'dc', 1, 'quant', 2);
-    
+
     % YCbCr Components
     for component_index = 1:3
         % ID
         fwrite(file_id, component_index, 'uint8');
 
         % DC Selector
-        fwrite(file_id, components(component_index).dc, 'ubit4');
+        fwrite(file_id, components(component_index).dc, 'ubit4', 'b');
 
         % AC Selector
-        fwrite(file_id, components(component_index).ac, 'ubit4');
+        fwrite(file_id, components(component_index).ac, 'ubit4', 'b');
     end
-    
+
     % Start of spectral selection (1 byte)
     fwrite(file_id, 0, 'uint8');
     % End of spectral selection (1 byte)
     fwrite(file_id, 0, 'uint8');
     % Successive Approximation Bit High (4 bits)
-    fwrite(file_id, 0, 'ubit4');
+    fwrite(file_id, 0, 'ubit4', 'b');
     % Successive Approximation Bit Low (4 bits)
-    fwrite(file_id, 0, 'ubit4');
+    fwrite(file_id, 0, 'ubit4', 'b');
 
     % Seek to the starting index of the SOS component, and write the length
     length = ftell(file_id) - start_index;
     fseek(file_id, start_index, 'bof');
     fwrite(file_id, length, 'uint16', 'b');
-    
+
     % Seek back to the end of the file
     fseek(file_id, 0, 'eof');
-    
+
     % Start writing image data
     image_size = size(rgb_data);
 
@@ -74,12 +74,12 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
             ycbcr = zeros(y_stride * x_stride, 3);
 
             % Convert RGB to YCbCr
-            for y1 = 1:y_stride
-                for x1 = 1:x_stride
-                    index = (y1 - 1) * y_stride + x1;
-                    r = rgb_data(y1, x1, 1);
-                    g = rgb_data(y1, x1, 2);
-                    b = rgb_data(y1, x1, 3);
+            for y1 = 0:(y_stride - 1)
+                for x1 = 0:(x_stride - 1)
+                    index = y1 * y_stride + x1 + 1;
+                    r = rgb_data(y1 + y, x1 + x, 1);
+                    g = rgb_data(y1 + y, x1 + x, 2);
+                    b = rgb_data(y1 + y, x1 + x, 3);
                     ycbcr(index, 1) =       (.229 * r) + (.587 * g) + (.114 * b);
                     ycbcr(index, 2) = 128 - (.168736 * r) - (.331264 * g) + (.5 * b);
                     ycbcr(index, 3) = 128 + (.5 * r) - (.418688 * g) - (.081312 * b);
@@ -87,13 +87,13 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
             end
 
             % Perform DCT, zig-zag the data and quantize it
-            dct_vals = zeros(y_stride * x_stride, 3);
             for component = 1:3
                 temp_dct = dct2(ycbcr(:, component) - 128);
 
                 % Zig-zag the data
+                dct_vals = zeros(y_stride * x_stride, 1);
                 for item = 1:64
-                    dct_vals(item, component) = temp_dct(zig_zag_order(item));
+                    dct_vals(item) = temp_dct(zig_zag_order(item));
                 end
 
                 % Quantize the data (quantization table is already zig-zagged)
@@ -103,9 +103,35 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
                         break;
                     end
                 end
-                
-                dct_vals(:, component) = round(dct_vals(:, component) ./ quant_table);
-                
+
+                dct_vals(:) = round(dct_vals(:) ./ quant_table);
+
+                % Run-length code the values
+                % (RUNLENGTH, SIZE)	(AMPLITUDE)
+                run_length_coded = [];
+                dct_index = int32(2);
+                count_zeros = int8(0);
+                while dct_index < 65
+                    if dct_vals(dct_index) == 0
+                        count_zeros = count_zeros + 1;
+                    else
+                        % Determine number of bits it takes to encode the
+                        % given value
+                        [bit_count, amplitude] = calc_bits(dct_vals(dct_index));
+
+                        % Append this data to the list of run-length
+                        % codings
+                        run_length_coded = cat(1, run_length_coded, [count_zeros, bit_count, amplitude]);
+
+                        % Reset zero count to 0
+                        count_zeros = int8(0);
+                    end
+
+                    dct_index = dct_index + 1;
+                end
+
+                % Huffman Encode the run-length data
+                % Get the right huffman tables
                 for dht_index = 1:size(scan_data.DHT)
                     if scan_data.DHT(dht_index).ac_dc == 0 && scan_data.DHT(dht_index).table_index == components(component).dc
                         dc_ht = scan_data.DHT(dht_index).blocks;
@@ -116,81 +142,90 @@ function [] = SaveSOS( file_id, rgb_data, scan_data )
                 end
 
                 % TODO: verify dc_ht and ac_ht exist
-               
+
                 % Encode DC values
-                diff_dc = dct_vals(1, component) - dc_values(component);
+                diff_dc = dct_vals(1) - dc_values(component);
                 dc_values(component) = diff_dc;
                 if diff_dc == 0
-                    fwrite(file_id, dc_ht(1).value, strcat('ubit', num2str(dc_ht(1).length)));
+                    fwrite(file_id, dc_ht(1).code, strcat('ubit', num2str(dc_ht(1).length)), 'b');
                 else
-                    pos_diff = int32(abs(diff_dc));
-                    bit_length = diff_dc;
-                    if diff_dc < 0
-                       bit_length = bit_length - 1; 
+                    [bit_count, amplitude] = calc_bits(diff_dc);
+
+                    for table_idx = 1:size(dc_ht)
+                        if dc_ht(table_idx).value == bit_count
+                            dc_table_row = dc_ht(table_idx);
+                            break;
+                        end
                     end
-                    
-                    amplitude = 1;
-                    pos_diff = bitsra(pos_diff, 1);
-                    while pos_diff > 0
-                        amplitude = amplitude + 1;
-                        pos_diff = bitsra(pos_diff, 1);
-                    end
-                    
-                    bit_length = bitand(int32(bit_length), (bitshift(1, amplitude) - 1));
-                    fwrite(file_id, dc_ht(amplitude + 1).value, strcat('ubit', num2str(dc_ht(amplitude + 1).length)));
-                    fwrite(file_id, bit_length, strcat('ubit', num2str(amplitude)));
+
+                    fwrite(file_id, dc_table_row.code, strcat('ubit', num2str(dc_table_row.length)), 'b');
+                    fwrite(file_id, amplitude, strcat('ubit', num2str(bit_count)), 'b');
                 end
-                
+
                 % Encode AC values
-                last_zero = find(dct_vals(:, component), 1, 'last');
-                if last_zero == 0
-                    % Write EOB
-                    fwrite(file_id, ac_ht(1).value, strcat('ubit', num2str(ac_ht(1).length)));
+                if size(run_length_coded) == 0
+                    % If we don't have any values in the run-length coding,
+                    % it means that all the values were 0, and therefore we
+                    % just need to write the EOB
+                    fwrite(file_id, ac_ht(1).code, strcat('ubit', num2str(ac_ht(1).length)), 'b');
                 else
-                    % Run-length code the values, and write them
-                    code_index = 2;
-                    while code_index <= last_zero
-                        start_pos = code_index;
-                        while dct_vals(code_index) == 0 && code_index <= last_zero
-                           code_index = code_index + 1;
-                        end
-                        
-                        count_zeros = code_index - start_pos;
-                        if count_zeros >= 16
-                            fjdklas = 1;
-                            % TODO: write more than 16 zeros
-                            % int lng = nrzeroes>>4;
-                            % for (int nrmarker=1; nrmarker <= lng; ++nrmarker)
-                            %     jo_writeBits(fp, bitBuf, bitCnt, M16zeroes);
-                            % nrzeroes &= 15;
-                        end
-                        
-                        % Determine the code
-                        code_value = dct_vals(code_index);
-                        pos_diff = int32(abs(code_value));
-                        bit_length = code_value;
-                        if code_value < 0
-                           bit_length = bit_length - 1; 
+                    count_values = 0;
+                    % Otherwise, encode the data
+                    for run_length_index = 1:size(run_length_coded)
+                        current_row = run_length_coded(run_length_index, :);
+
+                        % Count number of zeros and current value
+                        count_values = count_values + current_row(1) + 1;
+
+                        num_zeros = current_row(1);
+                        bit_count = current_row(2);
+                        amplitude = current_row(3);
+
+                        % If there are more than 16 zeros, we need to write
+                        % a special marker
+                        if num_zeros > 16
+                            mag = bitsra(num_zeros, 4);
+
+                            ht_index = bitshift(15, 4) + 1;
+
+                            for table_idx = 1:size(ac_ht)
+                                if ac_ht(table_idx).value == ht_index
+                                    ac_table_row = ac_ht(table_idx);
+                                    break;
+                                end
+                            end
+
+                            for marker_num = 1:mag
+                                fwrite(file_id, ac_table_row.code, strcat('ubit', num2str(ac_table_row.length)), 'b');
+                            end
+
+                            % Remove all but the lowest 4 bits
+                            num_zeros = bitand(num_zeros, 15);
                         end
 
-                        amplitude = 1;
-                        pos_diff = bitsra(pos_diff, 1);
-                        while pos_diff > 0
-                            amplitude = amplitude + 1;
-                            pos_diff = bitsra(pos_diff, 1);
+                        ht_index = bitor(bitshift(num_zeros, 4), bit_count);
+
+                        for table_idx = 1:size(ac_ht)
+                            if ac_ht(table_idx).value == ht_index
+                                ac_table_row = ac_ht(table_idx);
+                                break;
+                            end
                         end
 
-                        bit_length = bitand(int32(bit_length), (bitshift(1, amplitude) - 1));
-                        fwrite(file_id, ac_ht(amplitude + 1).value, strcat('ubit', num2str(ac_ht(amplitude + 1).length)));
-                        fwrite(file_id, bit_length, strcat('ubit', num2str(amplitude)));
+                        fwrite(file_id, ac_table_row.code, strcat('ubit', num2str(ac_table_row.length)), 'b');
+                        fwrite(file_id, amplitude, strcat('ubit', num2str(bit_count)), 'b');
                     end
-                    
-                    if last_zero ~= 64
-                        % Write EOB
-                        fwrite(file_id, ac_ht(1).value, strcat('ubit', num2str(ac_ht(1).length)));
+
+                    % If the last zero is not the last item, we need to
+                    % write an EOB marker to indicate that this block
+                    % isn't fully filled
+                    if count_values ~= 63
+                        fwrite(file_id, ac_ht(1).code, strcat('ubit', num2str(ac_ht(1).length)), 'b');
                     end
                 end
             end
         end
     end
+
+    end_index = ftell(file_id);
 end

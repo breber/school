@@ -18,7 +18,7 @@ function [] = save_jpeg( output_path, rgb_data, scan_data )
     SaveSOF0(file_id, rgb_data);
 
     % Write Scan Data
-    SaveSOS(file_id, rgb_data, scan_data);
+    [start_index, end_index] = SaveSOS(file_id, rgb_data, scan_data);
 
     % Write the EOI
     fwrite(file_id, hex2dec('FF'), 'uint8');
@@ -26,5 +26,20 @@ function [] = save_jpeg( output_path, rgb_data, scan_data )
 
     % Close the image file
     fclose(file_id);
+
+    % Fix any 0xFF found in the scan data
+    file_id = fopen(output_path, 'r');
+    full_contents = fread(file_id, 'uint8');
+    fclose(file_id);
+
+    file_id = fopen(output_path, 'w');
+    for index = 1:size(full_contents)
+        fwrite(file_id, full_contents(index), 'uint8');
+        if index > start_index && index < end_index && full_contents(index) == 255
+            fwrite(file_id, 0, 'uint8');
+        end
+    end
+    fclose(file_id);
 end
+
 

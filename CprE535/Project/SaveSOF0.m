@@ -42,10 +42,10 @@ function [] = SaveSOF0( file_id, rgb_data )
     fwrite(file_id, 1, 'uint8');
 
     % Horizontal sample factor
-    fwrite(file_id, 2, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Vertical sample factor
-    fwrite(file_id, 2, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Quantization Table Selector
     fwrite(file_id, 0, 'uint8');
@@ -55,10 +55,10 @@ function [] = SaveSOF0( file_id, rgb_data )
     fwrite(file_id, 2, 'uint8');
 
     % Horizontal sample factor
-    fwrite(file_id, 1, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Vertical sample factor
-    fwrite(file_id, 1, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Quantization Table Selector
     fwrite(file_id, 1, 'uint8');
@@ -68,10 +68,10 @@ function [] = SaveSOF0( file_id, rgb_data )
     fwrite(file_id, 3, 'uint8');
 
     % Horizontal sample factor
-    fwrite(file_id, 1, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Vertical sample factor
-    fwrite(file_id, 1, 'ubit4');
+    fwrite(file_id, 1, 'ubit4', 'b');
 
     % Quantization Table Selector
     fwrite(file_id, 1, 'uint8');

@@ -4,5 +4,3 @@ function [ unused ] = ParseAPP0(~)
     % No special handling is needed
     unused = 0;
 end
-
-
