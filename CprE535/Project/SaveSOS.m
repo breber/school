@@ -71,29 +71,37 @@ function [ start_index, end_index ] = SaveSOS( file_id, rgb_data, scan_data )
     dc_values = zeros(3, 1);
     for y = 1:y_stride:image_size(1)
         for x = 1:x_stride:image_size(2)
-            ycbcr = zeros(y_stride * x_stride, 3);
+            ycbcr = zeros(y_stride, x_stride, 3);
 
             % Convert RGB to YCbCr
             for y1 = 0:(y_stride - 1)
                 for x1 = 0:(x_stride - 1)
-                    index = y1 * y_stride + x1 + 1;
                     r = rgb_data(y1 + y, x1 + x, 1);
                     g = rgb_data(y1 + y, x1 + x, 2);
                     b = rgb_data(y1 + y, x1 + x, 3);
-                    ycbcr(index, 1) =       (.229 * r) + (.587 * g) + (.114 * b);
-                    ycbcr(index, 2) = 128 - (.168736 * r) - (.331264 * g) + (.5 * b);
-                    ycbcr(index, 3) = 128 + (.5 * r) - (.418688 * g) - (.081312 * b);
+                    ycbcr(y1 + 1, x1 + 1, 1) =       (.229 * r) + (.587 * g) + (.114 * b);
+                    ycbcr(y1 + 1, x1 + 1, 2) = 128 - (.168736 * r) - (.331264 * g) + (.5 * b);
+                    ycbcr(y1 + 1, x1 + 1, 3) = 128 + (.5 * r) - (.418688 * g) - (.081312 * b);
                 end
             end
 
             % Perform DCT, zig-zag the data and quantize it
             for component = 1:3
-                temp_dct = dct2(ycbcr(:, component) - 128);
+                temp_dct = dct2(ycbcr(:, :, component) - 128);
+
+                % Linearize the matrix
+                linearized_dct = zeros(y_stride * x_stride, 1);
+                for y1 = 1:y_stride
+                    for x1 = 1:x_stride
+                        index = (y1 - 1) * x_stride + x1;
+                        linearized_dct(index) = temp_dct(y1, x1);
+                    end
+                end
 
                 % Zig-zag the data
                 dct_vals = zeros(y_stride * x_stride, 1);
                 for item = 1:64
-                    dct_vals(item) = temp_dct(zig_zag_order(item));
+                    dct_vals(item) = linearized_dct(zig_zag_order(item));
                 end
 
                 % Quantize the data (quantization table is already zig-zagged)

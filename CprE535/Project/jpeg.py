@@ -324,7 +324,7 @@ class JPEG:
 
         return offset_bits, dct
 
-    def decode_block(self, component, dct, stride):
+    def decode_block(self, component, dct):
         zig_zag_array = [
             0,   1,   5,  6,   14,  15,  27,  28,
             2,   4,   7,  13,  16,  26,  29,  42,
@@ -419,19 +419,19 @@ class JPEG:
                         # Process Huffman unit (y_component)
                         # print('y_index: %d' % (index_bits))
                         (index_bits, dct) = self.process_huffman_unit(byte_data, index_bits, y_component, sos_y)
-                        decoded = self.decode_block(y_component, dct, x_stride)
+                        decoded = self.decode_block(y_component, dct)
                         # print('y: %s' % [hex(val) for val in decoded])
                         y_com = y_com + decoded
 
                 # Process Huffman unit (cb_component)
                 (index_bits, dct) = self.process_huffman_unit(byte_data, index_bits, cb_component, sos_cb)
-                cb = self.decode_block(y_component, dct, x_stride)
+                cb = self.decode_block(y_component, dct)
 
                 # print('cb: %s' % [hex(val) for val in cb])
 
                 # Process Huffman unit (cr_component)
                 (index_bits, dct) = self.process_huffman_unit(byte_data, index_bits, cr_component, sos_cr)
-                cr = self.decode_block(y_component, dct, x_stride)
+                cr = self.decode_block(y_component, dct)
 
                 # print('cr: %s' % [hex(val) for val in cr])
 

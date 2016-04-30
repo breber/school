@@ -25,4 +25,3 @@ function [ bit_count, amplitude ] = calc_bits( input_value )
     % the amplitude of the resulting value
     amplitude = bitand(int32(ones_compliment), bitshift(1, bit_count) - 1);
 end
-
