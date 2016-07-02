@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}
+United Nations Message
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>UN Message</h1>
+
+    {% if message %}
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-block">
+                    <h4 class="card-title">{{ message.message | message_header }}</h4>
+                    <p class="card-text">{{ message.message.body | safe }}</p>
+                    <dl>
+                        <dt>Sent:</dt>
+                        <dd>{{ message.message.time | ctime }}</dd>
+
+                        <dt>Origin:</dt>
+                        <dd>{{ message.message.origin | safe }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <h4 class="list-group-item-text">Involved Countries</h4>
+                </li>
+                {% for dst in message.message.destination %}
+                    <li class="list-group-item">{{ dst | country | safe }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <div class="col-md-6">
+            <div class="card card-warning">
+                <div class="card-block">
+                    <h4 class="card-title">UN Error</h4>
+                    <p class="card-text">There was an error communicating with the UN</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}

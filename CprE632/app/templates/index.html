@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ config.COUNTRY_NAME }} Home
+{% endblock %}
+>>>>>>> frontend-dev
+
+{% block content %}
+<section class="jumbotron text-xs-center">
+    <div class="container">
+        <h1 class="jumbotron-heading">{{ config.COUNTRY_NAME }}</h1>
+        <p class="lead text-muted">
+        Welcome to {{ config.COUNTRY_NAME }}'s website! We have been working hard since our founding to grow our country and support all of our citizens to the best of our ability. Our country has became a world leader over the years and we have advanced our technological capabilities greatly.
+        We have begun to move all of our military systems and services online! We now provide a simple-to-use central web portal for all military personnel and leaders to access. To get started, <a href="/login">log in</a> to the website.</p>
+        <strong>We are always looking for new members of our great nation to enlist in our military. For more information, please visit the following link:</strong>
+        <br><br>
+        <a class="btn btn-primary" href="/signup">Enlist in our Military Today!</a>
+    </div>
+</section>
+{% endblock %}

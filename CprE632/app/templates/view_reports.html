@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+Orders
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Secret Reports</h1>
+    <br> 
+    <div class="container bg-inverse">
+        <br>
+        {%for report in reports%}
+            <div class="list-group col-md-6 text-xs-center bg-inverse">
+                <a href="/report/{{report.id}}" class="list-group-item">
+                    <h4 class="list-group-item-heading">Report {{ report.id }}</h4>
+                    <p class="list-group-item-text">Report By: {{report.username }}</p>
+                    <p class="list-group-item-text">{{ report.date.strftime("%d %b %Y %H:%M") }}</p>
+                </a>
+                <br>
+            </div>
+        {%endfor%}
+    </div>
+</div>
+
+{% endblock %}

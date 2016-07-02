@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+Give Orders
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Give Orders</h1>
+    <form class="form-control bg-inverse" action="" method="post">
+        {{ form.hidden_tag() }}
+        <label>
+        Select who you would like to issue the orders to:
+        </label>
+        {{ form.issued_for(class="form-control") }}
+        {% for error in form.issued_for.errors%}
+        <span class="label label-danger">{{ error }}</span>
+        {% endfor %}
+        <br> 
+        <label>
+            Enter orders:
+        </label>
+        {{form.orders(class="form-control")}}
+            {% for error in form.orders.errors%}
+            <span class="label label-danger">{{ error }}</span>
+            {% endfor%}
+        <br>
+        <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+    </form>
+</div>
+{% endblock %}

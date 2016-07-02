@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+Users
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Users</h1>
+    {% for user in recruits %}
+    <div class="list-group">
+        <div class="list-group-item col-xs-6 bg-inverse">
+            <h4 class="list-group-item-heading">{{ user.get_fullname() }}</h4>
+            <p class="list-group-item-text">Username: {{ user.username }}</p>
+            <p class="list-group-item-text">Position: {{ user.get_group() }}</p>
+            <p class="list-group-item-text">Email: {{ user.email }}</p>
+            <p class="list-group-item-text">Military ID: {{ user.military_id }}</p>
+            <br>
+            <div class="form-group">
+                <form action="" method="post" name="Promote User">
+                    {{ form.hidden_tag() }}
+                        Please select the user's new position:
+                        {{ form.promote_to(class='form-control') }}
+                        {% for error in form.promote_to.errors %}
+                        <span class="label label-danger">{{ error }}</span>
+                        {% endfor %}<br>
+                        <input id="promote_user" name="promote_user" type="hidden" value='{{ user.username }}' /> 
+                    <input class="btn btn-primary" type="submit" value="Promote User">
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

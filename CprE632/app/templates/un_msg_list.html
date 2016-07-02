@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+United Nations
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-11">
+            <h1>UN Messages</h1>
+        </div>
+        <div class="col-md-1">
+            <a class="btn btn-success" href="/un/new/">New Message</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-block {% if message.type == 'declaration' %}card-danger{% endif %}">
+                        <h4 class="card-title">{{ message | message_header | safe }}</h4>
+                        <p class="card-text">{{ message.body | safe }}</p>
+                        <a href="/un/{{ message.id }}/" class="btn btn-primary">Actions</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-md-4 col-md-offset-4">
+            <div class="card card-warning">
+                <div class="card-block">
+                    <h4 class="card-title">No Messages Found</h4>
+                    <p class="card-text">The UN returned invalid data</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

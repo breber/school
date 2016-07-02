@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Send New Message
+{% endblock %}
+
+{% block content %}
+<div class="jumbo">
+    <div class="container">
+        <form class="form-group" action="" method="post">
+            {{ form.hidden_tag() }}
+            Message type:
+            {{ form.type(class='form-control') }}
+            {% for error in form.type.errors %}
+                <span class="label label-danger">{{ error }}</span>
+            {% endfor %}
+            <br />
+
+            Destination:
+            {{ form.destination(class='form-control') }}
+            {% for error in form.destination.errors %}
+                <span class="label label-danger">{{ error }}</span>
+            {% endfor %}
+            <br />
+
+            Body:
+            {{ form.body(class='form-control') }}
+            {% for error in form.body.errors %}
+                <span class="label label-danger">{{ error }}</span>
+            {% endfor %}
+            <br />
+
+            <p><input type="submit" value="Send" class="btn btn-success"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}

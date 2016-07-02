@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Orders
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <br>
+    <h1>Manage Users</h1>
+    <div class="container bg-inverse">
+        <br>
+        {% for user in users%}
+            <div class="list-group col-xs-6 text-xs-center">
+                <a href='/hr/{{user.id}}' class="list-group-item">
+                    <h4 class="list-group-item-heading">{{ user.get_fullname() }}</h4>
+                    {% if user.picture %}
+                        <img border="0" alt="Image not available" src={{user.picture}} width="100" height="100">
+                    {% endif %}
+                    <p class="list-group-item-text">Username: {{ user.username }}</p>
+                </a>
+                <br>
+            </div>
+        {% endfor %}
+    <br>
+    </div>
+</div>
+
+{% endblock %}

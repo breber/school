@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}
+Orders
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Orders</h1>
+    <br>
+    <div class="container bg-inverse">
+        <div class="col-md-6 pull-xs-left">
+            <br>
+            <h2>Received Orders</h2>
+            <p>You have {{ number_of_new_orders }} new orders. New orders are blue.</p>
+        
+            <div>
+               
+               {%for order in orders_received%}
+                    <div class="list-group text-xs-center">
+                        <a href="/order/{{order.id}}" class="list-group-item {% if order in new_orders_received %}bg-primary {%endif%}{% if order.completed %}bg-success {%endif%}">
+                        <p class="list-group-item-text"> Issued To: {{ order.issued_for }}</p>
+                        {% if order.seen %}
+                            {% if order.completed%}
+                                <p class="list-group-item-text">Status: Completed </p>
+                            {%else%}
+                                <p class="list-group-item-text">Status: In progress</p>
+                            {%endif%}
+                        {% else %}
+                            <p class="list-group-item-text">Status: New </p>
+                        {%endif%}
+                        <p class="list-group-item-text">Date issued: {{order.issued_date.strftime("%d %b %Y %H:%M")}}</p>
+                    </a>
+                    <br>
+                    </div>
+                {%endfor%}
+            </div>
+        </div>
+        <div class="col-md-6 pull-xs-right">
+            <br>
+            <h2>Issued Orders</h2>
+            <p>Orders issued to other personnel.</p>
+            <br>
+            <div>
+                {%for order in orders_issued%}
+                    <div class="list-group text-xs-center">
+                        <a href="/vieworder/{{order.id}}" class="list-group-item">
+                            <p class="list-group-item-text"> Issued To: {{ order.issued_for }}</p>
+                            {% if order.seen %}
+                                {% if order.completed%}
+                                    <p class="list-group-item-text">Status: Completed </p>
+                                {%else%}
+                                    <p class="list-group-item-text">Status: In progress</p>
+                                {%endif%}
+                            {% else %}
+                                <p class="list-group-item-text">Status: New </p>
+                            {%endif%}
+                            <p class="list-group-item-text">Date issued: {{order.issued_date.strftime("%d %b %Y %H:%M")}}</p>
+                        
+                        </a>
+                    <br>
+                    </div>
+                {%endfor%}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

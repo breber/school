@@ -1,0 +1,35 @@
+
+<!-- extends from base layout -->
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Order number {{order.id}}</h1>
+        <br>
+        <div class="list-group">
+            <div class="list-group-item">
+                <h4 class="list-group-item-heading"> Order issued by user: {{order.issued_by}}</h4>
+                <p class="list-group-item-text"> Issued On: {{order.issued_date.strftime("%d %b %Y at %H:%M")}}</p>
+                {%if order.seen%}
+                    {%if order.completed%}
+                        <p class="list-group-item-text"> Status: Completed</p>
+                    {%else%}
+                        <p class="list-group-item-text"> Status: In Progress</p>
+                    {%endif%}
+                {%else%}
+                <p class="list-group-item-text"> Status: Unseen</p>
+                {%endif%}
+                {%if order.completed%}
+                    <p class="list-group-item-text"> Completed On: {{order.completed_date.strftime("%d %b %Y at %H:%M")}}</p>
+                {%endif%}
+                <p class="list-group-item-text"> Order: {{order.orders}}</p>
+                {% if not order.completed %}
+                <form action="" method="post" name="complete order">
+                    {{ form.hidden_tag() }}
+                    <br>
+                    <p><input class="btn btn-primary" type="submit" value="Mark order as completed"></p>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

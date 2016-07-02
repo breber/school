@@ -1,0 +1,23 @@
+
+<!-- extends form base layout -->
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <h1>Report number {{report.id}}</h1>
+     <div class="bg-warning text-xs-center">
+        <br>
+        <h5> For the president and Secretary of War only </h5>
+        <br>
+    </div>
+    <br> 
+        <div class="list-group">
+            <div class="list-group-item bg-inverse">
+                <h4 class="list-group-item-heading"> Secret Report</h4>
+                <p class="list-group-item-text"> Report submitted: {{report.date.strftime("%d %b %Y at %H:%M")}}</p>
+                <p class="list-group-item-text"> Submitted by: {{report.username}}</p>
+                <p class="list-group-item-text"> Summary: {{report.summary}}</p>
+                <form action="" method="post" name="complete order">
+            </div>
+        </div>
+    </div>
+{% endblock %}

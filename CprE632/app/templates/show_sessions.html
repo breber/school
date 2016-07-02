@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+User Sessions
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>User Sessions</h1>
+    {% for session in sessions %}
+    <div class="list-group col-sm-4">
+        <a href="" class="list-group-item">
+            <h4 class="list-group-item-heading">{{ session_id }}</h4>
+            <p class="list-group-item-text">Username: {{ session.username }}</p>
+            <p class="list-group-item-text">Active: {{ session.active }}</p>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
