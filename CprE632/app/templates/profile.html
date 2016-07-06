@@ -8,14 +8,13 @@
 <div class="container">
     <h1>Profile</h1>
     <p class="text-muted">Welcome {{ user.get_group() }}! This is the personal profile of {{ user.get_fullname() }}.
-        If you are not {{ user.get_fullname() }} or are not authorized to access this page, 
+        If you are not {{ user.get_fullname() }} or are not authorized to access this page,
         please disconnect immediately.</p>
- 
+
         <div class="list-group text-xs-center ">
         <div class="list-group-item text-xs-center bg-inverse">
             <h4 class="list-group-item-heading">Basic User Information</h4><br>
             <p class="list-group-item-text">Username: {{ user.username }}</p><br>
-            <p class="list-group-item-text">Password: {{ user.password }}</p><br>
             <p class="list-group-item-text">Group: {{ user.get_group() }}</p><br>
             <p class="list-group-item-text">Email: {{ user.email }}</p><br>
             <p class="list-group-item-text">Date Enlisted: {{ user.creation_date.strftime("%d %b %Y %H:%M")}}</p><br>

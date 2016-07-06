@@ -8,9 +8,9 @@ SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 WTF_CSRF_ENABLED = False
 SECRET_KEY = 'It-is-a-secret'
 
-COUNTRY_NAME = 'South Pole'
+COUNTRY_NAME = 'Duloc'
 
 # UN Settings
 UN_NATION_KEY = 'test-nation-key'
 UN_URL = 'http://un.hq.net' # NO TRAILING SLASH
-UN_ORIGIN_FQDN = 'mil.aq'
+UN_ORIGIN_FQDN = 'mil.du'
