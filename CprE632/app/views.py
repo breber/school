@@ -40,7 +40,7 @@ def login():
     form=LoginForm()
     if request.method == 'POST':
         if form.validate_on_submit() == False:
-            flash('login request Failed for username= "%s", password=%s' %(form.username.data, str(form.password.data)))
+            flash('Login request failed')
             return render_template('login.html',form=form, group=request.cookies.get('group'))
         elif form.validate_on_submit() == True:
             user = User.query.filter(User.username == request.form.get('username')).first()
@@ -246,7 +246,7 @@ def hr(*args ,**kwargs):
 def edituser(id, *args ,**kwargs):
     user = kwargs.get('user')
     session = kwargs.get('session')
-    edituser = User.query.filter(User.id == id).first()   
+    edituser = User.query.filter(User.id == id).first()
     moduser = User.query.filter(User.id == id).first()
     form = EditUserForm(request.form)
     form.group.choices = [(g.id, g.groupname) for g in Groups.query.all() ]
@@ -257,7 +257,7 @@ def edituser(id, *args ,**kwargs):
     form.ssn.default = moduser.ssn
     form.email.default = moduser.email
     form.password.default = moduser.password
-    form.group.default = int(moduser.group)  
+    form.group.default = int(moduser.group)
     form.process()
     if request.method == 'POST':
         if form.validate_on_submit() == False:
@@ -399,4 +399,3 @@ def un_details(id, *args, **kwargs):
     except:
         message = None
     return render_template('un_msg_detail.html', user=user, session=session, message=message, group=request.cookies.get('group'))
-

@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 from .models import db, User, Session, Groups, Orders
 from types import *
-
+import logging
 
 class LoginForm(Form):
 
@@ -22,16 +22,67 @@ class LoginForm(Form):
         if not Form.validate(self):
             return False
 
-        user = User.query.filter(User.username == self.username.data.lower()).first()
-        if user and user.check_password(self.password.data):
+        user = None
+
+        import ldap3
+        try:
+            isActive = False
+            group = ''
+
+            server = ldap3.Server('ldap://192.168.1.6')
+            conn = ldap3.Connection(server, user=self.username.data + '@int.mil.du', password=self.password.data, auto_bind=True)
+            logging.warn('server: %s' % server)
+            if conn.search('DC=int,DC=mil,DC=du', '(sAMAccountName=' + self.username.data + ')', attributes=['memberOf']):
+                logging.warn('entries: %s' % conn.entries)
+                if len(conn.entries) > 0:
+                    for g in conn.entries[0].memberOf:
+                        group_names = str(g)
+
+                        logging.warn("Groups: %s" % group_names)
+                        if "CN=Duloc Users," in group_names:
+                            isActive = True
+                        if "CN=Duloc Recruits," in group_names:
+                            group = 'recruit'
+                        if "CN=Duloc Recruiters," in group_names:
+                            group = 'recruiter'
+                        if "CN=Duloc Soldiers," in group_names:
+                            group = 'soldier'
+                        if "CN=Duloc HR," in group_names:
+                            group = 'HR'
+                        if "CN=Duloc Spy," in group_names:
+                            group = 'spy'
+                        if "CN=Duloc President," in group_names:
+                            group = 'president'
+                        if "CN=Duloc Secretary of War," in group_names:
+                            group = 'secretary of war'
+
+            logging.warn('active: %s - %s' % (isActive, group))
+            if isActive and group:
+                user = User.query.filter(User.username == self.username.data).first()
+
+                logging.warn('found_user: %s' % (user))
+
+                if user:
+                    group_obj = Groups.query.filter(Groups.groupname == group).first()
+                    logging.warn('found_group: %s' % (group_obj))
+                    if group_obj:
+                        user.group = group_obj.id
+                        logging.warn('group_id: %s' % (user.group))
+
+        except ldap.INVALID_CREDENTIALS:
+            logging.warning("Invalid Credentials")
+            user = None
+        except ldap.SERVER_DOWN:
+            logging.warning("Server down...")
+            user = None
+
+        if user:
+            db.session.commit()
             return True
         elif not user:
-            self.username.errors.append("Invalid username")
-        else:
-            self.password.errors.append("Invalid password")
+            self.username.errors.append("Invalid username or password")
+
         return False
-
-
 
 class SignupForm(Form):
     username = StringField("username",  [validators.DataRequired("Please enter your username."), validators.length(4,32, "Your username must be between %(min)d and %(max)d characters")])
