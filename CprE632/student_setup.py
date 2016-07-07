@@ -7,7 +7,7 @@ create roles in database MUST BE DONE FIREST
 
  1-recruit 2-recruiter 3-soldier 4-HR 5-spy 6-president 7-secretary
 """
-TLD ="du"
+TLD = "du"
 
 db.create_all()
 
@@ -21,80 +21,71 @@ db.session.add(models.Groups('secretary of war'))
 
 
 #create users replace all informatinon if the format [[REPLACE]] with your student specific information
-#initilize users format User(username, firstname, lastname, email, password, group number, ssn)
+#initilize users format User(username, firstname, lastname, group number, ssn)
 
 #Recruit
 username = 'ewallace'
-password = 'password'
 ssn = 0
 firstname = 'Eli'
 lastname = 'Wallace'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 1 , ssn))
+db.session.add( models.User( username , firstname , lastname, 1 , ssn))
 
 #Recruit
 username = 'carmstrong'
-password = 'password'
 ssn = 1
 firstname = 'Chloe'
 lastname = 'Armstrong'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 1 , ssn))
+db.session.add( models.User( username , firstname , lastname, 1 , ssn))
 
 #Recruiter
 username='dtelford'
-password = 'password'
 ssn = 2
 firstname = 'David'
 lastname = 'Telford'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 2 , ssn))
+db.session.add( models.User( username , firstname , lastname, 2 , ssn))
 
 
 #Soldier
 username='rgreer'
-password = 'password'
 ssn = 3
 firstname = 'Ronald'
 lastname = 'Greer'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 3 , ssn))
+db.session.add( models.User( username , firstname , lastname, 3 , ssn))
 
 #Soldier
 username='mscott'
-password = 'password'
 ssn = 4
 firstname = 'Matthew'
 lastname = 'Scott'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 3 , ssn))
+db.session.add( models.User( username , firstname , lastname, 3 , ssn))
 
 #HR
 username='cwray'
-password = 'password'
 ssn = 5
 firstname = 'Camile'
 lastname = 'Wray'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 4 , ssn))
+db.session.add( models.User( username , firstname , lastname, 4 , ssn))
 
 #President
 username='hhayes'
-password = 'password'
 ssn = 6
 firstname = 'Henry'
 lastname = 'Hayes'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 6 , ssn))
+db.session.add( models.User( username , firstname , lastname, 6 , ssn))
 
 #Secretary Of War
 username='eyoung'
-password = 'password'
 ssn = 7
 firstname = 'Everett'
 lastname = 'Young'
-db.session.add( models.User( username , firstname , lastname , username + '@mil.' + TLD , password , 7 , ssn))
+db.session.add( models.User( username , firstname , lastname, 7 , ssn))
 
 #spy
 spyusername = 'blacktop'
-password = 'password'
 ssn = 8
 firstname = '[[USERS FIRST NAME]]'
 lastname = '[[USERS LAST NAME]]'
-db.session.add( models.User( spyusername , firstname , lastname , spyusername + '@mil.' + TLD , password , 5 , ssn))
+db.session.add( models.User( spyusername , firstname , lastname, 5 , ssn))
 
 #initilize reports
 #format Report(username, mission summary)

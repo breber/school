@@ -1,16 +1,14 @@
 from flask.ext.wtf import Form
-from app import app
 from wtforms import StringField, SelectField,  BooleanField, SubmitField, validators, ValidationError, PasswordField, IntegerField, \
     SelectMultipleField
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
-from .models import db, User, Session, Groups, Orders
+from .models import db, User, Groups, Orders
 from types import *
 import logging
 
 class LoginForm(Form):
-
     username = StringField("username",  [validators.DataRequired("Please enter your username." )])
     password = PasswordField('Password', [validators.DataRequired("Please enter a password.")])
     submit = SubmitField("Sign In")
@@ -58,7 +56,7 @@ class LoginForm(Form):
 
             logging.warn('active: %s - %s' % (isActive, group))
             if isActive and group:
-                user = User.query.filter(User.username == self.username.data).first()
+                user = User.get_user_by_username(self.username.data)
 
                 logging.warn('found_user: %s' % (user))
 
@@ -100,7 +98,7 @@ class SignupForm(Form):
     def validate(self):
         if not Form.validate(self):
             return False
-        elif User.query.filter(User.username == str(self.username.data.lower())).first() is not None:
+        elif User.get_user_by_username(self.username.data) is not None:
             self.username.errors.append("Username is already taken")
             return False
         elif User.query.filter(User.email == str(self.email.data.lower())).first() is not None:
@@ -149,9 +147,7 @@ class EditUserForm(Form):
     firstname = StringField("First name",  [validators.DataRequired("Please enter your first name.")])
     lastname = StringField("Last name",  [validators.DataRequired("Please enter your last name.")])
     military_id = StringField("Military ID",  [validators.DataRequired("Please enter your last name.")])
-    email = StringField("Email",  [validators.DataRequired("Please enter your email address."), validators.Email("Please enter your email address.")])
     group = SelectField(u'Group',coerce=int)
-    password = StringField('Password', [validators.DataRequired("Please enter a password."),validators.length(2, 12, "Your password must be between %(min)d and %(max)d characters.")])
 
     submit = SubmitField("edit profile")
 

@@ -1,66 +1,49 @@
 from flask import render_template, flash, redirect, request, session, url_for, make_response
 from app import app, utils
 from .forms import LoginForm, SignupForm, OrdersForm, CompleteOrderForm, PromoteUserForm, EditUserForm, ReportForm, UNMessageForm
-from .models import db, User, Session, Orders, Groups, Report
+from .models import db, User, Orders, Groups, Report
 from functools import wraps
 from sqlalchemy.exc import *
-from sqlalchemy import  desc
-from random import *
+from sqlalchemy import desc
+import flask_login
+
+import logging
 
 def get_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        session = None
-        user = None
-        try:
-            session = Session.query.filter(Session.session_id == request.cookies.get('session_id')).first()
-            if session is not None:
-                user = session.get_user()
-        except NoSuchTableError:
-            pass
-        return f(user=user, session=session, *args, **kwargs)
+        if not flask_login.current_user.is_anonymous():
+            user = flask_login.current_user
+        else:
+            user = None
+
+        logging.warn('get_user: %s --> %s' % (flask_login.current_user, user))
+        return f(user=user, *args, **kwargs)
     return decorated_function
 
 @app.route('/')
 @app.route('/index')
-def index():
-   user = request.cookies.get('session_id')
-   return render_template('index.html', title='Home', user=user, group=request.cookies.get('group'))
+@get_user
+def index(*args, **kwargs):
+   return render_template('index.html', title='Home', user=kwargs.get('user'), group=request.cookies.get('group'))
 
 @app.route('/login', methods =['GET', 'POST'])
 def login():
+    # If the user is already logged in, redirect to profile
+    if kwargs.get('user'):
+        return make_response(redirect('/profile'))
 
-    #logs the user out if they are already logged in
-    if request.cookies.get('session_id') is not None:
-        response= make_response(redirect('/login'))
-        response.set_cookie('session_id', '', expires=0)
-        response.set_cookie('group', '', expires=0)
-        return response
-
-    form=LoginForm()
+    form = LoginForm()
     if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            flash('Login request failed')
-            return render_template('login.html',form=form, group=request.cookies.get('group'))
-        elif form.validate_on_submit() == True:
-            user = User.query.filter(User.username == request.form.get('username')).first()
-            password = request.form.get('password')
-            if user.exists:
-                if user.password == password:
-                    session_id = request.cookies.get('session_id', password + str(randint(1,999)))
-                    new_session = Session(user.username, session_id, True)
-                    db.session.add(new_session)
-                    db.session.commit()
-                    response = make_response(redirect('/profile'))
-                    response.set_cookie('session_id', value=session_id)
-                    group=Groups.query.filter(Groups.id == user.group).first().groupname
-                    response.set_cookie('group', value=group)
-                    return response
-                error = "Password is incorrect."
-                flash('Password "%s" is incorrect' % (form.password.data))
-            else:
-                flash('User "%s" does not exist'% (form.username.data))
-        return render_template('/login', title= 'Login', group=request.cookies.get('group'))
+        if form.validate_on_submit():
+            user = User.get_user_by_username(request.form.get('username'))
+            if user:
+                logging.warn('logging in user: %s' % user)
+                flask_login.login_user(user, remember=False)
+                return make_response(redirect('/profile'))
+
+        flash('Login request failed')
+        return render_template('login.html', form=form, group=request.cookies.get('group'))
     elif request.method == 'GET':
         return render_template('login.html', title='Sign in', form=form, group=request.cookies.get('group'))
 
@@ -84,7 +67,8 @@ def signup():
             flash('signup FAILED for requested username="{}", email="{}"'.format(form.username.data, str(form.email.data)))
             return render_template('signup.html', title='Signup', form=form, group=request.cookies.get('group'))
         else:
-            newuser = User(request.form.get('username'), request.form.get('firstname'),request.form.get('lastname'),request.form.get('email'),request.form.get('password'),request.form.get('group'),request.form.get('ssn'))
+            # TODO: add user to active directory
+            newuser = User(request.form.get('username'), request.form.get('firstname'),request.form.get('lastname'), request.form.get('password'),request.form.get('group'),request.form.get('ssn'))
             db.session.add(newuser)
             db.session.commit()
             flash('Signup successful for requested username="{}", email="{}"'.format(form.username.data, str(form.email.data)))
@@ -96,15 +80,7 @@ def signup():
 @get_user
 def profile(*args,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
-    return render_template('profile.html', user=user, session=session, group=request.cookies.get('group'))
-
-@app.route('/testdb')
-def testdb():
-    if db.session.query("1").from_statement("SELECT 1").all():
-        return 'It works.'
-    else:
-        return 'Something is broken.'
+    return render_template('profile.html', user=user, tld='mil.du', group=request.cookies.get('group'))
 
 @app.route('/users')
 @get_user
@@ -112,7 +88,7 @@ def users(*args,**kwargs):
     user = kwargs.get('user')
     session = kwargs.get('session')
     users = User.query.all()
-    return render_template('show_users.html', users=users,user=user, group=request.cookies.get('group'))
+    return render_template('show_users.html', users=users, user=user, group=request.cookies.get('group'))
 
 @app.route('/sessions')
 @get_user
@@ -204,7 +180,7 @@ def giveorders(*args,**kwargs):
 def viewuser(username ,*args ,**kwargs):
     user = kwargs.get('user')
     session = kwargs.get('session')
-    viewuser = User.query.filter(User.username == username).first()
+    viewuser = User.get_user_by_username(username)
     return render_template('user.html',session=session,user=user,viewuser=viewuser, group=request.cookies.get('group'))
 
 @app.route('/recruiter', methods =['GET', 'POST'])
@@ -222,7 +198,7 @@ def recruiter(*args ,**kwargs):
                 return render_template('/recruiter', form=form, recruits=recruits, group=request.cookies.get('group'))
             elif form.validate_on_submit() == True:
                 modusername = request.form.get('promote_user')
-                moduser = User.query.filter(User.username == modusername).first()
+                moduser = User.get_user_by_username(modusername)
                 moduser.group = Groups.query.filter(Groups.groupname == form.promote_to.data).first().id
                 db.session.commit()
                 return redirect(url_for('recruiter'))
@@ -255,8 +231,6 @@ def edituser(id, *args ,**kwargs):
     form.lastname.default = moduser.lastname.title()
     form.military_id.default = moduser.military_id
     form.ssn.default = moduser.ssn
-    form.email.default = moduser.email
-    form.password.default = moduser.password
     form.group.default = int(moduser.group)
     form.process()
     if request.method == 'POST':
@@ -266,8 +240,6 @@ def edituser(id, *args ,**kwargs):
         elif form.validate_on_submit() == True:
             moduser.firstname = request.form.get('firstname')
             moduser.lastname = request.form.get('lastname')
-            moduser.password = request.form.get('password')
-            moduser.email = request.form.get('email')
             moduser.military_id = request.form.get('military_id')
             moduser.ssn = request.form.get('ssn')
             moduser.group =  request.form.get('group')
@@ -288,8 +260,6 @@ def settings( *args ,**kwargs):
     form.lastname.default = user.lastname.title()
     form.military_id.default = user.military_id
     form.ssn.default = user.ssn
-    form.email.default = user.email
-    form.password.default = user.password
     form.group.default = int(user.group)
     form.process()
     if request.method == 'POST':
@@ -299,8 +269,6 @@ def settings( *args ,**kwargs):
         elif form.validate_on_submit() == True:
             user.firstname = request.form.get('firstname')
             user.lastname = request.form.get('lastname')
-            user.password = request.form.get('password')
-            user.email = request.form.get('email')
             user.military_id = request.form.get('military_id')
             user.ssn = request.form.get('ssn')
             user.group =  request.form.get('group')
