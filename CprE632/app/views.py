@@ -25,7 +25,7 @@ def get_user(f):
 @app.route('/index')
 @get_user
 def index(*args, **kwargs):
-   return render_template('index.html', title='Home', user=kwargs.get('user'), group=request.cookies.get('group'))
+   return render_template('index.html', title='Home', user=kwargs.get('user'))
 
 @app.route('/login', methods =['GET', 'POST'])
 @get_user
@@ -44,9 +44,9 @@ def login(*args, **kwargs):
                 return make_response(redirect('/profile'))
 
         flash('Login request failed')
-        return render_template('login.html', form=form, group=request.cookies.get('group'))
+        return render_template('login.html', form=form)
     elif request.method == 'GET':
-        return render_template('login.html', title='Sign in', form=form, group=request.cookies.get('group'))
+        return render_template('login.html', title='Sign in', form=form)
 
 @app.route("/logout", methods=['GET'])
 @get_user
@@ -76,54 +76,46 @@ def signup(*args, **kwargs):
             db.session.commit()
             return redirect(url_for('login'))
     elif request.method == 'GET':
-        return render_template('signup.html', form=form, group=request.cookies.get('group'))
+        return render_template('signup.html', form=form)
 
 @app.route('/profile')
 @get_user
 def profile(*args,**kwargs):
-    user = kwargs.get('user')
-    return render_template('profile.html', user=user, tld='mil.du', group=request.cookies.get('group'))
+    return render_template('profile.html', user=kwargs.get('user'), tld='mil.du')
 
 @app.route('/users')
 @get_user
 def users(*args,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
+    # TODO: HR only page?
     users = User.query.all()
-    return render_template('show_users.html', users=users, user=user, group=request.cookies.get('group'))
+    return render_template('show_users.html', users=users, user=kwargs.get('user'))
 
 @app.route('/sessions')
 @get_user
 def sessions(*args,**kwargs):
-    user = kwargs.get('user')
+    # TODO: remove this page?
     session = kwargs.get('session')
     sessions = Session.query.all()
-    return render_template('show_sessions.html', sessions=sessions,user=user, group=request.cookies.get('group'))
-
-@app.route('/about')
-@get_user
-def about(*args,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
-    return render_template('about.html', group=request.cookies.get('group'))
+    return render_template('show_sessions.html', sessions=sessions, user=kwargs.get('user'))
 
 @app.route('/orders')
 @get_user
 def orders(*args,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
     orders_issued = Orders.query.filter(Orders.issued_by == user.username).order_by(desc(Orders.issued_date)).all()
     new_orders_received = Orders.query.filter(Orders.issued_for == user.username, Orders.seen ==False).all()
     orders_received = Orders.query.filter(Orders.issued_for == user.username).order_by(desc(Orders.issued_date)).all()
     number_of_new_orders = Orders.query.filter(Orders.issued_for == user.username, Orders.seen == False).count()
-    return render_template('orders.html',user=user, session=session, orders_issued=orders_issued,orders_received=orders_received, number_of_new_orders=number_of_new_orders,new_orders_received=new_orders_received, group=request.cookies.get('group'))
-
+    return render_template('orders.html', user=user, orders_issued=orders_issued, orders_received=orders_received, number_of_new_orders=number_of_new_orders, new_orders_received=new_orders_received)
 
 @app.route('/order/<id>', methods =['GET', 'POST'])
 @get_user
 def order(id ,*args ,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
     order = Orders.query.filter(Orders.id == id).first()
     order.seen = True
     db.session.commit()
@@ -136,13 +128,11 @@ def order(id ,*args ,**kwargs):
             db.session.commit()
             return redirect('order/' + str(order.id))
     elif request.method == 'GET':
-        return render_template('order.html',order=order,form=form,user=user, group=request.cookies.get('group'))
+        return render_template('order.html', order=order, form=form, user=kwargs.get('user'))
 
 @app.route('/vieworder/<id>', methods =['GET', 'POST'])
 @get_user
 def vieworder(id ,*args ,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
     order = Orders.query.filter(Orders.id == id).first()
     form = CompleteOrderForm()
     if request.method == 'POST':
@@ -154,50 +144,46 @@ def vieworder(id ,*args ,**kwargs):
             return redirect('order/' + str(order.id))
         # mark post as completed
     elif request.method == 'GET':
-        return render_template('order.html',order=order,form=form,user=user, group=request.cookies.get('group'))
-
+        return render_template('order.html', order=order, form=form, user=kwargs.get('user'))
 
 @app.route('/giveorders', methods =['GET', 'POST'])
 @get_user
 def giveorders(*args,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
-    form=OrdersForm()
-    form.issued_for.choices =[(g.username, g.username) for g in User.query.all() ]
-    username=user.username
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    form = OrdersForm()
+    form.issued_for.choices = [(g.username, g.username) for g in User.query.all()]
+    username = user.username
     if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            return render_template('giveorders', form=form, group=request.cookies.get('group'))
-        elif form.validate_on_submit() == True:
+        if form.validate_on_submit():
             neworders = Orders(form.orders.data, user.username, form.issued_for.data)
             db.session.add(neworders)
             db.session.commit()
             return redirect(url_for('orders'))
-    elif request.method == 'GET':
-        return render_template('giveorders.html', form=form,user=user, group=request.cookies.get('group'))
-    return render_template('giveorders.html', group=request.cookies.get('group'))
+
+    return render_template('giveorders.html', form=form, user=kwargs.get('user'))
 
 @app.route('/users/<username>')
 @get_user
 def viewuser(username ,*args ,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
-    viewuser = User.get_user_by_username(username)
-    return render_template('user.html',session=session,user=user,viewuser=viewuser, group=request.cookies.get('group'))
+    return render_template('user.html', user=kwargs.get('user'), viewuser=User.get_user_by_username(username))
 
 @app.route('/recruiter', methods =['GET', 'POST'])
 @get_user
 def recruiter(*args ,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
-    group = request.cookies.get('group')
+    # TODO: verify user's group
+    group = 'recruit'
     if group == 'recruiter':
         form = PromoteUserForm()
         form.promote_to.choices = [(g.groupname, g.groupname) for g in Groups.query.all() ]
         recruits = User.query.filter(User.group == Groups.query.filter(Groups.groupname == 'recruit').first().id).all()
         if request.method == 'POST':
             if form.validate_on_submit() == False:
-                return render_template('/recruiter', form=form, recruits=recruits, group=request.cookies.get('group'))
+                return render_template('/recruiter', form=form, recruits=recruits)
             elif form.validate_on_submit() == True:
                 modusername = request.form.get('promote_user')
                 moduser = User.get_user_by_username(modusername)
@@ -205,19 +191,17 @@ def recruiter(*args ,**kwargs):
                 db.session.commit()
                 return redirect(url_for('recruiter'))
         elif request.method == 'GET':
-            return render_template('/recruiter.html',form=form, user=user, session=session,recruits=recruits, group=request.cookies.get('group'))
-    return render_template('/unauthorized.html',user=user, session=session, group=request.cookies.get('group'))
+            return render_template('/recruiter.html', form=form, user=kwargs.get('user'),recruits=recruits)
+    return render_template('/unauthorized.html', user=kwargs.get('user'))
 
 @app.route('/hr')
 @get_user
 def hr(*args ,**kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
-    users = User.query.all()
-    group = request.cookies.get('group')
+    # TODO: verify user's group
+    group = 'recruit'
     if group == 'HR':
-        return render_template('/hr.html',user=user,session=session,users=users, group=request.cookies.get('group'))
-    return render_template('/unauthorized.html',user=user, session=session, group=request.cookies.get('group'))
+        return render_template('/hr.html', user=kwargs.get('user'), users=users)
+    return render_template('/unauthorized.html', user=kwargs.get('user'))
 
 @app.route('/hr/<id>', methods =['GET', 'POST'])
 @get_user
@@ -238,7 +222,7 @@ def edituser(id, *args ,**kwargs):
     if request.method == 'POST':
         if form.validate_on_submit() == False:
             flash('request validation failed' )
-            return render_template('/edit_user.html', form=form, edituser=edituser,user=user,session=session , group=request.cookies.get('group'))
+            return render_template('/edit_user.html', form=form, edituser=edituser,user=user)
         elif form.validate_on_submit() == True:
             moduser.firstname = request.form.get('firstname')
             moduser.lastname = request.form.get('lastname')
@@ -248,7 +232,7 @@ def edituser(id, *args ,**kwargs):
             db.session.commit()
             return redirect(url_for('hr'))
     elif request.method == 'GET':
-        return render_template('/edit_user.html',user=user,session=session,edituser=edituser,form=form, group=request.cookies.get('group'))
+        return render_template('/edit_user.html',user=user, edituser=edituser, form=form)
 
 @app.route('/settings', methods =['GET', 'POST'])
 @get_user
@@ -267,7 +251,7 @@ def settings( *args ,**kwargs):
     if request.method == 'POST':
         if form.validate_on_submit() == False:
             flash('request validation failed' )
-            return render_template('/settings.html', form=form, user=user,session=session , group=request.cookies.get('group'))
+            return render_template('/settings.html', form=form, user=user)
         elif form.validate_on_submit() == True:
             user.firstname = request.form.get('firstname')
             user.lastname = request.form.get('lastname')
@@ -277,43 +261,44 @@ def settings( *args ,**kwargs):
             db.session.commit()
             return redirect(url_for('profile'))
     elif request.method == 'GET':
-        return render_template('/settings.html',user=user,session=session,form=form, group=request.cookies.get('group'))
+        return render_template('/settings.html',user=user, form=form)
 
 @app.route('/unauthorized')
-def unauthorized():
-    return render_template('/unauthorized.html', group=request.cookies.get('group'))
-
+@get_user
+def unauthorized(*args, **kwargs):
+    return render_template('/unauthorized.html', user=kwargs.get('user'))
 
 @app.route('/createreport', methods =['GET', 'POST'])
 @get_user
-def createreport(*args,**kwargs):
+def createreport(*args, **kwargs):
     user = kwargs.get('user')
     session = kwargs.get('session')
     form=ReportForm()
-    group = request.cookies.get('group')
+    # TODO: verify group
+    group = 'recruit'
     if group == 'spy':
         if request.method == 'POST':
             if form.validate_on_submit() == False:
-                return render_template('/create_report.html', form=form, group=request.cookies.get('group'))
+                return render_template('/create_report.html', form=form)
             elif form.validate_on_submit() == True:
                 newreport = Report( user.username, form.summary.data)
                 db.session.add(newreport)
                 db.session.commit()
                 return redirect('/report')
-                return render_template('view_reports.html', reports=Report.query.filter(Report.username==user.username),user=user,session=session, group=request.cookies.get('group'))
+                return render_template('view_reports.html', reports=Report.query.filter(Report.username==user.username),user=user)
         elif request.method == 'GET':
-            return render_template('create_report.html', form=form,user=user, group=request.cookies.get('group'))
-    return render_template('/unauthorized.html',user=user, session=session, group=request.cookies.get('group'))
+            return render_template('create_report.html', form=form,user=user)
+    return render_template('/unauthorized.html', user=user)
 
 @app.route('/report')
 @get_user
 def report(*args,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
-    group = request.cookies.get('group')
+    # TODO: verify group
+    group = 'recruit'
     if group == 'spy' or group == "secretary of war" or group == "president":
-        return render_template('/view_reports.html', reports=Report.query.order_by(desc(Report.date)).all(), user=user,session=session, group=request.cookies.get('group'))
-    return render_template('/unauthorized.html',user=user, session=session, group=request.cookies.get('group'))
+        return render_template('/view_reports.html', reports=Report.query.order_by(desc(Report.date)).all(), user=user)
+    return render_template('/unauthorized.html', user=user)
 
 @app.route('/report/<id>')
 @get_user
@@ -321,23 +306,21 @@ def viewreport(id,*args,**kwargs):
     user = kwargs.get('user')
     session = kwargs.get('session')
     report = Report.query.filter(Report.id == id).first()
-    return render_template('/view_report.html', report=report, user=user,session=session, group=request.cookies.get('group'))
-
-
+    return render_template('/view_report.html', report=report, user=user)
 
 @app.route('/un/')
 @get_user
 def un_messages(*args, **kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
     try:
         messages = utils.get_messages()
     except:
         messages = None
-    group = request.cookies.get('group')
+    # TODO: verify group
+    group = 'recruit'
     if group == "secretary of war" or group == "president":
-        return render_template('un_msg_list.html', user=user, session=session, messages=messages, group=request.cookies.get('group'))
-    return render_template('/unauthorized.html',user=user, session=session, group=request.cookies.get('group'))
+        return render_template('un_msg_list.html', user=user, messages=messages)
+    return render_template('/unauthorized.html', user=user)
 
 @app.route('/un/new/', methods=['GET', 'POST'])
 @get_user
@@ -356,16 +339,14 @@ def un_new_msg(*args, **kwargs):
             utils.post_message(body, destination, type=mtype)
             return redirect(url_for('un_messages'))
 
-    return render_template('un_msg_new.html', user=user, session=session, form=form, group=request.cookies.get('group'))
-
+    return render_template('un_msg_new.html', user=user, form=form)
 
 @app.route('/un/<id>/')
 @get_user
 def un_details(id, *args, **kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
     try:
         message = utils.get_message(id)
     except:
         message = None
-    return render_template('un_msg_detail.html', user=user, session=session, message=message, group=request.cookies.get('group'))
+    return render_template('un_msg_detail.html', user=user, message=message)
