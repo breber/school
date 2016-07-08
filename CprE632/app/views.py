@@ -91,14 +91,6 @@ def users(*args,**kwargs):
     users = User.query.all()
     return render_template('show_users.html', users=users, user=kwargs.get('user'))
 
-@app.route('/sessions')
-@get_user
-def sessions(*args,**kwargs):
-    # TODO: remove this page?
-    session = kwargs.get('session')
-    sessions = Session.query.all()
-    return render_template('show_sessions.html', sessions=sessions, user=kwargs.get('user'))
-
 @app.route('/orders')
 @get_user
 def orders(*args,**kwargs):
@@ -289,7 +281,6 @@ def unauthorized(*args, **kwargs):
 @get_user
 def createreport(*args, **kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
     form=ReportForm()
     # TODO: verify group
     group = 'recruit'
@@ -321,7 +312,6 @@ def report(*args,**kwargs):
 @get_user
 def viewreport(id,*args,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
     report = Report.query.filter(Report.id == id).first()
     return render_template('/view_report.html', report=report, user=user)
 
@@ -343,7 +333,6 @@ def un_messages(*args, **kwargs):
 @get_user
 def un_new_msg(*args, **kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
 
     form = UNMessageForm()
     #form.process()
