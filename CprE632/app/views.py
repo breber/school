@@ -12,7 +12,7 @@ import logging
 def get_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not flask_login.current_user.is_anonymous():
+        if not flask_login.current_user.is_anonymous:
             user = flask_login.current_user
         else:
             user = None
@@ -28,7 +28,8 @@ def index(*args, **kwargs):
    return render_template('index.html', title='Home', user=kwargs.get('user'), group=request.cookies.get('group'))
 
 @app.route('/login', methods =['GET', 'POST'])
-def login():
+@get_user
+def login(*args, **kwargs):
     # If the user is already logged in, redirect to profile
     if kwargs.get('user'):
         return make_response(redirect('/profile'))
@@ -50,28 +51,29 @@ def login():
 @app.route("/logout", methods=['GET'])
 @get_user
 def logout(*args, **kwargs):
-    user = kwargs.get('user')
-    session = kwargs.get('session')
-    session.active = False
-    db.session.commit()
-    response = make_response(redirect('/index'))
-    response.set_cookie('session_id', '', expires=0)
-    return response
+    flask_login.logout_user()
+    return make_response(redirect('/index'))
 
 @app.route('/signup', methods =['GET', 'POST'])
-def signup():
+@get_user
+def signup(*args, **kwargs):
+    # If the user is already logged in, redirect to profile
+    if kwargs.get('user'):
+        return make_response(redirect('/profile'))
+
     form = SignupForm()
-    form.group.choices = [(g.id, g.groupname) for g in Groups.query.all() ]
     if request.method == 'POST':
         if not form.validate_on_submit():
-            flash('signup FAILED for requested username="{}", email="{}"'.format(form.username.data, str(form.email.data)))
-            return render_template('signup.html', title='Signup', form=form, group=request.cookies.get('group'))
+            return render_template('signup.html', title='Signup', form=form)
         else:
             # TODO: add user to active directory
-            newuser = User(request.form.get('username'), request.form.get('firstname'),request.form.get('lastname'), request.form.get('password'),request.form.get('group'),request.form.get('ssn'))
+            newuser = User(request.form.get('username'),
+                           request.form.get('firstname'),
+                           request.form.get('lastname'),
+                           Groups.query.filter(Groups.groupname == 'recruit').first().id,
+                           request.form.get('ssn'))
             db.session.add(newuser)
             db.session.commit()
-            flash('Signup successful for requested username="{}", email="{}"'.format(form.username.data, str(form.email.data)))
             return redirect(url_for('login'))
     elif request.method == 'GET':
         return render_template('signup.html', form=form, group=request.cookies.get('group'))

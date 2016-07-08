@@ -31,17 +31,11 @@ class User(db.Model):
     def get_groupid(self,id):
         return Groups.query.filter(Groups.id == id).first().groupname
 
-    def is_active(self):
-        """
-        For flask_login
-        """
-        return True
-
-    def is_anonymous(self):
-        """
-        For flask_login
-        """
-        return False
+    """
+    For flask_login
+    """
+    is_active = True
+    is_anonymous = False
 
     def get_id(self):
         """
@@ -68,7 +62,7 @@ class Groups(db.Model):
     def __init__(self, groupname):
         self.groupname = groupname
     def __repr__(self):
-        return '<group:{}>'.format( self.groupname)
+        return '<group:{}>'.format(self.groupname)
 
 class Orders(db.Model):
     id = db.Column(db.Integer, primary_key=True)

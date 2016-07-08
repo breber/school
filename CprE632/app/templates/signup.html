@@ -17,6 +17,7 @@ Enlist
         Please set your password:
         {{ form.password(class='form-control') }}
         {% for error in form.password.errors %}
+        <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
         Please enter your first name:
         {{ form.firstname(class='form-control') }}
@@ -28,26 +29,16 @@ Enlist
         {% for error in form.lastname.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
-        Please enter your email:
-        {{ form.email(class='form-control') }}
-        {% for error in form.email.errors %}
-        <span class="label label-danger">{{ error }}</span>
-        {% endfor %}<br>
         Please enter your Social Security Number:
         {{ form.ssn(class='form-control') }}
         {% for error in form.ssn.errors %}
-        <span class="label label-danger">{{ error }}</span>
-        {% endfor %}<br>
-        Please select your group:<br>
-        {{ form.group(class='form-control') }}
-        {% for error in form.group.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
         <br>
         <input class="btn btn-primary" type="submit" value="Enlist">
         {% for message in get_flashed_messages() %}
         <span class="alert alert-danger">{{ message }}</span>
-        {% endfor %} 
+        {% endfor %}
     </form>
 </div>
 </form>

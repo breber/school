@@ -83,13 +83,11 @@ class LoginForm(Form):
         return False
 
 class SignupForm(Form):
-    username = StringField("username",  [validators.DataRequired("Please enter your username."), validators.length(4,32, "Your username must be between %(min)d and %(max)d characters")])
-    ssn = IntegerField("Social Security Number",  [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000,999999999, "Your Soscial Security Number must be a nine digit integer ")])
-    firstname = StringField("First name",  [validators.DataRequired("Please enter your first name.")])
-    lastname = StringField("Last name",  [validators.DataRequired("Please enter your last name.")])
-    email = StringField("Email",  [validators.DataRequired("Please enter your email address."), validators.Email("Please enter your email address.")])
-    group = SelectField(u'Group',coerce=int)
-    password = PasswordField('Password', [validators.DataRequired("Please enter a password."),validators.length(2, 12, "Your password must be between %(min)d and %(max)d characters.")])
+    username = StringField("username", [validators.DataRequired("Please enter your username."), validators.length(4, 32, "Your username must be between %(min)d and %(max)d characters")])
+    ssn = IntegerField("Social Security Number", [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000, 999999999, "Your Social Security Number must be a nine digit integer")])
+    firstname = StringField("First name", [validators.DataRequired("Please enter your first name.")])
+    lastname = StringField("Last name", [validators.DataRequired("Please enter your last name.")])
+    password = PasswordField('Password', [validators.DataRequired("Please enter a password."), validators.length(6, 24, "Your password must be between %(min)d and %(max)d characters.")])
     submit = SubmitField("Create account")
 
     def __init__(self, *args, **kwargs):
@@ -101,12 +99,10 @@ class SignupForm(Form):
         elif User.get_user_by_username(self.username.data) is not None:
             self.username.errors.append("Username is already taken")
             return False
-        elif User.query.filter(User.email == str(self.email.data.lower())).first() is not None:
-            self.email.errors.append("E-mail is already taken")
+        elif User.query.filter(User.ssn == self.ssn.data).first() is not None:
+            self.ssn.errors.append("Invalid SSN")
             return False
-        else:
-            return True
-
+        return True
 
 class OrdersForm(Form):
     orders = StringField("Orders",  [validators.DataRequired("Enter Your orders here")], widget=TextArea())
