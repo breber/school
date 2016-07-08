@@ -128,35 +128,25 @@ class CompleteOrderForm(Form):
         return True
 
 class PromoteUserForm(Form):
-    promote_to = SelectField(u'Role',coerce=str)
-    promeote_user = StringField()
+    promote_to = SelectField("Role", coerce=str)
+    promote_user = StringField()
+
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        return True
-
 class EditUserForm(Form):
-    ssn = IntegerField("Social Security Number",  [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000,999999999, "Your Social Security Number must be a nine digit integer ")])
-    firstname = StringField("First name",  [validators.DataRequired("Please enter your first name.")])
-    lastname = StringField("Last name",  [validators.DataRequired("Please enter your last name.")])
-    military_id = StringField("Military ID",  [validators.DataRequired("Please enter your last name.")])
-    group = SelectField(u'Group',coerce=int)
-
+    ssn = IntegerField("Social Security Number", [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000,999999999, "Your Social Security Number must be a nine digit integer")])
+    firstname = StringField("First name", [validators.DataRequired("Please enter your first name.")])
+    lastname = StringField("Last name", [validators.DataRequired("Please enter your last name.")])
+    military_id = StringField("Military ID", [validators.DataRequired("Please enter your last name.")])
+    group = SelectField("Group", coerce=int)
     submit = SubmitField("edit profile")
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
 
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        return True
-
 class SettingsForm(Form):
-    ssn = IntegerField("Social Security Number", [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000, 999999999, "Your Social Security Number must be a nine digit integer ")])
+    ssn = IntegerField("Social Security Number", [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000, 999999999, "Your Social Security Number must be a nine digit integer")])
     firstname = StringField("First name", [validators.DataRequired("Please enter your first name.")])
     lastname = StringField("Last name", [validators.DataRequired("Please enter your last name.")])
     submit = SubmitField("edit profile")

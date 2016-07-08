@@ -202,43 +202,56 @@ def recruiter(*args, **kwargs):
 
 @app.route('/hr')
 @get_user
-def hr(*args ,**kwargs):
-    # TODO: verify user's group
-    group = 'recruit'
-    if group == 'HR':
-        return render_template('/hr.html', user=kwargs.get('user'), users=users)
-    return render_template('/unauthorized.html', user=kwargs.get('user'))
+def hr(*args, **kwargs):
+    user = kwargs.get('user')
 
-@app.route('/hr/<id>', methods =['GET', 'POST'])
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() == 'HR':
+        # TODO: all users? how does spy work?
+        return render_template('/hr.html', user=user, users=User.query.all())
+
+    return render_template('/unauthorized.html', user=user)
+
+@app.route('/hr/<id>', methods=['GET', 'POST'])
 @get_user
 def edituser(id, *args ,**kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
-    edituser = User.query.filter(User.id == id).first()
-    moduser = User.query.filter(User.id == id).first()
-    form = EditUserForm(request.form)
-    form.group.choices = [(g.id, g.groupname) for g in Groups.query.all() ]
-    # initialize form with current data
-    form.firstname.default = moduser.firstname.title()
-    form.lastname.default = moduser.lastname.title()
-    form.military_id.default = moduser.military_id
-    form.ssn.default = moduser.ssn
-    form.group.default = int(moduser.group)
-    form.process()
-    if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            flash('request validation failed' )
-            return render_template('/edit_user.html', form=form, edituser=edituser,user=user)
-        elif form.validate_on_submit() == True:
-            moduser.firstname = request.form.get('firstname')
-            moduser.lastname = request.form.get('lastname')
-            moduser.military_id = request.form.get('military_id')
-            moduser.ssn = request.form.get('ssn')
-            moduser.group =  request.form.get('group')
-            db.session.commit()
-            return redirect(url_for('hr'))
-    elif request.method == 'GET':
-        return render_template('/edit_user.html',user=user, edituser=edituser, form=form)
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() == 'HR':
+        edituser = User.get_user_by_id(id)
+        form = EditUserForm(request.form)
+        form.group.choices = [(g.id, g.groupname) for g in Groups.query.all()]
+
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                edituser.firstname = request.form.get('firstname')
+                edituser.lastname = request.form.get('lastname')
+                edituser.military_id = request.form.get('military_id')
+                edituser.ssn = request.form.get('ssn')
+                edituser.group =  request.form.get('group')
+                db.session.commit()
+                return redirect(url_for('hr'))
+
+        # initialize form with current data
+        form.firstname.default = edituser.firstname.title()
+        form.lastname.default = edituser.lastname.title()
+        form.military_id.default = edituser.military_id
+        form.ssn.default = edituser.ssn
+        form.group.default = int(edituser.group)
+        form.process()
+
+        return render_template('/edit_user.html', user=user, edituser=edituser, form=form)
+
+    return render_template('/unauthorized.html', user=user)
 
 @app.route('/settings', methods=['GET', 'POST'])
 @get_user

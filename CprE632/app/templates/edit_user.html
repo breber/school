@@ -4,7 +4,7 @@
 {% block content %}
   <div class="jumbo">
     <div class="container">
-    <h1>Editing {{edituser.get_fullname()}}'s User: {{edituser.username}}</h1>
+    <h1>Editing {{edituser.get_fullname()}}</h1>
     <form  class="form-group" action="" method="post" name="Edit user">
       {{ form.hidden_tag() }}
         Please enter your first name:
@@ -12,14 +12,14 @@
         {% for error in form.firstname.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
-        Please choose your Military ID:
-        {{ form.military_id(class='form-control') }}
-        {% for error in form.military_id.errors %}
-        <span class="label label-danger">{{ error }}</span>
-        {% endfor %}<br>
         Please enter your last name:
         {{ form.lastname(class='form-control') }}
         {% for error in form.lastname.errors %}
+        <span class="label label-danger">{{ error }}</span>
+        {% endfor %}<br>
+        Please choose your Military ID:
+        {{ form.military_id(class='form-control') }}
+        {% for error in form.military_id.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
         Please enter your Social Security Number:

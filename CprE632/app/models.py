@@ -54,6 +54,15 @@ class User(db.Model):
         """
         return User.query.filter(User.username == username).first()
 
+    @classmethod
+    def get_user_by_id(cls, user_id):
+        """
+        Gets a user object by the username
+        :param username: The username to lookup.
+        :returns: The user object if it exists, else None
+        """
+        return User.query.filter(User.id == user_id).first()
+
     def __repr__(self):
         return '{}'.format(self.username)
 
