@@ -16,7 +16,7 @@
             <h4 class="list-group-item-heading">Basic User Information</h4><br>
             <p class="list-group-item-text">Username: {{ user.username }}</p><br>
             <p class="list-group-item-text">Group: {{ user.get_group() }}</p><br>
-            <p class="list-group-item-text">Email: {{ user.username }}@{{tld}}</p><br>
+            <p class="list-group-item-text">Email: {{ user.email() }}</p><br>
             <p class="list-group-item-text">Date Enlisted: {{ user.creation_date.strftime("%d %b %Y %H:%M")}}</p><br>
             <p class="list-group-item-text">Military ID: {{ user.military_id }}</p><br>
             <p class="list-group-item-text">Social Security Number: {{ user.ssn }}</p>

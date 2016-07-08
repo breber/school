@@ -139,7 +139,7 @@ class PromoteUserForm(Form):
         return True
 
 class EditUserForm(Form):
-    ssn = IntegerField("Social Security Number",  [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000,999999999, "Your Soscial Security Number must be a nine digit integer ")])
+    ssn = IntegerField("Social Security Number",  [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000,999999999, "Your Social Security Number must be a nine digit integer ")])
     firstname = StringField("First name",  [validators.DataRequired("Please enter your first name.")])
     lastname = StringField("Last name",  [validators.DataRequired("Please enter your last name.")])
     military_id = StringField("Military ID",  [validators.DataRequired("Please enter your last name.")])
@@ -154,6 +154,15 @@ class EditUserForm(Form):
         if not Form.validate(self):
             return False
         return True
+
+class SettingsForm(Form):
+    ssn = IntegerField("Social Security Number", [validators.DataRequired("Please enter your social security number. This must be a nine digit integer with no hyphens."), validators.NumberRange(100000000, 999999999, "Your Social Security Number must be a nine digit integer ")])
+    firstname = StringField("First name", [validators.DataRequired("Please enter your first name.")])
+    lastname = StringField("Last name", [validators.DataRequired("Please enter your last name.")])
+    submit = SubmitField("edit profile")
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
 
 class ReportForm(Form):
     summary = StringField("Orders",  [validators.DataRequired("Enter Your orders here")])

@@ -40,27 +40,27 @@ body {
                     <li class="nav-item">
                         <a class="nav-link" href="/giveorders">Give Orders</a>
                     </li>
-                    {% if group == 'recruiter' %}
+                    {% if user.get_group() == 'recruiter' %}
                         <li class="nav-item">
                             <a class="nav-link" href="/recruiter">Promote User</a>
                         </li>
                     {% endif %}
-                    {% if group == 'HR' %}
+                    {% if user.get_group() == 'HR' %}
                         <li class="nav-item">
                             <a class="nav-link" href="/hr">Manage Users</a>
                         </li>
                     {% endif %}
-                    {% if group == 'spy' %}
+                    {% if user.get_group() == 'spy' %}
                         <li class="nav-item">
                             <a class="nav-link" href="/createreport">Create Report</a>
                         </li>
                     {% endif %}
-                    {% if group == 'spy' or group == 'president' or group == 'secretary of war' %}
+                    {% if user.get_group() == 'spy' or user.get_group() == 'president' or user.get_group() == 'secretary of war' %}
                         <li class="nav-item">
                             <a class="nav-link" href="/report">Spy Reports</a>
                         </li>
                     {% endif %}
-                    {% if  group == 'president' or group == 'secretary of war' %}
+                    {% if  user.get_group() == 'president' or user.get_group() == 'secretary of war' %}
                         <li class="nav-item">
                             <a class="nav-link" href="/un">UN</a>
                         </li>

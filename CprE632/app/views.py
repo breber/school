@@ -6,6 +6,7 @@ from functools import wraps
 from sqlalchemy.exc import *
 from sqlalchemy import desc
 import flask_login
+import forms
 
 import logging
 
@@ -81,7 +82,7 @@ def signup(*args, **kwargs):
 @app.route('/profile')
 @get_user
 def profile(*args,**kwargs):
-    return render_template('profile.html', user=kwargs.get('user'), tld='mil.du')
+    return render_template('profile.html', user=kwargs.get('user'))
 
 @app.route('/users')
 @get_user
@@ -174,25 +175,30 @@ def viewuser(username ,*args ,**kwargs):
 
 @app.route('/recruiter', methods =['GET', 'POST'])
 @get_user
-def recruiter(*args ,**kwargs):
-    # TODO: verify user's group
-    group = 'recruit'
-    if group == 'recruiter':
+def recruiter(*args, **kwargs):
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() == 'recruiter':
         form = PromoteUserForm()
-        form.promote_to.choices = [(g.groupname, g.groupname) for g in Groups.query.all() ]
+        form.promote_to.choices = [(g.groupname, g.groupname) for g in Groups.get_nominatable_groups()]
         recruits = User.query.filter(User.group == Groups.query.filter(Groups.groupname == 'recruit').first().id).all()
         if request.method == 'POST':
-            if form.validate_on_submit() == False:
-                return render_template('/recruiter', form=form, recruits=recruits)
-            elif form.validate_on_submit() == True:
+            if form.validate_on_submit():
+                # TODO: update active directory groups
                 modusername = request.form.get('promote_user')
                 moduser = User.get_user_by_username(modusername)
                 moduser.group = Groups.query.filter(Groups.groupname == form.promote_to.data).first().id
                 db.session.commit()
                 return redirect(url_for('recruiter'))
-        elif request.method == 'GET':
-            return render_template('/recruiter.html', form=form, user=kwargs.get('user'),recruits=recruits)
-    return render_template('/unauthorized.html', user=kwargs.get('user'))
+
+        return render_template('/recruiter.html', form=form, user=user, recruits=recruits)
+
+    return render_template('/unauthorized.html', user=user)
 
 @app.route('/hr')
 @get_user
@@ -234,34 +240,32 @@ def edituser(id, *args ,**kwargs):
     elif request.method == 'GET':
         return render_template('/edit_user.html',user=user, edituser=edituser, form=form)
 
-@app.route('/settings', methods =['GET', 'POST'])
+@app.route('/settings', methods=['GET', 'POST'])
 @get_user
-def settings( *args ,**kwargs):
+def settings(*args, **kwargs):
     user = kwargs.get('user')
-    session = kwargs.get('session')
-    form = EditUserForm(request.form)
-    form.group.choices = [(g.id, g.groupname) for g in Groups.query.all() ]
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Only allow updating of first/last names and SSN
+    form = forms.SettingsForm(request.form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user.firstname = request.form.get('firstname')
+            user.lastname = request.form.get('lastname')
+            user.ssn = request.form.get('ssn')
+            db.session.commit()
+            return redirect(url_for('profile'))
+
     # initialize form with current data
     form.firstname.default = user.firstname.title()
     form.lastname.default = user.lastname.title()
-    form.military_id.default = user.military_id
     form.ssn.default = user.ssn
-    form.group.default = int(user.group)
     form.process()
-    if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            flash('request validation failed' )
-            return render_template('/settings.html', form=form, user=user)
-        elif form.validate_on_submit() == True:
-            user.firstname = request.form.get('firstname')
-            user.lastname = request.form.get('lastname')
-            user.military_id = request.form.get('military_id')
-            user.ssn = request.form.get('ssn')
-            user.group =  request.form.get('group')
-            db.session.commit()
-            return redirect(url_for('profile'))
-    elif request.method == 'GET':
-        return render_template('/settings.html',user=user, form=form)
+
+    return render_template('/settings.html', user=user, form=form)
 
 @app.route('/unauthorized')
 @get_user

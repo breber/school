@@ -26,6 +26,8 @@ class User(db.Model):
 
     def get_fullname(self):
         return str(self.firstname) + ' ' + str(self.lastname)
+    def email(self):
+        return '%s@mil.du' % self.username
     def get_group(self):
         return Groups.query.filter(Groups.id == self.group).first().groupname
     def get_groupid(self,id):
@@ -61,6 +63,24 @@ class Groups(db.Model):
 
     def __init__(self, groupname):
         self.groupname = groupname
+
+    @classmethod
+    def get_nominatable_groups(cls):
+        """
+        Gets all groups that users can be added to
+        """
+        all_groups = Groups.query.all()
+
+        filtered_groups = []
+        for g in all_groups:
+            if not g.groupname in ['president', 'secretary of war']:
+                filtered_groups.append(g)
+
+        return filtered_groups
+
+    def get_group(self):
+        return Groups.query.filter(Groups.id == self.group).first().groupname
+
     def __repr__(self):
         return '<group:{}>'.format(self.groupname)
 

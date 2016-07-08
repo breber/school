@@ -6,17 +6,12 @@ Settings
 
 {% block content %}
 <div class="container">
-    <h1>Editing {{user.get_fullname()}}'s User: {{user.username}}</h1>
+    <h1>Editing Profile</h1>
     <form  class="form-group" action="" method="post" name="Edit user">
         {{ form.hidden_tag() }}
         Please enter your first name:
         {{ form.firstname(class='form-control') }}
         {% for error in form.firstname.errors %}
-        <span class="label label-danger">{{ error }}</span>
-        {% endfor %}<br>
-        Please choose your Military ID:
-        {{ form.military_id(class='form-control') }}
-        {% for error in form.military_id.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
         Please enter your last name:
@@ -27,11 +22,6 @@ Settings
         Please enter your Social Security Number:
         {{ form.ssn(class='form-control') }}
         {% for error in form.ssn.errors %}
-        <span class="label label-danger">{{ error }}</span>
-        {% endfor %}<br>
-        Please select your group:<br>
-        {{ form.group(class='form-control') }}
-        {% for error in form.group.errors %}
         <span class="label label-danger">{{ error }}</span>
         {% endfor %}<br>
         <br>

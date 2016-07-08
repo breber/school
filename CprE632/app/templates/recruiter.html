@@ -13,7 +13,7 @@ Users
             <h4 class="list-group-item-heading">{{ user.get_fullname() }}</h4>
             <p class="list-group-item-text">Username: {{ user.username }}</p>
             <p class="list-group-item-text">Position: {{ user.get_group() }}</p>
-            <p class="list-group-item-text">Email: {{ user.email }}</p>
+            <p class="list-group-item-text">Email: {{ user.email() }}</p>
             <p class="list-group-item-text">Military ID: {{ user.military_id }}</p>
             <br>
             <div class="form-group">
@@ -24,7 +24,7 @@ Users
                         {% for error in form.promote_to.errors %}
                         <span class="label label-danger">{{ error }}</span>
                         {% endfor %}<br>
-                        <input id="promote_user" name="promote_user" type="hidden" value='{{ user.username }}' /> 
+                        <input id="promote_user" name="promote_user" type="hidden" value='{{ user.username }}' />
                     <input class="btn btn-primary" type="submit" value="Promote User">
                 </form>
             </div>
