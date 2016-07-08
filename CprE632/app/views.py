@@ -82,14 +82,26 @@ def signup(*args, **kwargs):
 @app.route('/profile')
 @get_user
 def profile(*args,**kwargs):
-    return render_template('profile.html', user=kwargs.get('user'))
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    return render_template('profile.html', user=user)
 
 @app.route('/users')
 @get_user
 def users(*args,**kwargs):
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
     # TODO: HR only page?
     users = User.query.all()
-    return render_template('show_users.html', users=users, user=kwargs.get('user'))
+    return render_template('show_users.html', users=users, user=user)
 
 @app.route('/orders')
 @get_user
@@ -163,7 +175,14 @@ def giveorders(*args,**kwargs):
 @app.route('/users/<username>')
 @get_user
 def viewuser(username ,*args ,**kwargs):
-    return render_template('user.html', user=kwargs.get('user'), viewuser=User.get_user_by_username(username))
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # TODO: restrict to HR?
+    return render_template('user.html', user=user, viewuser=User.get_user_by_username(username))
 
 @app.route('/recruiter', methods =['GET', 'POST'])
 @get_user
