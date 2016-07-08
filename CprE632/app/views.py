@@ -209,7 +209,7 @@ def recruiter(*args, **kwargs):
 
         return render_template('/recruiter.html', form=form, user=user, recruits=recruits)
 
-    return render_template('/unauthorized.html', user=user)
+    return make_response(redirect('/'))
 
 @app.route('/hr')
 @get_user
@@ -225,7 +225,7 @@ def hr(*args, **kwargs):
         # TODO: all users? how does spy work?
         return render_template('/hr.html', user=user, users=User.query.all())
 
-    return render_template('/unauthorized.html', user=user)
+    return make_response(redirect('/'))
 
 @app.route('/hr/<id>', methods=['GET', 'POST'])
 @get_user
@@ -262,7 +262,7 @@ def edituser(id, *args ,**kwargs):
 
         return render_template('/edit_user.html', user=user, edituser=edituser, form=form)
 
-    return render_template('/unauthorized.html', user=user)
+    return make_response(redirect('/'))
 
 @app.route('/settings', methods=['GET', 'POST'])
 @get_user
@@ -291,87 +291,121 @@ def settings(*args, **kwargs):
 
     return render_template('/settings.html', user=user, form=form)
 
-@app.route('/unauthorized')
-@get_user
-def unauthorized(*args, **kwargs):
-    return render_template('/unauthorized.html', user=kwargs.get('user'))
-
-@app.route('/createreport', methods =['GET', 'POST'])
+@app.route('/createreport', methods=['GET', 'POST'])
 @get_user
 def createreport(*args, **kwargs):
     user = kwargs.get('user')
-    form=ReportForm()
-    # TODO: verify group
-    group = 'recruit'
-    if group == 'spy':
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() == 'spy':
+        form = ReportForm()
         if request.method == 'POST':
-            if form.validate_on_submit() == False:
-                return render_template('/create_report.html', form=form)
-            elif form.validate_on_submit() == True:
-                newreport = Report( user.username, form.summary.data)
+            if form.validate_on_submit():
+                newreport = Report(user.username, form.summary.data)
                 db.session.add(newreport)
                 db.session.commit()
                 return redirect('/report')
-                return render_template('view_reports.html', reports=Report.query.filter(Report.username==user.username),user=user)
-        elif request.method == 'GET':
-            return render_template('create_report.html', form=form,user=user)
-    return render_template('/unauthorized.html', user=user)
+        return render_template('create_report.html', form=form, user=user)
+
+    return make_response(redirect('/'))
 
 @app.route('/report')
 @get_user
-def report(*args,**kwargs):
+def report(*args, **kwargs):
     user = kwargs.get('user')
-    # TODO: verify group
-    group = 'recruit'
-    if group == 'spy' or group == "secretary of war" or group == "president":
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() in ['spy', 'secretary of war', 'president']:
         return render_template('/view_reports.html', reports=Report.query.order_by(desc(Report.date)).all(), user=user)
-    return render_template('/unauthorized.html', user=user)
+
+    return make_response(redirect('/'))
 
 @app.route('/report/<id>')
 @get_user
 def viewreport(id,*args,**kwargs):
     user = kwargs.get('user')
-    report = Report.query.filter(Report.id == id).first()
-    return render_template('/view_report.html', report=report, user=user)
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() in ['spy', 'secretary of war', 'president']:
+        report = Report.query.filter(Report.id == id).first()
+        return render_template('/view_report.html', report=report, user=user)
+
+    return make_response(redirect('/'))
 
 @app.route('/un/')
 @get_user
 def un_messages(*args, **kwargs):
     user = kwargs.get('user')
-    try:
-        messages = utils.get_messages()
-    except:
-        messages = None
-    # TODO: verify group
-    group = 'recruit'
-    if group == "secretary of war" or group == "president":
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() in ['secretary of war', 'president']:
+        try:
+            messages = utils.get_messages()
+        except:
+            messages = None
         return render_template('un_msg_list.html', user=user, messages=messages)
-    return render_template('/unauthorized.html', user=user)
+
+    return make_response(redirect('/'))
 
 @app.route('/un/new/', methods=['GET', 'POST'])
 @get_user
 def un_new_msg(*args, **kwargs):
     user = kwargs.get('user')
 
-    form = UNMessageForm()
-    #form.process()
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
 
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            mtype = form.type.data
-            body = form.body.data
-            destination = form.destination.data
-            utils.post_message(body, destination, type=mtype)
-            return redirect(url_for('un_messages'))
+    # Verify user's group
+    if user.get_group() in ['secretary of war', 'president']:
+        form = UNMessageForm()
 
-    return render_template('un_msg_new.html', user=user, form=form)
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                mtype = form.type.data
+                body = form.body.data
+                destination = form.destination.data
+                try:
+                    utils.post_message(body, destination, type=mtype)
+                    return redirect(url_for('un_messages'))
+                except:
+                    logging.warn('error sending message to UN')
+
+        return render_template('un_msg_new.html', user=user, form=form)
+
+    return make_response(redirect('/'))
 
 @app.route('/un/<id>/')
 @get_user
 def un_details(id, *args, **kwargs):
     user = kwargs.get('user')
-    try:
-        message = utils.get_message(id)
-    except:
-        message = None
-    return render_template('un_msg_detail.html', user=user, message=message)
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Verify user's group
+    if user.get_group() in ['secretary of war', 'president']:
+        try:
+            message = utils.get_message(id)
+        except:
+            message = None
+        return render_template('un_msg_detail.html', user=user, message=message)
+
+    return make_response(redirect('/'))

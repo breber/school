@@ -155,17 +155,10 @@ class SettingsForm(Form):
         Form.__init__(self, *args, **kwargs)
 
 class ReportForm(Form):
-    summary = StringField("Orders",  [validators.DataRequired("Enter Your orders here")])
+    summary = StringField("Orders", [validators.DataRequired("Enter Your orders here")])
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        return True
-
-
 
 class UNMessageForm(Form):
     MESSAGE_TYPES = [
