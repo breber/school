@@ -67,10 +67,10 @@ class LoginForm(Form):
                         user.group = group_obj.id
                         logging.warn('group_id: %s' % (user.group))
 
-        except ldap.INVALID_CREDENTIALS:
+        except ldap3.core.exceptions.LDAPInvalidCredentialsResult:
             logging.warning("Invalid Credentials")
             user = None
-        except ldap.SERVER_DOWN:
+        except ldap3.core.exceptions.LDAPException:
             logging.warning("Server down...")
             user = None
 

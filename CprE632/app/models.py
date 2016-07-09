@@ -1,4 +1,4 @@
-from app import db
+from app import app, db
 import datetime
 import random
 import string
@@ -78,7 +78,7 @@ class User(db.Model):
         #     group = ''
         #
         #     server = ldap3.Server('ldap://192.168.1.6')
-        #     conn = ldap3.Connection(server, user='webserver@int.mil.du', password=app.config['webserver_pass'], auto_bind=True)
+        #     conn = ldap3.Connection(server, user='webserver@int.mil.du', password=app.config['WEBSERVER_PASS'], auto_bind=True)
         #     logging.warn('server: %s' % server)
         #     if conn.search('DC=int,DC=mil,DC=du', '(sAMAccountName=' + username + ')', attributes=['memberOf']):
         #         logging.warn('entries: %s' % conn.entries)
@@ -127,9 +127,8 @@ class User(db.Model):
     @classmethod
     def change_group(cls, username, new_group):
         user = User.get_user_by_username(username)
-        user.group = Groups.query.filter(Groups.groupname == new_group).first().id
-        db.session.commit()
 
+        modify_res = False
         import ldap3
         try:
             isActive = False
@@ -143,30 +142,52 @@ class User(db.Model):
                 'secretary of war': 'CN=Duloc Secretary of War,CN=Users,DC=int,DC=mil,DC=du',
             }
             server = ldap3.Server('ldap://192.168.1.6')
-            conn = ldap3.Connection(server, user='webserver@int.mil.du', password=app.config['webserver_pass'], auto_bind=True)
-            logging.warn('server: %s' % server)
+            conn = ldap3.Connection(server, user='webserver@int.mil.du', password=app.config['WEBSERVER_PASS'], auto_bind=True)
+
+            # First find which groups the user is a member of
             if conn.search('DC=int,DC=mil,DC=du', '(sAMAccountName=' + username + ')', attributes=['memberOf']):
                 logging.warn('existing_entries: %s' % conn.entries)
                 if len(conn.entries) == 1:
-                    modifications = {
-                        'memberOf': [
-                            (ldap3.MODIFY_REPLACE, [
-                                group_names[new_group],
-                                'CN=Duloc Users,CN=Users,DC=int,DC=mil,DC=du'
+                    # Figure out what group the user is currently in
+                    remove_group = ''
+                    for g in conn.entries[0].memberOf:
+                        group_name = str(g)
+                        if not "CN=Duloc Users," in group_name and not group_names[new_group] in group_name:
+                            remove_group = group_name
+
+                    # Add user to new group
+                    add_modifications = {
+                        'member': [
+                            (ldap3.MODIFY_ADD, [
+                                'CN=%s,CN=Users,DC=int,DC=mil,DC=du' % username
                             ])
                         ]
                     }
-                    conn.modify(username + '@int.mil.du', modifications)
+                    modify_res = conn.modify(group_names[new_group], add_modifications)
+
+                    # Remove user from old group
+                    remove_modifications = {
+                        'member': [
+                            (ldap3.MODIFY_DELETE, [
+                                'CN=%s,CN=Users,DC=int,DC=mil,DC=du' % username
+                            ])
+                        ]
+                    }
+                    modify_res = modify_res and conn.modify(remove_group, remove_modifications)
 
             if conn.search('DC=int,DC=mil,DC=du', '(sAMAccountName=' + username + ')', attributes=['memberOf']):
                 logging.warn('new_entries: %s' % conn.entries)
 
-        except ldap.INVALID_CREDENTIALS:
+        except ldap3.core.exceptions.LDAPInvalidCredentialsResult:
             logging.warning("Invalid Credentials")
-            user = None
-        except ldap.SERVER_DOWN:
-            logging.warning("Server down...")
-            user = None
+        except ldap3.core.exceptions.LDAPException:
+            logging.warning("other exception")
+
+        if modify_res:
+            user.group = Groups.query.filter(Groups.groupname == new_group).first().id
+            db.session.commit()
+
+        return modify_res
 
     def __repr__(self):
         return '{}'.format(self.username)

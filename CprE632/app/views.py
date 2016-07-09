@@ -255,7 +255,9 @@ def edituser(id, *args ,**kwargs):
                 edituser.military_id = request.form.get('military_id')
                 edituser.ssn = request.form.get('ssn')
                 edituser.group =  request.form.get('group')
-                db.session.commit()
+                group = Groups.query.filter(Groups.id == request.form.get('group')).first()
+                if group and User.change_group(edituser.username, group.groupname):
+                    db.session.commit()
                 return redirect(url_for('hr'))
 
         # initialize form with current data

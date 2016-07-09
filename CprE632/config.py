@@ -8,7 +8,7 @@ WTF_CSRF_ENABLED = False
 
 COUNTRY_NAME = 'Duloc'
 
-webserver_pass = 'thepasswordtochangepasswords'
+WEBSERVER_PASS = 'thepasswordtochangepasswords'
 
 # UN Settings
 UN_NATION_KEY = 'prd5eXc+KWZ/J+uaHRqu3A=='
