@@ -105,27 +105,15 @@ class SignupForm(Form):
         return True
 
 class OrdersForm(Form):
-    orders = StringField("Orders",  [validators.DataRequired("Enter Your orders here")], widget=TextArea())
-    issued_for = SelectField(u'User',coerce=str)
+    orders = StringField("Orders", [validators.DataRequired("Enter Your orders here")], widget=TextArea())
+    issued_for = SelectField("User", coerce=str)
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        return True
-
 
 class CompleteOrderForm(Form):
-
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
-
-    def validate(self):
-        if not Form.validate(self):
-            return False
-        return True
 
 class PromoteUserForm(Form):
     promote_to = SelectField("Role", coerce=str)

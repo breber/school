@@ -9,12 +9,6 @@ import requests
 from app import app
 from app.forms import UNMessageForm
 
-
-def authenticate(scopes):
-    # TODO: Implement
-    pass
-
-
 def get_messages(key=None, count=None, since=None):
     """
     Get the message list for this nation from the UN

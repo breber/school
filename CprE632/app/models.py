@@ -30,8 +30,6 @@ class User(db.Model):
         return '%s@mil.du' % self.username
     def get_group(self):
         return Groups.query.filter(Groups.id == self.group).first().groupname
-    def get_groupid(self,id):
-        return Groups.query.filter(Groups.id == id).first().groupname
 
     """
     For flask_login

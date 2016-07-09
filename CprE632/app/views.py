@@ -118,38 +118,48 @@ def orders(*args,**kwargs):
     number_of_new_orders = Orders.query.filter(Orders.issued_for == user.username, Orders.seen == False).count()
     return render_template('orders.html', user=user, orders_issued=orders_issued, orders_received=orders_received, number_of_new_orders=number_of_new_orders, new_orders_received=new_orders_received)
 
-@app.route('/order/<id>', methods =['GET', 'POST'])
+@app.route('/order/<id>', methods=['GET', 'POST'])
 @get_user
-def order(id ,*args ,**kwargs):
-    order = Orders.query.filter(Orders.id == id).first()
-    order.seen = True
-    db.session.commit()
-    form = CompleteOrderForm()
-    if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            return redirect('order/' + str(order.id))
-        else:
-            order.mark_completed()
-            db.session.commit()
-            return redirect('order/' + str(order.id))
-    elif request.method == 'GET':
+def order(id, *args, **kwargs):
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    order = Orders.query.filter(Orders.id == id, Orders.issued_for == user.username).first()
+    if order:
+        order.seen = True
+        form = CompleteOrderForm()
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                order.mark_completed()
+        db.session.commit()
+
         return render_template('order.html', order=order, form=form, user=kwargs.get('user'))
 
-@app.route('/vieworder/<id>', methods =['GET', 'POST'])
+    return make_response(redirect('/orders'))
+
+@app.route('/vieworder/<id>', methods=['GET', 'POST'])
 @get_user
-def vieworder(id ,*args ,**kwargs):
-    order = Orders.query.filter(Orders.id == id).first()
-    form = CompleteOrderForm()
-    if request.method == 'POST':
-        if form.validate_on_submit() == False:
-            return redirect('order/' + str(order.id))
-        else:
-            order.mark_completed()
-            db.session.commit()
-            return redirect('order/' + str(order.id))
-        # mark post as completed
-    elif request.method == 'GET':
+def vieworder(id, *args, **kwargs):
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    order = Orders.query.filter(Orders.id == id, Orders.issued_by == user.username).first()
+    if order:
+        form = CompleteOrderForm()
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                order.mark_completed()
+                db.session.commit()
+
         return render_template('order.html', order=order, form=form, user=kwargs.get('user'))
+
+    return make_response(redirect('/orders'))
 
 @app.route('/giveorders', methods =['GET', 'POST'])
 @get_user
