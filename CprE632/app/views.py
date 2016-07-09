@@ -67,21 +67,18 @@ def signup(*args, **kwargs):
         if not form.validate_on_submit():
             return render_template('signup.html', title='Signup', form=form)
         else:
-            # TODO: add user to active directory
-            newuser = User(request.form.get('username'),
-                           request.form.get('firstname'),
-                           request.form.get('lastname'),
-                           Groups.query.filter(Groups.groupname == 'recruit').first().id,
-                           request.form.get('ssn'))
-            db.session.add(newuser)
-            db.session.commit()
+            User.new_user(request.form.get('username'),
+                          request.form.get('firstname'),
+                          request.form.get('lastname'),
+                          request.form.get('password'),
+                          request.form.get('ssn'))
             return redirect(url_for('login'))
     elif request.method == 'GET':
         return render_template('signup.html', form=form)
 
 @app.route('/profile')
 @get_user
-def profile(*args,**kwargs):
+def profile(*args, **kwargs):
     user = kwargs.get('user')
 
     # If the user is not logged in, redirect to home
@@ -92,20 +89,35 @@ def profile(*args,**kwargs):
 
 @app.route('/users')
 @get_user
-def users(*args,**kwargs):
+def users(*args, **kwargs):
     user = kwargs.get('user')
 
     # If the user is not logged in, redirect to home
     if not user:
         return make_response(redirect('/'))
 
-    # TODO: HR only page?
     users = User.query.all()
     return render_template('show_users.html', users=users, user=user)
 
+@app.route('/users/<username>')
+@get_user
+def viewuser(username, *args, **kwargs):
+    user = kwargs.get('user')
+
+    # If the user is not logged in, redirect to home
+    if not user:
+        return make_response(redirect('/'))
+
+    # Only show spy information for president and secretary of war
+    view_user = User.get_user_by_username(username)
+    if view_user.get_group() == 'spy' and not user.get_group() in ['president', 'secretary of war']:
+        return make_response(redirect('/users'))
+
+    return render_template('user.html', user=user, viewuser=view_user)
+
 @app.route('/orders')
 @get_user
-def orders(*args,**kwargs):
+def orders(*args, **kwargs):
     user = kwargs.get('user')
 
     # If the user is not logged in, redirect to home
@@ -182,18 +194,6 @@ def giveorders(*args,**kwargs):
 
     return render_template('giveorders.html', form=form, user=kwargs.get('user'))
 
-@app.route('/users/<username>')
-@get_user
-def viewuser(username ,*args ,**kwargs):
-    user = kwargs.get('user')
-
-    # If the user is not logged in, redirect to home
-    if not user:
-        return make_response(redirect('/'))
-
-    # TODO: restrict to HR?
-    return render_template('user.html', user=user, viewuser=User.get_user_by_username(username))
-
 @app.route('/recruiter', methods =['GET', 'POST'])
 @get_user
 def recruiter(*args, **kwargs):
@@ -210,11 +210,7 @@ def recruiter(*args, **kwargs):
         recruits = User.query.filter(User.group == Groups.query.filter(Groups.groupname == 'recruit').first().id).all()
         if request.method == 'POST':
             if form.validate_on_submit():
-                # TODO: update active directory groups
-                modusername = request.form.get('promote_user')
-                moduser = User.get_user_by_username(modusername)
-                moduser.group = Groups.query.filter(Groups.groupname == form.promote_to.data).first().id
-                db.session.commit()
+                User.change_group(request.form.get('promote_user'), form.promote_to.data)
                 return redirect(url_for('recruiter'))
 
         return render_template('/recruiter.html', form=form, user=user, recruits=recruits)

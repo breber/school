@@ -8,6 +8,8 @@ WTF_CSRF_ENABLED = False
 
 COUNTRY_NAME = 'Duloc'
 
+webserver_pass = 'thepasswordtochangepasswords'
+
 # UN Settings
 UN_NATION_KEY = 'prd5eXc+KWZ/J+uaHRqu3A=='
 UN_URL = 'http://un.hq.net' # NO TRAILING SLASH

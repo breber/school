@@ -95,6 +95,7 @@
         {% endfor %}
         </div>
 
+        {% if user.get_group() in ["president", "secretary of war"] %}
         <h2>Spys</h2>
         <div class="container bg-inverse">
         <br>
@@ -116,6 +117,7 @@
             {% endif %}
         {% endfor %}
         </div>
+        {% endif %}
 
         <h2>President</h2>
         <div class="container bg-inverse">
