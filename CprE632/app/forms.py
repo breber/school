@@ -70,9 +70,6 @@ class LoginForm(Form):
         except ldap3.core.exceptions.LDAPInvalidCredentialsResult:
             logging.warning("Invalid Credentials")
             user = None
-        except ldap3.core.exceptions.LDAPException:
-            logging.warning("Server down...")
-            user = None
 
         if user:
             db.session.commit()
