@@ -25,21 +25,21 @@ db.session.add(models.Groups('secretary of war'))
 
 #Recruit
 username = 'ewallace'
-ssn = 0
+ssn = 613764692
 firstname = 'Eli'
 lastname = 'Wallace'
 db.session.add( models.User( username , firstname , lastname, 1 , ssn))
 
 #Recruit
 username = 'carmstrong'
-ssn = 1
+ssn = 637561069
 firstname = 'Chloe'
 lastname = 'Armstrong'
 db.session.add( models.User( username , firstname , lastname, 1 , ssn))
 
 #Recruiter
 username='dtelford'
-ssn = 2
+ssn = 658537012
 firstname = 'David'
 lastname = 'Telford'
 db.session.add( models.User( username , firstname , lastname, 2 , ssn))
@@ -47,53 +47,53 @@ db.session.add( models.User( username , firstname , lastname, 2 , ssn))
 
 #Soldier
 username='rgreer'
-ssn = 3
+ssn = 032046456
 firstname = 'Ronald'
 lastname = 'Greer'
 db.session.add( models.User( username , firstname , lastname, 3 , ssn))
 
 #Soldier
 username='mscott'
-ssn = 4
+ssn = 694207082
 firstname = 'Matthew'
 lastname = 'Scott'
 db.session.add( models.User( username , firstname , lastname, 3 , ssn))
 
 #HR
 username='cwray'
-ssn = 5
+ssn = 767163994
 firstname = 'Camile'
 lastname = 'Wray'
 db.session.add( models.User( username , firstname , lastname, 4 , ssn))
 
 #President
 username='hhayes'
-ssn = 6
+ssn = 191631206
 firstname = 'Henry'
 lastname = 'Hayes'
 db.session.add( models.User( username , firstname , lastname, 6 , ssn))
 
 #Secretary Of War
 username='eyoung'
-ssn = 7
+ssn = 252967475
 firstname = 'Everett'
 lastname = 'Young'
 db.session.add( models.User( username , firstname , lastname, 7 , ssn))
 
 #spy
 spyusername = 'blacktop'
-ssn = 8
-firstname = '[[USERS FIRST NAME]]'
-lastname = '[[USERS LAST NAME]]'
+ssn = 745592934
+firstname = 'Marylou'
+lastname = 'Waters'
 db.session.add( models.User( spyusername , firstname , lastname, 5 , ssn))
 
 #initilize reports
 #format Report(username, mission summary)
 report_flag = '[[INPUT REPORT FLAG HERE]]'
-mission_details = '[[write your own mission report for this users first mission]]'
+mission_details = 'Your mission is to find any secret information abou other countries.'
 mission_details = mission_details + 'During my mission I found the following code I\'m not sure what it means but maybe our staff will be able to decode it. ' + report_flag
 db.session.add( models.Report( spyusername , mission_details))
-mission_details = '[[write your own mission report for this users second mission]]'
+mission_details = 'I was able to find some other secret information as well!'
 db.session.add( models.Report( spyusername , mission_details))
 
 #initilize orders
