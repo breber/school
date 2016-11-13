@@ -1,5 +1,5 @@
-#CC=sslittle-na-sstrix-gcc
-CC=gcc
+CC=sslittle-na-sstrix-gcc
+#CC=gcc
 OUT=out
 ALL=impl1 impl2 impl3 impl4 impl5 impl6 impl7
 
@@ -28,13 +28,13 @@ impl7: dircreate
 	${CC} -o ${OUT}/implementation7 implementation7.c
 
 run: ${ALL}
-	sim-outorder ${OUT}/implementation1
-	sim-outorder ${OUT}/implementation2
-	sim-outorder ${OUT}/implementation3
-	sim-outorder ${OUT}/implementation4
-	sim-outorder ${OUT}/implementation5
-	sim-outorder ${OUT}/implementation6
-	sim-outorder ${OUT}/implementation7
+	sim-outorder ${OUT}/implementation1 > ${OUT}/impl1_res.txt
+	sim-outorder ${OUT}/implementation2 > ${OUT}/impl2_res.txt
+	sim-outorder ${OUT}/implementation3 > ${OUT}/impl3_res.txt
+	sim-outorder ${OUT}/implementation4 > ${OUT}/impl4_res.txt
+	sim-outorder ${OUT}/implementation5 > ${OUT}/impl5_res.txt
+	sim-outorder ${OUT}/implementation6 > ${OUT}/impl6_res.txt
+	sim-outorder ${OUT}/implementation7 > ${OUT}/impl7_res.txt
 
 all: ${ALL}
 
