@@ -82,11 +82,6 @@ void readPPMImage(FILE* f, struct image *image_ptr) {
     }
 }
 
-/**
- * Writes the PPM image to stdout
- *
- * @param  *image_ptr - the image struct containing the data to be written to ppm
- */
 void writePPMImage(FILE* f, struct image *image_ptr) {
     int i = 0;
 
@@ -105,53 +100,37 @@ void writePPMImage(FILE* f, struct image *image_ptr) {
     }
 }
 
-/**
- * Gets the adjusted color value with the given percentage and max val
- *
- * @param  percentage - the percentage to darken the image by
- * @param  maxVal - the maximum value each pixel can hold
- * @param  currentVal - the current color value
- */
-unsigned short int getAdjustedValue(double percentage, int maxVal, unsigned short int currentVal) {
-    if (currentVal + ((maxVal - currentVal) * percentage) > maxVal) {
-        return maxVal;
-    } else {
-        return currentVal + ((maxVal - currentVal) * percentage);
+#ifndef MIN
+    #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#endif
+#define ADJUST(percentage, maxVal, currentVal) MIN(currentVal + ((maxVal - currentVal) * percentage), maxVal);
+
+void lighten(float percentage, int numPixels, int maxVal, struct pixel *data) {
+    int i;
+
+    for (i = 0; i < numPixels; i++) {
+        data[i].red = ADJUST(percentage, maxVal, data[i].red);
+        data[i].green = ADJUST(percentage, maxVal, data[i].green);
+        data[i].blue = ADJUST(percentage, maxVal, data[i].blue);
     }
 }
 
-/**
- * Lightens each pixel in data by the given percentage
- *
- * @param  percentage - the percentage to darken the image by
- * @param  numPixels - the total number of pixels in the image
- * @param  maxVal - the maximum value each pixel can hold
- * @param  *data - the image (pixel) data
- */
-void lighten(int percentage, int numPixels, int maxVal, struct pixel *data) {
-    int i;
-    double perc = percentage / 100.0;
-    
-    if (percentage == 0) {
-        return;
-    }
-    
-    for (i = 0; i < numPixels; i++) {
-        data[i].red = getAdjustedValue(perc, maxVal, data[i].red);
-        data[i].green = getAdjustedValue(perc, maxVal, data[i].green);
-        data[i].blue = getAdjustedValue(perc, maxVal, data[i].blue);
-    }
-}
+/*
+    To investigate:
+
+    * List vs contiguous memory
+    * Pipeline processing (write and apply at same time)
+    * Use int8 instead of int
+*/
 
 int main(int argc, char *argv[]) {
     struct image image;
-    int percentage = 25;
-    FILE* inFile = fopen("/home/breber/Downloads/PANO_20151031_113743_full.ppm", "r");
-    FILE* outFile = fopen("/home/breber/Downloads/PANO_20151031_113743_full_out.ppm", "w");
+    FILE* inFile = fopen("/home/breber/Downloads/in.ppm", "r");
+    FILE* outFile = fopen("/home/breber/Downloads/out.ppm", "w");
 
     readPPMImage(inFile, &image);
-    lighten(percentage, image.imWidth * image.imHeight, image.maxVal, image.data);
+    lighten(25 / 100.0f, image.imWidth * image.imHeight, image.maxVal, image.data);
     writePPMImage(outFile, &image);
-    
+
     return 0;
 }

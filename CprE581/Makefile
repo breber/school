@@ -5,7 +5,10 @@ pc:
 	gcc -o main-pc main.c
 
 run-pc: pc
-	sim-outorder main-pc 25
+	./main-pc
 
 run: main
-	sim-outorder main 25
+	sim-outorder main
+
+convert:
+	convert foo.ppm -compress none bar.ppm
