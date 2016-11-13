@@ -1,14 +1,25 @@
-all:
-	sslittle-na-sstrix-gcc -o main main.c
+CC=sslittle-na-sstrix-gcc
+OUT=out
+ALL=impl1 impl2 impl3
 
-pc:
-	gcc -o main-pc main.c
+dircreate:
+	mkdir -p ${OUT}
 
-run-pc: pc
-	./main-pc
+impl1: dircreate
+	${CC} -o ${OUT}/implementation1 implementation1.c
 
-run: main
-	sim-outorder main
+impl2: dircreate
+	${CC} -o ${OUT}/implementation2 implementation2.c
+
+impl3: dircreate
+	${CC} -o ${OUT}/implementation3 implementation3.c
+
+run: ${ALL}
+	sim-outorder ${OUT}/implementation1
+	sim-outorder ${OUT}/implementation2
+	sim-outorder ${OUT}/implementation3
+
+all: ${ALL}
 
 convert:
 	convert foo.ppm -compress none bar.ppm

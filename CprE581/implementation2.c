@@ -3,6 +3,10 @@
 
     Load a text based PPM file (P3), perform some processing
     on it, and then write it out again.
+
+    * Load image into contiguous block of memory
+    * Process the image in memory order (column order)
+    * Write out the image
 */
 
 #include <stdio.h>
@@ -105,23 +109,20 @@ void writePPMImage(FILE* f, struct image *image_ptr) {
 #endif
 #define ADJUST(percentage, maxVal, currentVal) MIN(currentVal + ((maxVal - currentVal) * percentage), maxVal);
 
-void lighten(float percentage, int numPixels, int maxVal, struct pixel *data) {
-    int i;
+void lighten(float percentage, struct image* image) {
+    int column;
 
-    for (i = 0; i < numPixels; i++) {
-        data[i].red = ADJUST(percentage, maxVal, data[i].red);
-        data[i].green = ADJUST(percentage, maxVal, data[i].green);
-        data[i].blue = ADJUST(percentage, maxVal, data[i].blue);
+    for (column = 0; column < image->imWidth; ++column) {
+        int row;
+        for (row = 0; row < image->imHeight; ++row) {
+            int index = row * image->imWidth + column;
+
+            image->data[index].red = ADJUST(percentage, image->maxVal, image->data[index].red);
+            image->data[index].green = ADJUST(percentage, image->maxVal, image->data[index].green);
+            image->data[index].blue = ADJUST(percentage, image->maxVal, image->data[index].blue);
+        }
     }
 }
-
-/*
-    To investigate:
-
-    * List vs contiguous memory
-    * Pipeline processing (write and apply at same time)
-    * Use int8 instead of int
-*/
 
 int main(int argc, char *argv[]) {
     struct image image;
@@ -129,7 +130,7 @@ int main(int argc, char *argv[]) {
     FILE* outFile = fopen("/home/breber/Downloads/out.ppm", "w");
 
     readPPMImage(inFile, &image);
-    lighten(25 / 100.0f, image.imWidth * image.imHeight, image.maxVal, image.data);
+    lighten(25 / 100.0f, &image);
     writePPMImage(outFile, &image);
 
     return 0;

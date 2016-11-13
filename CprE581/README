@@ -1,0 +1,27 @@
+Readme
+
+The purpose of this application is to process a PPM (P3) image and perform an 
+operation on the image (in this case lightening each pixel). There will be
+several implementations, and the goal is to see how each implementation performs
+in terms of processor/memory/cache performance.
+
+Below is a list of each implementation:
+
+1. Contiguous memory storage (row order)
+    * Load image into contiguous block of memory
+    * Process the image in memory order (row order)
+    * Write out the image
+2. Contiguous memory storage (column order)
+    * Load image into contiguous block of memory
+    * Process the image in less ideal order (column order)
+    * Write out the image
+3. Pipeline Process (process and write pixel by pixel instead of reading in whole image first)
+    * Read pixel from file
+    * Process the pixel
+    * Write out the pixel
+
+
+TODO:
+* List vs contiguous memory
+* x by y, instead of single array
+* Use int8 instead of int
