@@ -19,9 +19,11 @@ Below is a list of each implementation:
     * Read pixel from file
     * Process the pixel
     * Write out the pixel
-
+4. Contiguous memory storage (row order, using smaller data types)
+    * Load image into contiguous block of memory (each pixel color stored as 8-bit int)
+    * Process the image in less ideal order (column order)
+    * Write out the image
 
 TODO:
 * List vs contiguous memory
 * x by y, instead of single array
-* Use int8 instead of int
