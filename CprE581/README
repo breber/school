@@ -1,6 +1,6 @@
 Readme
 
-The purpose of this application is to process a PPM (P3) image and perform an 
+The purpose of this application is to process a PPM (P3) image and perform an
 operation on the image (in this case lightening each pixel). There will be
 several implementations, and the goal is to see how each implementation performs
 in terms of processor/memory/cache performance.
@@ -21,9 +21,16 @@ Below is a list of each implementation:
     * Write out the pixel
 4. Contiguous memory storage (row order, using smaller data types)
     * Load image into contiguous block of memory (each pixel color stored as 8-bit int)
-    * Process the image in less ideal order (column order)
+    * Process the image in row/memory order
+    * Write out the image
+5. 2D storage (as opposed to single contiguous block) (row order)
+    * Load image into memory, stored row by row
+    * Process the image in row order
+    * Write out the image
+6. 2D storage (as opposed to single contiguous block) (column order)
+    * Load image into memory, stored row by row
+    * Process the image in column order
     * Write out the image
 
 TODO:
-* List vs contiguous memory
-* x by y, instead of single array
+* List vs contiguous memory?
