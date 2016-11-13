@@ -31,6 +31,7 @@ Below is a list of each implementation:
     * Load image into memory, stored row by row
     * Process the image in column order
     * Write out the image
-
-TODO:
-* List vs contiguous memory?
+7. Linked list storage (as opposed to single contiguous block)
+    * Load image into memory, stored as a linked list of pixels
+    * Process the image in list order
+    * Write out the image
