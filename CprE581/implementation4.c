@@ -6,7 +6,7 @@
 
     Contiguous memory storage (row order, using smaller data types)
     * Load image into contiguous block of memory (each pixel color stored as 8-bit int)
-    * Process the image in less ideal order (column order)
+    * Process the image in memory order (row order)
     * Write out the image
 */
 
@@ -33,10 +33,10 @@ void readPPMImage(FILE* f, struct image *image_ptr) {
     ssize_t read;
     int pixelIndex = 0;
     int colorIndex = 0;
-    
+
     /* The "Magic" string */
     getline(&line, &len, f);
-    
+
     /* Image width and height */
     getline(&line, &len, f);
     {
@@ -48,7 +48,7 @@ void readPPMImage(FILE* f, struct image *image_ptr) {
             } else {
                 image_ptr->imHeight = atoi(token);
             }
-            widthHeightIndex = widthHeightIndex + 1;            
+            widthHeightIndex = widthHeightIndex + 1;
             token = strtok(NULL, " ");
         }
     }
@@ -56,14 +56,14 @@ void readPPMImage(FILE* f, struct image *image_ptr) {
     /* Max val */
     getline(&line, &len, f);
     image_ptr->maxVal = atoi(line);
-    
+
     /* Need to eat the single whitespace character so it doesn't mess up the image data */
     getc(f);
 
     /* allocate and zero out the image data */
     image_ptr->data = (struct pixel *) malloc(image_ptr->imWidth * image_ptr->imHeight * sizeof(struct pixel));
     memset(image_ptr->data, 0, image_ptr->imWidth * image_ptr->imHeight * sizeof(struct pixel));
-    
+
     /* read the file line by line, pixel by pixel and populate the image data */
     while ((read = getline(&line, &len, f)) != -1) {
         char *token = strtok(line, " ");
@@ -81,7 +81,7 @@ void readPPMImage(FILE* f, struct image *image_ptr) {
                 pixelIndex = (pixelIndex + 1);
                 colorIndex = 0;
             }
-            
+
             token = strtok(NULL, " ");
         }
     }
@@ -93,13 +93,13 @@ void writePPMImage(FILE* f, struct image *image_ptr) {
     /* The "Magic" character */
     fprintf(f, "P3");
     fprintf(f, "\n");
-    
+
     /* Height and Width */
-    fprintf(f, "%d %d\n", image_ptr->imWidth, image_ptr->imHeight); 
-    
+    fprintf(f, "%d %d\n", image_ptr->imWidth, image_ptr->imHeight);
+
     /* Maxval */
     fprintf(f, "%d\n", image_ptr->maxVal);
-    
+
     for (i = 0; i < image_ptr->imWidth * image_ptr->imHeight; i++) {
         fprintf(f, "%d %d %d\n", image_ptr->data[i].red, image_ptr->data[i].green, image_ptr->data[i].blue);
     }
@@ -113,7 +113,7 @@ void writePPMImage(FILE* f, struct image *image_ptr) {
 void lighten(float percentage, struct image* image) {
     int row;
 
-    for (row = 0; row < image->imHeight; ++row) {    
+    for (row = 0; row < image->imHeight; ++row) {
         int column;
         for (column = 0; column < image->imWidth; ++column) {
             int index = row * image->imWidth + column;

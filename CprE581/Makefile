@@ -2,6 +2,7 @@ CC=sslittle-na-sstrix-gcc
 #CC=gcc
 OUT=out
 ALL=impl1 impl2 impl3 impl4 impl5 impl6 impl7
+CACHE_CONFIG=-cache:il1 il1:128:64:1:l -cache:il2 dl2 -cache:dl1 dl1:128:32:1:l -cache:dl2 ul2:256:64:2:l
 
 dircreate:
 	mkdir -p ${OUT}
@@ -29,13 +30,13 @@ impl7: dircreate
 	${CC} -o ${OUT}/implementation7 implementation7.c
 
 run: ${ALL}
-	sim-outorder ${OUT}/implementation1 2> results/impl1_res.txt
-	sim-outorder ${OUT}/implementation2 2> results/impl2_res.txt
-	sim-outorder ${OUT}/implementation3 2> results/impl3_res.txt
-	sim-outorder ${OUT}/implementation4 2> results/impl4_res.txt
-	sim-outorder ${OUT}/implementation5 2> results/impl5_res.txt
-	sim-outorder ${OUT}/implementation6 2> results/impl6_res.txt
-	sim-outorder ${OUT}/implementation7 2> results/impl7_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation1 2> results/impl1_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation2 2> results/impl2_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation3 2> results/impl3_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation4 2> results/impl4_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation5 2> results/impl5_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation6 2> results/impl6_res.txt
+	sim-outorder ${CACHE_CONFIG} ${OUT}/implementation7 2> results/impl7_res.txt
 
 all: ${ALL}
 
